@@ -1,0 +1,101 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "freeze",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0.7916666666666666,
+  "sample": 24,
+  "speed": 1,
+  "wrapMode": 1,
+  "curveData": {
+    "comps": {
+      "cc.Sprite": {
+        "spriteFrame": [
+          {
+            "frame": 0.125,
+            "value": {
+              "__uuid__": "3aacbec3-b324-4b7b-82b1-4a3fa5e1e385"
+            }
+          },
+          {
+            "frame": 0.25,
+            "value": {
+              "__uuid__": "ca70f4d8-c96e-4279-8ee5-9869d3615a82"
+            }
+          },
+          {
+            "frame": 0.375,
+            "value": {
+              "__uuid__": "416d4436-a73a-422e-ad14-9aef19015e2c"
+            }
+          },
+          {
+            "frame": 0.5,
+            "value": {
+              "__uuid__": "1bdcb87f-2479-4c4d-8972-acf7129fa09e"
+            }
+          },
+          {
+            "frame": 0.625,
+            "value": {
+              "__uuid__": "8f6a1516-4cc3-42ac-b4db-ba52bc3a6c4a"
+            }
+          },
+          {
+            "frame": 0.75,
+            "value": {
+              "__uuid__": "1fd3fcd8-ee7e-4c81-a9ac-0bf1fb133a8c"
+            }
+          }
+        ]
+      }
+    },
+    "props": {
+      "opacity": [
+        {
+          "frame": 0,
+          "value": 0
+        },
+        {
+          "frame": 0.20833333333333334,
+          "value": 255
+        },
+        {
+          "frame": 0.5416666666666666,
+          "value": 255
+        },
+        {
+          "frame": 0.75,
+          "value": 0
+        }
+      ],
+      "scale": [
+        {
+          "frame": 0,
+          "value": {
+            "__type__": "cc.Vec2",
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "frame": 0.4583333333333333,
+          "value": {
+            "__type__": "cc.Vec2",
+            "x": 1.2,
+            "y": 1.2
+          }
+        },
+        {
+          "frame": 0.75,
+          "value": {
+            "__type__": "cc.Vec2",
+            "x": 1,
+            "y": 1
+          }
+        }
+      ]
+    }
+  },
+  "events": []
+}

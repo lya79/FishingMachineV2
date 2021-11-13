@@ -1,0 +1,216 @@
+
+richgod.png
+size: 285,285
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm_left
+  rotate: false
+  xy: 238, 114
+  size: 24, 36
+  orig: 24, 36
+  offset: 0, 0
+  index: -1
+arm_right
+  rotate: true
+  xy: 244, 194
+  size: 23, 39
+  orig: 23, 39
+  offset: 0, 0
+  index: -1
+bag
+  rotate: false
+  xy: 2, 66
+  size: 109, 74
+  orig: 112, 74
+  offset: 0, 0
+  index: -1
+bag_front
+  rotate: false
+  xy: 193, 78
+  size: 28, 34
+  orig: 28, 34
+  offset: 0, 0
+  index: -1
+body
+  rotate: true
+  xy: 117, 135
+  size: 71, 77
+  orig: 71, 77
+  offset: 0, 0
+  index: -1
+eye_left
+  rotate: false
+  xy: 123, 2
+  size: 5, 3
+  orig: 5, 3
+  offset: 0, 0
+  index: -1
+eye_right
+  rotate: false
+  xy: 114, 2
+  size: 7, 3
+  orig: 7, 3
+  offset: 0, 0
+  index: -1
+eyebrow_left
+  rotate: false
+  xy: 130, 2
+  size: 5, 3
+  orig: 5, 3
+  offset: 0, 0
+  index: -1
+eyebrow_right
+  rotate: false
+  xy: 137, 2
+  size: 4, 3
+  orig: 4, 3
+  offset: 0, 0
+  index: -1
+hand_left
+  rotate: false
+  xy: 198, 23
+  size: 15, 22
+  orig: 15, 22
+  offset: 0, 0
+  index: -1
+hand_right
+  rotate: false
+  xy: 250, 90
+  size: 15, 22
+  orig: 15, 25
+  offset: 0, 0
+  index: -1
+hat
+  rotate: false
+  xy: 196, 114
+  size: 40, 36
+  orig: 41, 36
+  offset: 1, 0
+  index: -1
+hat_right
+  rotate: true
+  xy: 164, 2
+  size: 41, 32
+  orig: 44, 35
+  offset: 3, 3
+  index: -1
+hat_worst
+  rotate: true
+  xy: 230, 219
+  size: 64, 38
+  orig: 73, 38
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 114, 41
+  size: 44, 51
+  orig: 45, 53
+  offset: 1, 1
+  index: -1
+img_cloud
+  rotate: false
+  xy: 2, 242
+  size: 121, 41
+  orig: 141, 124
+  offset: 14, 13
+  index: -1
+leg_left
+  rotate: false
+  xy: 160, 45
+  size: 31, 47
+  orig: 31, 47
+  offset: 0, 0
+  index: -1
+leg_right
+  rotate: true
+  xy: 114, 7
+  size: 32, 48
+  orig: 34, 48
+  offset: 2, 0
+  index: -1
+light
+  rotate: false
+  xy: 2, 142
+  size: 113, 98
+  orig: 113, 98
+  offset: 0, 0
+  index: -1
+money
+  rotate: false
+  xy: 125, 208
+  size: 103, 75
+  orig: 103, 75
+  offset: 0, 0
+  index: -1
+mouth
+  rotate: false
+  xy: 2, 6
+  size: 18, 9
+  orig: 18, 9
+  offset: 0, 0
+  index: -1
+mustache
+  rotate: true
+  xy: 198, 2
+  size: 19, 21
+  orig: 19, 21
+  offset: 0, 0
+  index: -1
+shadow_yuanbao
+  rotate: false
+  xy: 2, 17
+  size: 83, 47
+  orig: 83, 49
+  offset: 0, 0
+  index: -1
+shine01
+  rotate: true
+  xy: 196, 152
+  size: 54, 46
+  orig: 54, 46
+  offset: 0, 0
+  index: -1
+shine02
+  rotate: true
+  xy: 193, 47
+  size: 29, 24
+  orig: 29, 25
+  offset: 0, 0
+  index: -1
+should_back
+  rotate: true
+  xy: 270, 233
+  size: 50, 13
+  orig: 50, 13
+  offset: 0, 0
+  index: -1
+shoulder
+  rotate: true
+  xy: 87, 2
+  size: 62, 25
+  orig: 63, 27
+  offset: 1, 2
+  index: -1
+sleeve_left
+  rotate: false
+  xy: 244, 154
+  size: 26, 38
+  orig: 26, 38
+  offset: 0, 0
+  index: -1
+sleeve_right
+  rotate: false
+  xy: 223, 82
+  size: 25, 30
+  orig: 25, 30
+  offset: 0, 0
+  index: -1
+yuanbao
+  rotate: false
+  xy: 113, 94
+  size: 62, 39
+  orig: 62, 43
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,314 @@
+
+dragonturtle.png
+size: 804,804
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+ant_back
+  rotate: false
+  xy: 365, 73
+  size: 50, 122
+  orig: 50, 122
+  offset: 0, 0
+  index: -1
+ant_front
+  rotate: false
+  xy: 417, 88
+  size: 84, 107
+  orig: 84, 107
+  offset: 0, 0
+  index: -1
+arm_back_mid
+  rotate: false
+  xy: 503, 33
+  size: 88, 65
+  orig: 98, 70
+  offset: 10, 5
+  index: -1
+arm_back_top
+  rotate: true
+  xy: 606, 160
+  size: 71, 85
+  orig: 71, 86
+  offset: 0, 0
+  index: -1
+arm_front_mid
+  rotate: true
+  xy: 540, 224
+  size: 96, 64
+  orig: 106, 69
+  offset: 10, 5
+  index: -1
+arm_front_top
+  rotate: false
+  xy: 417, 2
+  size: 72, 84
+  orig: 72, 85
+  offset: 0, 0
+  index: -1
+armor
+  rotate: false
+  xy: 693, 123
+  size: 58, 53
+  orig: 58, 53
+  offset: 0, 0
+  index: -1
+beard
+  rotate: false
+  xy: 752, 346
+  size: 46, 32
+  orig: 46, 32
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 2, 52
+  size: 187, 190
+  orig: 187, 261
+  offset: 0, 44
+  index: -1
+book01
+  rotate: false
+  xy: 329, 6
+  size: 48, 59
+  orig: 48, 62
+  offset: 0, 0
+  index: -1
+book02
+  rotate: false
+  xy: 752, 380
+  size: 50, 33
+  orig: 50, 33
+  offset: 0, 0
+  index: -1
+brow_back
+  rotate: true
+  xy: 693, 178
+  size: 44, 84
+  orig: 46, 84
+  offset: 0, 0
+  index: -1
+brow_front
+  rotate: false
+  xy: 343, 594
+  size: 295, 208
+  orig: 295, 232
+  offset: 0, 0
+  index: -1
+ear
+  rotate: false
+  xy: 205, 4
+  size: 60, 61
+  orig: 60, 61
+  offset: 0, 0
+  index: -1
+eyeball
+  rotate: true
+  xy: 753, 137
+  size: 39, 27
+  orig: 39, 27
+  offset: 0, 0
+  index: -1
+eyeshine
+  rotate: true
+  xy: 752, 318
+  size: 26, 20
+  orig: 26, 20
+  offset: 0, 0
+  index: -1
+eyewhite
+  rotate: true
+  xy: 606, 233
+  size: 83, 93
+  orig: 83, 93
+  offset: 0, 0
+  index: -1
+foot_back
+  rotate: true
+  xy: 715, 473
+  size: 54, 87
+  orig: 54, 88
+  offset: 0, 0
+  index: -1
+foot_front
+  rotate: false
+  xy: 299, 262
+  size: 55, 58
+  orig: 55, 73
+  offset: 0, 15
+  index: -1
+frame
+  rotate: false
+  xy: 365, 197
+  size: 107, 123
+  orig: 107, 123
+  offset: 0, 0
+  index: -1
+hair_front
+  rotate: true
+  xy: 715, 529
+  size: 92, 65
+  orig: 92, 65
+  offset: 0, 0
+  index: -1
+hand_back
+  rotate: true
+  xy: 503, 100
+  size: 99, 91
+  orig: 99, 91
+  offset: 0, 0
+  index: -1
+hand_front
+  rotate: false
+  xy: 701, 224
+  size: 93, 92
+  orig: 94, 92
+  offset: 1, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 244
+  size: 295, 207
+  orig: 295, 232
+  offset: 0, 0
+  index: -1
+img_cloud
+  rotate: false
+  xy: 2, 9
+  size: 121, 41
+  orig: 141, 124
+  offset: 14, 13
+  index: -1
+lap_back
+  rotate: false
+  xy: 593, 2
+  size: 53, 54
+  orig: 53, 54
+  offset: 0, 0
+  index: -1
+lap_front
+  rotate: false
+  xy: 474, 201
+  size: 64, 119
+  orig: 64, 119
+  offset: 0, 0
+  index: -1
+lips
+  rotate: false
+  xy: 596, 113
+  size: 70, 45
+  orig: 70, 45
+  offset: 0, 0
+  index: -1
+mane_back_01
+  rotate: false
+  xy: 2, 584
+  size: 339, 218
+  orig: 339, 234
+  offset: 0, 0
+  index: -1
+mane_back_02
+  rotate: false
+  xy: 2, 453
+  size: 339, 129
+  orig: 339, 234
+  offset: 0, 89
+  index: -1
+mane_front
+  rotate: false
+  xy: 617, 443
+  size: 96, 149
+  orig: 96, 149
+  offset: 0, 0
+  index: -1
+marble
+  rotate: false
+  xy: 191, 67
+  size: 172, 175
+  orig: 172, 176
+  offset: 0, 0
+  index: -1
+marblelight
+  rotate: true
+  xy: 343, 322
+  size: 270, 272
+  orig: 270, 272
+  offset: 0, 0
+  index: -1
+mouth
+  rotate: true
+  xy: 299, 390
+  size: 61, 34
+  orig: 61, 34
+  offset: 0, 0
+  index: -1
+neck
+  rotate: false
+  xy: 640, 623
+  size: 135, 179
+  orig: 135, 262
+  offset: 0, 83
+  index: -1
+nose
+  rotate: true
+  xy: 299, 337
+  size: 51, 26
+  orig: 51, 26
+  offset: 0, 0
+  index: -1
+shin_back
+  rotate: true
+  xy: 752, 415
+  size: 56, 50
+  orig: 56, 50
+  offset: 0, 0
+  index: -1
+shin_front
+  rotate: false
+  xy: 596, 58
+  size: 55, 53
+  orig: 56, 53
+  offset: 1, 0
+  index: -1
+tail01
+  rotate: false
+  xy: 125, 2
+  size: 78, 48
+  orig: 78, 48
+  offset: 0, 0
+  index: -1
+tail02
+  rotate: false
+  xy: 267, 6
+  size: 60, 59
+  orig: 61, 59
+  offset: 1, 0
+  index: -1
+tail03
+  rotate: false
+  xy: 617, 318
+  size: 133, 123
+  orig: 133, 123
+  offset: 0, 0
+  index: -1
+teeth_bot
+  rotate: true
+  xy: 777, 758
+  size: 44, 11
+  orig: 44, 11
+  offset: 0, 0
+  index: -1
+teeth_top
+  rotate: false
+  xy: 640, 604
+  size: 52, 17
+  orig: 52, 17
+  offset: 0, 0
+  index: -1
+tongue
+  rotate: false
+  xy: 540, 201
+  size: 39, 21
+  orig: 39, 21
+  offset: 0, 0
+  index: -1
