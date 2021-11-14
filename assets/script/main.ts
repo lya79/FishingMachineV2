@@ -2,7 +2,7 @@ import { SettingManager } from "./common/setting";
 import { EWallet, EWalletResultAction, User } from "./common/user";
 import { LoadingComponent, Handler as LoadingHandler } from "./loading/loading";
 import { LobbyComponent, Handler as LobbyHandler } from "./lobby/lobby";
-import { GameComponent } from "./game/game";
+import { Game } from "./game/game";
 import { EAction as EAudioAction, AudioManager } from "./common/audio";
 
 const { ccclass, property } = cc._decorator;
@@ -111,7 +111,7 @@ export class Main extends cc.Component {
                 cc.log(err);
                 return false;
             }
-            let component = node.addComponent(GameComponent);
+            let component = node.addComponent(Game);
             let success = component.init(this.backLobbyHandler);
             if (!success) {
                 cc.log('GameComponent init fail');

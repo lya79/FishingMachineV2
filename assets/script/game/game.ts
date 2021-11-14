@@ -8,7 +8,7 @@ import { Tower } from "./tower";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class GameComponent extends cc.Component {
+export class Game extends cc.Component {
     private lobbyHandler: Function;
 
     private lobbyNode: cc.Node;
@@ -29,6 +29,9 @@ export class GameComponent extends cc.Component {
     private autoOffNode: cc.Node;
 
     private towerNode: cc.Node;
+    private originLocationOfTower: cc.Vec2; // 暫存砲塔預設位置
+    private locationOfFire: cc.Vec2; // 砲塔發射時預計要退後的位置
+    private distance = 15;// 砲塔發射子彈時預計要後退的距離
 
     private crosshairDefNode: cc.Node;
     private crosshairFocusNode: cc.Node;
@@ -167,6 +170,8 @@ export class GameComponent extends cc.Component {
 
         let tower = this.towerNode.addComponent(Tower);
         tower.init();
+
+        this.originLocationOfTower = this.towerNode.position;
     }
 
     // public start() {
@@ -189,6 +194,7 @@ export class GameComponent extends cc.Component {
         this.initCrosshairNode();
         this.updateFocusBtn();
         this.setTowerLevel(SettingManager.GetTowerByRoomLevel(User.getRoomLevel())[User.getTowerIndex()].getLevel());
+        this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
 
         this.lobbyNode.on(cc.Node.EventType.TOUCH_START, this.backLobby, this);
 
@@ -357,6 +363,19 @@ export class GameComponent extends cc.Component {
         User.setAuto(!User.isAuto());
 
         this.updateAutoBtn();
+
+        this.stopAutoFire();
+        if (User.isAuto()) {
+            this.startAutoFire();
+        }
+    }
+
+    private startAutoFire() {
+        this.schedule(this.fire, 0.2, cc.macro.REPEAT_FOREVER, 0.3); // 設定的時間要大於 fire func執行的時間
+    }
+
+    private stopAutoFire() {
+        this.unschedule(this.fire);
     }
 
     private changeFocus() {
@@ -382,53 +401,115 @@ export class GameComponent extends cc.Component {
     }
 
     public updateMouseMove(event: cc.Event.EventTouch) {
+        // XXX 世界座標和相對座標轉換
+        /** 
+         * 世界座標和相對座標轉換
+         * https://www.twblogs.net/a/5cc1de6fbd9eee397114143e
+         */
+
         let location = event.getLocation();
-        let nodeLocation = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
+        let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
+
+        if (!this.isCrosshairArea(locationOfTouch)) {
+            if (!User.isAuto()) {
+                this.stopAutoFire();
+                this.crosshairDefNode.active = false;
+            }
+            return;
+        }
 
         let updateCrosshair = false;
 
         switch (event.getType()) {
             case cc.Node.EventType.TOUCH_MOVE:
-                let startLocation = this.node.convertToNodeSpaceAR(event.getStartLocation());
-                if (this.isCrosshairArea(startLocation)) {
-                    updateCrosshair = this.isCrosshairArea(nodeLocation);
-                } else {
-                    updateCrosshair = false;
-                }
-                break;
             case cc.Node.EventType.TOUCH_START:
-                updateCrosshair = this.isCrosshairArea(nodeLocation);
+                updateCrosshair = true;
                 break;
             case cc.Node.EventType.TOUCH_END:// node內放開
             case cc.Node.EventType.TOUCH_CANCEL:// node外放開
-                updateCrosshair = false;
                 break;
             default:
                 break;
         }
 
         if (updateCrosshair) {
-            this.crosshairDefNode.setPosition(nodeLocation);
+            this.crosshairDefNode.setPosition(locationOfTouch);
             this.crosshairDefNode.active = true;
-            this.updateRotation(nodeLocation);
+            let obj = this.calculatorRotation(locationOfTouch, this.originLocationOfTower);
+            this.updateRotationOfTower(obj.rotation, obj.backLocation);
         } else {
             this.crosshairDefNode.active = false;
         }
+
+        if (event.getType() == cc.Node.EventType.TOUCH_START && updateCrosshair) {
+            this.stopAutoFire();
+            this.fire();
+            this.startAutoFire();
+        } else if (!updateCrosshair) {
+            if (!User.isAuto()) {
+                this.stopAutoFire();
+            }
+        }
     }
 
-    private redNode: cc.Node = null;
+    private updateRotationOfTower(rotation: number, locationOfFire: cc.Vec2) {
+        this.towerNode.rotation = rotation;
+        this.locationOfFire = locationOfFire;
+    }
+
+    private fire() {
+        {// 扣款並且檢查是否有足夠的餘額
+            let roomLevel = User.getRoomLevel();
+            let towerIndex = User.getTowerIndex();
+            let tower = SettingManager.GetTowerByRoomLevel(roomLevel)[towerIndex];
+            let bet = (Mul(tower.getBet().toString(), tower.getBase().toString())).toString();
+
+            let result = User.operatorWallet(EWallet.Pay, bet);
+
+            this.updateWalletValue();
+
+            if (result.result != EWalletResultAction.Success) {
+                cc.log(`玩家錢包扣款失敗, 錯誤類型:${result.result}, 壓注:${bet}, 餘額:${result.oldValue}`);
+                return;
+            }
+        }
+
+        { // TODO 產生子彈並且發射子彈
+
+        }
+
+        let time1 = 0.03;
+        let time2 = 0.07;
+        { // 播放發射動畫
+            let location: cc.Vec2 = this.locationOfFire;
+
+            let tower = this.towerNode.getComponent(Tower);
+
+            AudioManager.play(tower.getAudioOfFire(), true, false);
+
+            let fireNode = tower.getFireNode();
+            cc.tween(fireNode)
+                .to(time1, { opacity: 255 })
+                .to(time2, { opacity: 0 })
+                .start();
+
+            cc.tween(this.towerNode)
+                .to(time1, { position: location })
+                .to(time2, { position: this.originLocationOfTower })
+                .start();
+        }
+    }
 
     /**
      * 更新砲塔旋轉角度
      * 依據玩家點擊的位置
      */
-    private updateRotation(location: cc.Vec2) { // : { rotation: number, backLocation: cc.Vec2 } {
-        let x = location.x;
-        let y = location.y;
+    private calculatorRotation(locationOfTouch: cc.Vec2, locationOfTower: cc.Vec2): { rotation: number, backLocation: cc.Vec2 } {
+        let x = locationOfTouch.x;
+        let y = locationOfTouch.y;
 
-        let towerDefense = this.towerNode;
-        let px = towerDefense.x;
-        let py = towerDefense.y;
+        let px = locationOfTower.x;
+        let py = locationOfTower.y;
 
         let pointA = new cc.Vec2(px, py); // 砲塔位置
         let pointB = new cc.Vec2(x, y); // 滑鼠位置
@@ -450,12 +531,10 @@ export class GameComponent extends cc.Component {
 
         let backLocation: cc.Vec2;
         {// 發射時候砲塔後退的座標點
-            let distance = 15;// 砲塔發射子彈時預計要後退的距離
-
             let r = Math.sqrt(Math.pow((pointB.x - pointA.x), 2) + Math.pow((pointB.y - pointA.y), 2));
 
-            let x = (distance * (pointB.x - pointA.x)) / r + pointA.x;
-            let y = (distance * (pointB.y - pointA.y)) / r + pointA.y;
+            let x = (this.distance * (pointB.x - pointA.x)) / r + pointA.x;
+            let y = (this.distance * (pointB.y - pointA.y)) / r + pointA.y;
 
             let dx = x - pointA.x;
             let dy = y - pointA.y;
@@ -463,13 +542,7 @@ export class GameComponent extends cc.Component {
             backLocation = new cc.Vec2(pointA.x - dx, pointA.y - dy);
         }
 
-        this.towerNode.rotation = newRotation;
-
-        // TODO 要處理砲塔如果發射時, 這時如果又旋轉角度會造成砲塔看起來偏移
-        /**
-         * 旋轉過程中禁止發射子彈
-         * 發射子彈需要等動畫停止後才能做旋轉
-         */
+        return { rotation: newRotation, backLocation: backLocation };
     }
 
     private getAngle(A: cc.Vec2, B: cc.Vec2, C: cc.Vec2) {

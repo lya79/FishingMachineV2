@@ -1,4 +1,4 @@
-import { add, sub, equal, lessThan, greaterThan } from './common';
+import { add, sub, equal, lessThan, lessEqualThan } from './common';
 
 export enum EWallet {
     Query, // 查詢
@@ -15,6 +15,7 @@ export enum EWalletResultAction {
 
     // 錯誤類
     FailDontHaveEnoughMoney, // 餘額不足
+    FailInputMoney, // 數值小於等於0.0
 }
 
 export class User {
@@ -64,6 +65,10 @@ export class User {
     public static operatorWallet(action: EWallet, value: string): { result: EWalletResultAction, oldValue: string, newValue: string } {
         if (action == EWallet.Query) {
             return { result: EWalletResultAction.Success, oldValue: this.wallet, newValue: this.wallet };
+        }
+
+        if (!value || lessEqualThan(value, "0.0")) {
+            return { result: EWalletResultAction.FailInputMoney, oldValue: this.wallet, newValue: this.wallet };
         }
 
         let oldValue = this.wallet;

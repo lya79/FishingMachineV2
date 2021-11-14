@@ -5,8 +5,6 @@ export class Tower extends cc.Component {
     private towerNode: cc.Node;
     private fireNode: cc.Node;
 
-    private fireTween: cc.Tween<unknown>;
-
     private shotAudioName: string;
 
     public init() {
@@ -24,11 +22,6 @@ export class Tower extends cc.Component {
             cc.log('error: fireNode is null');
             return;
         }
-
-        // XXX 每一發子彈觸發的時間間距要大於下列動畫使用的時間加總, 不然會造成錯誤
-        this.fireTween = cc.tween(this.fireNode)
-            .to(0.03, { opacity: 255 })
-            .to(0.07, { opacity: 0 });
     }
 
     // public start() {
@@ -43,6 +36,17 @@ export class Tower extends cc.Component {
 
     public onDisable() {
 
+    }
+
+    /**
+     * 射擊的動畫, 每一次射擊都要觸發一次
+     */
+    public getFireNode(): cc.Node {
+        return this.fireNode;
+    }
+
+    public getAudioOfFire(): string {
+        return this.shotAudioName;
     }
 
     /**
@@ -100,15 +104,5 @@ export class Tower extends cc.Component {
         } else {
             this.shotAudioName = "UI_Shot";
         }
-    }
-
-    /**
-     * 射擊的動畫, 每一次射擊都要觸發一次
-     */
-    public fire() {
-        // cc.log("fire");
-        AudioManager.play(this.shotAudioName, true, false);
-
-        this.fireTween.start();
     }
 }
