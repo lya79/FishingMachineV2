@@ -2,7 +2,7 @@
 import { EWallet, EWalletResultAction, User } from "../common/user";
 import { EAction as EAudioAction, AudioManager } from "../common/audio";
 import { SettingManager } from "../common/setting";
-import { Mul } from "../common/common";
+import { Mul, GetRandomFloat, GetRandomInt } from "../common/common";
 import { Tower } from "./tower";
 import { Collision, ChangeStageHandler, EStage } from "./collision";
 import { ResourcesManager } from "../common/resource";
@@ -46,6 +46,8 @@ export class Game extends cc.Component {
 
     private stageNoticeNode: cc.Node;
 
+    private effectNode: cc.Node;
+
     public init(lobbyHandler: Function): boolean {
         this.lobbyHandler = lobbyHandler;
         if (!this.lobbyHandler) {
@@ -56,9 +58,9 @@ export class Game extends cc.Component {
     }
 
     public onLoad() {
-        { // XXX 測試用途的按鈕, 不使用的按鈕要設定 active為 false
+        { // 測試用途的按鈕, 不使用的按鈕要設定 active為 false
             let showFishBtn = false; // 測試各種魚
-            let showNextStageBtn = true; // 測試關卡切換
+            let showNextStageBtn = false; // 測試關卡切換
 
             if (showFishBtn) {
                 let btnNode = this.node.getChildByName("testBtn").getChildByName("fishBtn");
@@ -107,6 +109,12 @@ export class Game extends cc.Component {
         this.stageNoticeNode = this.node.getChildByName("stageNotice");
         if (!this.stageNoticeNode) {
             cc.log('error: stageNoticeNode is null');
+            return;
+        }
+
+        this.effectNode = this.node.getChildByName("effect");
+        if (!this.effectNode) {
+            cc.log('error: effectNode is null');
             return;
         }
 
@@ -272,7 +280,7 @@ export class Game extends cc.Component {
         this.setTowerLevel(SettingManager.GetTowerByRoomLevel(User.getRoomLevel())[User.getTowerIndex()].getLevel());
         this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
 
-        this.collisionNode.getComponent(Collision).initStage(this.changeStageHandler);
+        this.collisionNode.getComponent(Collision).initStage(this.changeStageHandler.bind(this));
 
         this.lobbyNode.on(cc.Node.EventType.TOUCH_START, this.backLobby, this);
 
@@ -309,7 +317,7 @@ export class Game extends cc.Component {
         this.changeBet(false);
     }
 
-    private changeStageHandler(oldStage: EStage, newStage: EStage) { // TODO 關卡切換
+    private changeStageHandler(oldStage: EStage, newStage: EStage) {
         cc.log("切換道關卡:" + EStage[oldStage] + " => " + EStage[newStage]);
 
         let bgMusic = function (stage: EStage): string {
@@ -348,60 +356,53 @@ export class Game extends cc.Component {
             return;
         }
 
-        cc.log("yuan: " + currentBgNode + "," + nextBgNode + "," + this.bg1Node + "," + this.bg2Node); // FIXME yuan: undefined,undefined,undefined,undefined
-
         // 將下一個要顯示的背景位移到目前背景的正下方
-        let y = -1 * (nextBgNode.height / 2);
-        nextBgNode.setPosition(0, y);
+        nextBgNode.setPosition(0, -nextBgNode.height);
         nextBgNode.active = true;
 
-        let y2 = this.stageNoticeNode.height;
+        let currentBgTween = cc.tween(currentBgNode)
+            .to(1.5, { position: new cc.Vec2(0, currentBgNode.height) });
 
-        let currentBgTween = cc.tween(this.stageNoticeNode)
-            .to(1, { position: new cc.Vec2(0, y2) });
-
-        let nextBgTween = cc.tween(this.stageNoticeNode)
-            .to(1, { position: new cc.Vec2(0, 0) });
+        let nextBgTween = cc.tween(nextBgNode)
+            .to(1.5, { position: new cc.Vec2(0, 0) });
 
         let bubbleTweenArray: cc.Tween<unknown>[] = [];
-        {// TODO 顯示泡泡 tween
+        {// 顯示泡泡的 tween
             let name = "img_bg_bubble";
 
-            let bubbleMax = 5; // 泡泡預計顆數
+            let bubbleMax = 200; // 泡泡預計顆數
 
             for (let i = 0; i < bubbleMax; i++) {
-                let targetX = 100 + (i * 10);
-                let targetY = 100 + (i * 10);
-                let targetOpacity = 200;
-                let targetScale = 2;
-                let speed = 10;
-
                 let node = new cc.Node("bubble");
-                {
-                    var sprite = node.addComponent(cc.Sprite);
-                    sprite.spriteFrame = (ResourcesManager.spriteAtlasMap.get('SS_Symbol_Atlas_03')).getSpriteFrame(name);
+                var sprite = node.addComponent(cc.Sprite);
+                sprite.spriteFrame = (ResourcesManager.spriteAtlasMap.get('SS_Symbol_Atlas_03')).getSpriteFrame(name);
 
-                    let startX = 0;
-                    let startY = -(this.node.height / 2);
-                    let startOpacity = 255;
-                    let startScale = 1;
+                let spriteHeight = sprite.spriteFrame.getRect().height;
+                let startOpacity = 255;
+                let startScale = GetRandomFloat(0.5, 3);
+                let startX = GetRandomInt(-100, 100);
+                let startY = -(this.node.height / 2) - (startScale * (spriteHeight / 2));
+                startY = GetRandomFloat(startY - 250, startY);
 
-                    node.setPosition(startX, startY);
-                    node.opacity = startOpacity;
-                    node.scale = startScale;
-                }
+                node.setPosition(startX, startY);
+                node.opacity = startOpacity;
+                node.scale = startScale;
 
-                this.stageNoticeNode.addChild(node);
+                let targetOpacity = 255;
+                let targetScale = GetRandomFloat(4, 5);
+                let targetX = GetRandomInt(-300, 300);
+                let targetY = (this.node.height / 2) + (targetScale * (spriteHeight / 2));
+                let speed = GetRandomFloat(1.5, 2.0);
+
+                this.effectNode.addChild(node);
 
                 let tween = cc.tween(node)
                     .to(speed, { position: new cc.Vec2(targetX, targetY), opacity: targetOpacity, scale: targetScale })
                     .call(() => {
-                        node.destroy(); // TODO 要確定是否有刪除
+                        node.destroy();
                     });
                 bubbleTweenArray.push(tween);
             }
-
-            // this.fireNode.getComponent(cc.Sprite).spriteFrame = spriteFrame;
         }
 
 
@@ -416,16 +417,25 @@ export class Game extends cc.Component {
 
             stageNoticTween = cc.tween(this.stageNoticeNode)
                 .to(1.5, { position: new cc.Vec2(0, 0) })
-                .delay(3)
-                .to(0.5, { opacity: 0 });
+                .delay(1.5)
+                .to(0.7, { opacity: 0 });
+        }
+
+        let delay1 = 2.5;
+        let delay2 = 2.5;
+        if (stageNoticTween) {
+            delay2 = 4;
         }
 
         cc.tween(this)
             .call(() => {
+                AudioManager.operator(EAudioAction.Stop, true);
+                AudioManager.operator(EAudioAction.Stop, false);
+
                 AudioManager.play(`UI_Roulette`, true, false); // 2.22秒
                 // TODO 要求全部的魚在 2.22秒內全部加速離開畫面
             })
-            .delay(3)
+            .delay(delay1)
             .call(() => {
                 AudioManager.play(`UI_Bubble`, true, false); // 1.933秒
                 currentBgTween.start();
@@ -437,7 +447,7 @@ export class Game extends cc.Component {
                     bubbleTweenArray[i].start();
                 }
             })
-            .delay(5)
+            .delay(delay2)
             .call(() => {
                 AudioManager.play(bgMusic(newStage), false, true);
             })

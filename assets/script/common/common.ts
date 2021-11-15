@@ -18,6 +18,20 @@ export function generateUUID(): string {
     });
 }
 
+/**
+ * example:
+ * min=1, max=3
+ * 輸出可能會是 1,2,3 
+ */
+export function GetRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+export function GetRandomFloat(min, max) {
+    return Math.random() * (max - min) + min;
+};
+
+
 export function equal(v1: string, v2: string): boolean {
     return parseFloat(v1) == parseFloat(v2);
 }

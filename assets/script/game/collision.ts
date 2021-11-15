@@ -48,6 +48,19 @@ export class Collision extends cc.Component { // TODO
 
     }
 
+    /**
+     * 設定遊戲關卡 
+     */
+    private setStage(newStage: EStage) {
+        let oldStage = this.stage;
+        this.changeStageHandler(oldStage, newStage);
+
+        this.stage = newStage;
+    }
+
+    /**
+     * 外部如果要使用只能用在測試
+     */
     public nextStage() {
         switch (this.stage) {
             case EStage.None: // 關卡1
@@ -66,15 +79,8 @@ export class Collision extends cc.Component { // TODO
     }
 
     /**
-     * 設定遊戲關卡 
+     * 外部如果要使用只能用在測試
      */
-    private setStage(newStage: EStage) {
-        let oldStage = this.stage;
-        this.changeStageHandler(oldStage, newStage);
-
-        this.stage = newStage;
-    }
-
     public AddFish(fishPath: string) {
         cc.log("AddFish:" + fishPath);
         let prefab = ResourcesManager.prefabMap.get(fishPath);
