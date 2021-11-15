@@ -1,3 +1,42 @@
+import { Mul, GetRandomFloat, GetRandomInt } from "../common/common";
+
+/**
+ * 魚的組合
+ */
+export class FishPath {
+    private fishPath: string; // 魚的路線(prefab的名稱) example:fish_path_1 
+    private delay: number; // 關卡切換後會delay多少秒後開始
+    private speed: number; // 動畫執行速度
+    private scale: number; // 大小
+
+    constructor(
+        fishPath: string,
+        delay: number,
+        speed: number,
+        scale: number,
+    ) {
+        this.fishPath = fishPath;
+        this.delay = delay;
+        this.speed = speed;
+        this.scale = scale;
+    }
+
+    public getFishPath(): string {
+        return this.fishPath;
+    }
+
+    public getDelay(): number {
+        return this.delay;
+    }
+
+    public getSpeed(): number {
+        return this.speed;
+    }
+
+    public getScale(): number {
+        return this.scale;
+    }
+}
 
 /**
  * 技能種類
@@ -89,6 +128,9 @@ export class SettingManager {
     private static towerMap: Map<number, Tower[]> = new Map<number, Tower[]>();
     private static roomLevelArr: number[] = [];
 
+    private static fishPathMap: Map<number, FishPath[]> = new Map<number, FishPath[]>();
+    private static gameLevelArr: number[] = [];
+
     /** 載入設定檔案 */
     public static Load(): boolean {
         for (let roomLevel = 1; roomLevel <= 3; roomLevel++) {
@@ -115,13 +157,26 @@ export class SettingManager {
             this.towerMap.set(roomLevel, towerArr);
         }
 
-        // let arr = this.GetRoomLevel();
-        // cc.log("GetRoomLevel:" + arr);
-        // for (let i = 0; i < arr.length; i++) {
-        //     let roomLevel = arr[i];
-        //     let towerArr = this.GetTowerByRoomLevel(roomLevel);
-        //     cc.log(`roomLevel:${roomLevel}, tower:` + JSON.stringify(towerArr));
-        // }
+        for (let gameLevel = 1; gameLevel <= 3; gameLevel++) {
+            this.gameLevelArr.push(gameLevel);
+
+            let fishPathArr: FishPath[];
+
+            switch (gameLevel) {
+                case 1:
+                    fishPathArr = this.getFishPathByGameLevel1();
+                    break;
+                case 2:
+                    fishPathArr = this.getFishPathByGameLevel2();
+                    break;
+                case 3:
+                    fishPathArr = this.getFishPathByGameLevel3();
+                    break;
+            }
+
+            this.fishPathMap.set(gameLevel, fishPathArr);
+        }
+
 
         return true; // success
     }
@@ -157,5 +212,58 @@ export class SettingManager {
             return Array.from(towerArr);
         }
         return [];
+    }
+
+    public static GetGameLevel(): number[] {
+        return Array.from(this.gameLevelArr);
+    }
+
+    public static isVaildGameLevel(gameLevel: number): boolean {
+        for (let i = 0; i < this.gameLevelArr.length; i++) {
+            if (this.gameLevelArr[i] == gameLevel) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static GetFishPathArr(gameLevel: number): FishPath[] {
+        let fishPathArr = this.fishPathMap.get(gameLevel);
+        if (fishPathArr) {
+            return Array.from(fishPathArr);
+        }
+        return [];
+    }
+
+    private static getFishPathByGameLevel1(): FishPath[] { // TODO ,
+        let arr: FishPath[] = [];
+
+        {
+            let name = "fish_path_1";
+            let max = GetRandomInt(5, 10);
+            for (let i = 0; i < max; i++) {
+                arr.push(new FishPath(name, GetRandomFloat(1, 60), GetRandomFloat(1, 3), GetRandomFloat(1, 2)));
+            }
+        }
+
+        {
+            let name = "fish_path_2";
+            let max = GetRandomInt(5, 10);
+            for (let i = 0; i < max; i++) {
+                arr.push(new FishPath(name, GetRandomFloat(1, 60), GetRandomFloat(1, 3), GetRandomFloat(1, 2)));
+            }
+        }
+
+        return arr;
+    }
+
+    private static getFishPathByGameLevel2(): FishPath[] {// TODO  
+        let arr: FishPath[] = [];
+        return arr;
+    }
+
+    private static getFishPathByGameLevel3(): FishPath[] {// TODO  
+        let arr: FishPath[] = [];
+        return arr;
     }
 }
