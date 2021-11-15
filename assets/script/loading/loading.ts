@@ -119,43 +119,45 @@ export class LoadingComponent extends cc.Component {
         let self = this;
 
         let run = async function (): Promise<void> {
-            {  // 資源載入 level 1-4 子彈
-                self.totalOfRes += 4;
-                let max = 4;
-                for (let i = 1; i <= max; i++) {
-                    let ok = await self.loadLevel1BulletPrefab(i);
-                    if (!ok) {
-                        self.error = new Error(`error: loadLevel1BulletPrefab fail`);
-                        return;
-                    }
-                    self.numOfRes += 1;
-                }
-            }
-
-            {  // 資源載入 level 1-4 漁網
-                self.totalOfRes += 4;
-                let max = 4;
-                for (let i = 1; i <= max; i++) {
-                    let ok = await self.loadFishingnetPrefab(i);
-                    if (!ok) {
-                        self.error = new Error(`error: loadFishingnetPrefab fail`);
-                        return;
-                    }
-                    self.numOfRes += 1;
-                }
-            }
-
-            {  // 資源載入
+            {  // 子彈
                 self.totalOfRes += 1;
-                let ok = await self.loadPlsit();
+                let ok = await self.loadBulletPrefab();
                 if (!ok) {
-                    self.error = new Error(`error: loadPlsit fail`);
+                    self.error = new Error(`error: loadBulletPrefab fail`);
                     return;
                 }
                 self.numOfRes += 1;
             }
 
-            {  // 音效載入
+            {  // 魚的路徑
+                self.totalOfRes += 2;
+                let max = 2;
+                for (let i = 1; i <= max; i++) {
+                    let ok = await self.loadFishPahPrefab(i.toString());
+                    if (!ok) {
+                        self.error = new Error(`error: loadFishPahPrefab fail paht: fish_path_` + i.toString());
+                        return;
+                    }
+                    self.numOfRes += 1;
+                }
+            }
+
+            {  // 其他資源載入
+                let arr: string[] = ["01", "03", "06", "08", "09"];
+                self.totalOfRes += arr.length;
+                let max = arr.length;
+                for (let i = 0; i < max; i++) {
+                    let name = arr[i];
+                    let ok = await self.loadPlsit(name);
+                    if (!ok) {
+                        self.error = new Error(`error: loadPlsit fail`);
+                        return;
+                    }
+                    self.numOfRes += 1;
+                }
+            }
+
+            {  // 音效
                 self.totalOfRes += 1;
                 let ok = await self.loadAudio();
                 if (!ok) {
@@ -169,8 +171,8 @@ export class LoadingComponent extends cc.Component {
         run();
     }
 
-    private async loadLevel1BulletPrefab(level: number): Promise<boolean> {
-        let name = `level${level}Bullet`;
+    private async loadFishPahPrefab(value: string): Promise<boolean> {
+        let name = `fish_path_` + value;
         let path = 'prefab/' + name;
         let type = cc.Prefab;
         let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));
@@ -186,8 +188,8 @@ export class LoadingComponent extends cc.Component {
         return true;
     }
 
-    private async loadFishingnetPrefab(level: number): Promise<boolean> { // fishingnet_lv1
-        let name = `fishingnet_lv${level}`;
+    private async loadBulletPrefab(): Promise<boolean> {
+        let name = `bullet`;
         let path = 'prefab/' + name;
         let type = cc.Prefab;
         let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));
@@ -203,8 +205,9 @@ export class LoadingComponent extends cc.Component {
         return true;
     }
 
-    private async loadPlsit(): Promise<boolean> {
-        let path = 'images/SS_Symbol_Atlas_01';
+    private async loadPlsit(value: string): Promise<boolean> {
+        let name = "SS_Symbol_Atlas_" + value;
+        let path = 'images/' + name;
         let type = cc.SpriteAtlas;
         let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));
         if (result instanceof Error) {
@@ -213,7 +216,7 @@ export class LoadingComponent extends cc.Component {
         }
 
         let spriteAtlas: cc.SpriteAtlas = <cc.SpriteAtlas>result;
-        ResourcesManager.spriteAtlasMap.set('SS_Symbol_Atlas_01', spriteAtlas);
+        ResourcesManager.spriteAtlasMap.set(name, spriteAtlas);
 
         return true;
     }

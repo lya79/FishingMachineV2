@@ -4,6 +4,8 @@ import { EAction as EAudioAction, AudioManager } from "../common/audio";
 import { SettingManager } from "../common/setting";
 import { Mul } from "../common/common";
 import { Tower } from "./tower";
+import { Collision, ChangeStageHandler, EStage } from "./collision";
+import { ResourcesManager } from "../common/resource";
 
 const { ccclass, property } = cc._decorator;
 
@@ -36,6 +38,14 @@ export class Game extends cc.Component {
     private crosshairDefNode: cc.Node;
     private crosshairFocusNode: cc.Node;
 
+    private collisionNode: cc.Node;
+
+    private bg1Node: cc.Node;
+    private bg2Node: cc.Node;
+    private bg3Node: cc.Node;
+
+    private stageNoticeNode: cc.Node;
+
     public init(lobbyHandler: Function): boolean {
         this.lobbyHandler = lobbyHandler;
         if (!this.lobbyHandler) {
@@ -46,6 +56,36 @@ export class Game extends cc.Component {
     }
 
     public onLoad() {
+        { // XXX 測試用途的按鈕, 不使用的按鈕要設定 active為 false
+            let showFishBtn = false; // 測試各種魚
+            let showNextStageBtn = true; // 測試關卡切換
+
+            if (showFishBtn) {
+                let btnNode = this.node.getChildByName("testBtn").getChildByName("fishBtn");
+                let inputNode = this.node.getChildByName("testBtn").getChildByName("fishInput");
+
+                btnNode.active = true;
+                inputNode.active = true;
+
+                let self = this;
+                btnNode.on(cc.Node.EventType.TOUCH_START, function () {
+                    let fishPath = inputNode.getComponent(cc.EditBox).string;
+                    self.collisionNode.getComponent(Collision).AddFish(fishPath);
+                }, this);
+            }
+
+            if (showNextStageBtn) {
+                let nextStageNode = this.node.getChildByName("testBtn").getChildByName("nextStage");
+
+                nextStageNode.active = true;
+
+                let self = this;
+                nextStageNode.on(cc.Node.EventType.TOUCH_START, function () {
+                    self.collisionNode.getComponent(Collision).nextStage();
+                }, this);
+            }
+        }
+
         let btnNode = this.node.getChildByName("btn");
         if (!btnNode) {
             cc.log('error: btnNode is null');
@@ -55,6 +95,18 @@ export class Game extends cc.Component {
         this.lobbyNode = btnNode.getChildByName("lobby");
         if (!this.lobbyNode) {
             cc.log('error: lobbyNode is null');
+            return;
+        }
+
+        this.collisionNode = this.node.getChildByName("collision");
+        if (!this.collisionNode) {
+            cc.log('error: collisionNode is null');
+            return;
+        }
+
+        this.stageNoticeNode = this.node.getChildByName("stageNotice");
+        if (!this.stageNoticeNode) {
+            cc.log('error: stageNoticeNode is null');
             return;
         }
 
@@ -74,6 +126,32 @@ export class Game extends cc.Component {
             this.crosshairFocusNode = crosshairNode.getChildByName("focus");
             if (!this.crosshairFocusNode) {
                 cc.log('error: crosshairFocusNode is null');
+                return;
+            }
+        }
+
+        {
+            let bgNode = this.node.getChildByName("bg");
+            if (!bgNode) {
+                cc.log('error: bgNode is null');
+                return;
+            }
+
+            this.bg1Node = bgNode.getChildByName("bg1");
+            if (!this.bg1Node) {
+                cc.log('error: bg1Node is null');
+                return;
+            }
+
+            this.bg2Node = bgNode.getChildByName("bg2");
+            if (!this.bg2Node) {
+                cc.log('error: bg2Node is null');
+                return;
+            }
+
+            this.bg3Node = bgNode.getChildByName("bg3");
+            if (!this.bg3Node) {
+                cc.log('error: bg3Node is null');
                 return;
             }
         }
@@ -171,17 +249,15 @@ export class Game extends cc.Component {
         let tower = this.towerNode.addComponent(Tower);
         tower.init();
 
-        this.originLocationOfTower = this.towerNode.position;
-    }
+        this.originLocationOfTower = this.towerNode.getPosition();
 
-    // public start() {
-    // }
+        let collision = this.collisionNode.addComponent(Collision);
+        collision.init();
+    }
 
     public onEnable() {
         AudioManager.operator(EAudioAction.Stop, true);
         AudioManager.operator(EAudioAction.Stop, false);
-
-        AudioManager.play(`BG_Leave_01`, false, true);
 
         User.setTowerIndex(0); // 初始化砲塔為最小級
         User.setAuto(false); // 初始化關閉自動射擊
@@ -195,6 +271,8 @@ export class Game extends cc.Component {
         this.updateFocusBtn();
         this.setTowerLevel(SettingManager.GetTowerByRoomLevel(User.getRoomLevel())[User.getTowerIndex()].getLevel());
         this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
+
+        this.collisionNode.getComponent(Collision).initStage(this.changeStageHandler);
 
         this.lobbyNode.on(cc.Node.EventType.TOUCH_START, this.backLobby, this);
 
@@ -229,6 +307,141 @@ export class Game extends cc.Component {
     private minusBet(event) {
         AudioManager.play(`UI_Bet_Less`, true, false);
         this.changeBet(false);
+    }
+
+    private changeStageHandler(oldStage: EStage, newStage: EStage) { // TODO 關卡切換
+        cc.log("切換道關卡:" + EStage[oldStage] + " => " + EStage[newStage]);
+
+        let bgMusic = function (stage: EStage): string {
+            switch (stage) {
+                case EStage.Level1:
+                    return `BG_Leave_01`;
+                case EStage.Level2:
+                    return `BG_Leave_02`;
+                case EStage.Level3:
+                    return `BG_Leave_03`;
+                default:
+                    cc.log("error: 無效的遊戲關卡:" + newStage);
+                    return `BG_Leave_01`;
+            }
+        }
+
+        if (oldStage == EStage.None) {
+            AudioManager.play(bgMusic(newStage), false, true);
+            return;
+        }
+
+        let currentBgNode: cc.Node;
+        let nextBgNode: cc.Node;
+
+        if (oldStage == EStage.Level1 && newStage == EStage.Level2) {
+            currentBgNode = this.bg1Node;
+            nextBgNode = this.bg2Node;
+        } else if (oldStage == EStage.Level2 && newStage == EStage.Level3) {
+            currentBgNode = this.bg2Node;
+            nextBgNode = this.bg3Node;
+        } else if (oldStage == EStage.Level3 && newStage == EStage.Level1) {
+            currentBgNode = this.bg3Node;
+            nextBgNode = this.bg1Node;
+        } else {
+            cc.log("error: 遊戲關卡切換錯誤");
+            return;
+        }
+
+        cc.log("yuan: " + currentBgNode + "," + nextBgNode + "," + this.bg1Node + "," + this.bg2Node); // FIXME yuan: undefined,undefined,undefined,undefined
+
+        // 將下一個要顯示的背景位移到目前背景的正下方
+        let y = -1 * (nextBgNode.height / 2);
+        nextBgNode.setPosition(0, y);
+        nextBgNode.active = true;
+
+        let y2 = this.stageNoticeNode.height;
+
+        let currentBgTween = cc.tween(this.stageNoticeNode)
+            .to(1, { position: new cc.Vec2(0, y2) });
+
+        let nextBgTween = cc.tween(this.stageNoticeNode)
+            .to(1, { position: new cc.Vec2(0, 0) });
+
+        let bubbleTweenArray: cc.Tween<unknown>[] = [];
+        {// TODO 顯示泡泡 tween
+            let name = "img_bg_bubble";
+
+            let bubbleMax = 5; // 泡泡預計顆數
+
+            for (let i = 0; i < bubbleMax; i++) {
+                let targetX = 100 + (i * 10);
+                let targetY = 100 + (i * 10);
+                let targetOpacity = 200;
+                let targetScale = 2;
+                let speed = 10;
+
+                let node = new cc.Node("bubble");
+                {
+                    var sprite = node.addComponent(cc.Sprite);
+                    sprite.spriteFrame = (ResourcesManager.spriteAtlasMap.get('SS_Symbol_Atlas_03')).getSpriteFrame(name);
+
+                    let startX = 0;
+                    let startY = -(this.node.height / 2);
+                    let startOpacity = 255;
+                    let startScale = 1;
+
+                    node.setPosition(startX, startY);
+                    node.opacity = startOpacity;
+                    node.scale = startScale;
+                }
+
+                this.stageNoticeNode.addChild(node);
+
+                let tween = cc.tween(node)
+                    .to(speed, { position: new cc.Vec2(targetX, targetY), opacity: targetOpacity, scale: targetScale })
+                    .call(() => {
+                        node.destroy(); // TODO 要確定是否有刪除
+                    });
+                bubbleTweenArray.push(tween);
+            }
+
+            // this.fireNode.getComponent(cc.Sprite).spriteFrame = spriteFrame;
+        }
+
+
+        let stageNoticTween: cc.Tween<unknown>;
+
+        let toLevel1 = (oldStage == EStage.Level3 && newStage == EStage.Level1);
+        if (!toLevel1) { // 需要額外顯示關卡名稱
+            this.stageNoticeNode.setPosition(0, 600);
+            this.stageNoticeNode.getChildByName("level_2").active = (newStage == EStage.Level2 ? true : false);
+            this.stageNoticeNode.getChildByName("level_3").active = (newStage == EStage.Level3 ? true : false);
+            this.stageNoticeNode.opacity = 255;
+
+            stageNoticTween = cc.tween(this.stageNoticeNode)
+                .to(1.5, { position: new cc.Vec2(0, 0) })
+                .delay(3)
+                .to(0.5, { opacity: 0 });
+        }
+
+        cc.tween(this)
+            .call(() => {
+                AudioManager.play(`UI_Roulette`, true, false); // 2.22秒
+                // TODO 要求全部的魚在 2.22秒內全部加速離開畫面
+            })
+            .delay(3)
+            .call(() => {
+                AudioManager.play(`UI_Bubble`, true, false); // 1.933秒
+                currentBgTween.start();
+                nextBgTween.start();
+                if (stageNoticTween) {
+                    stageNoticTween.start();
+                }
+                for (let i = 0; i < bubbleTweenArray.length; i++) {
+                    bubbleTweenArray[i].start();
+                }
+            })
+            .delay(5)
+            .call(() => {
+                AudioManager.play(bgMusic(newStage), false, true);
+            })
+            .start();
     }
 
     private changeBet(plus: boolean) {
@@ -401,12 +614,6 @@ export class Game extends cc.Component {
     }
 
     public updateMouseMove(event: cc.Event.EventTouch) {
-        // XXX 世界座標和相對座標轉換
-        /** 
-         * 世界座標和相對座標轉換
-         * https://www.twblogs.net/a/5cc1de6fbd9eee397114143e
-         */
-
         let location = event.getLocation();
         let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
 
@@ -458,25 +665,29 @@ export class Game extends cc.Component {
     }
 
     private fire() {
-        {// 扣款並且檢查是否有足夠的餘額
-            let roomLevel = User.getRoomLevel();
-            let towerIndex = User.getTowerIndex();
-            let tower = SettingManager.GetTowerByRoomLevel(roomLevel)[towerIndex];
-            let bet = (Mul(tower.getBet().toString(), tower.getBase().toString())).toString();
+        // 扣款並且檢查是否有足夠的餘額
+        let roomLevel = User.getRoomLevel();
+        let towerIndex = User.getTowerIndex();
+        let tower = SettingManager.GetTowerByRoomLevel(roomLevel)[towerIndex];
+        let bet = (Mul(tower.getBet().toString(), tower.getBase().toString())).toString();
 
-            let result = User.operatorWallet(EWallet.Pay, bet);
+        let result = User.operatorWallet(EWallet.Pay, bet);
 
-            this.updateWalletValue();
+        this.updateWalletValue();
 
-            if (result.result != EWalletResultAction.Success) {
-                cc.log(`玩家錢包扣款失敗, 錯誤類型:${result.result}, 壓注:${bet}, 餘額:${result.oldValue}`);
-                return;
-            }
+        if (result.result != EWalletResultAction.Success) {
+            cc.log(`玩家錢包扣款失敗, 錯誤類型:${result.result}, 壓注:${bet}, 餘額:${result.oldValue}`);
+            return;
         }
 
-        { // TODO 產生子彈並且發射子彈
 
-        }
+        // 產生子彈並且發射子彈
+        this.collisionNode.getComponent(Collision).AddBullet(
+            roomLevel,
+            tower,
+            this.originLocationOfTower, // 使用砲塔原始位置作為基準點
+            this.towerNode.rotation, // 砲塔目前旋轉角度
+        );
 
         let time1 = 0.03;
         let time2 = 0.07;

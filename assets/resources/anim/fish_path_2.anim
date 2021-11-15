@@ -1,0 +1,31 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "fish_path_2",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 9.033333333333333,
+  "sample": 30,
+  "speed": 1,
+  "wrapMode": 1,
+  "curveData": {
+    "props": {
+      "position": [
+        {
+          "frame": 0,
+          "value": [
+            -331,
+            457
+          ]
+        },
+        {
+          "frame": 9.033333333333333,
+          "value": [
+            562,
+            -313
+          ]
+        }
+      ]
+    }
+  },
+  "events": []
+}

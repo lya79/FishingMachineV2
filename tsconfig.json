@@ -5,7 +5,8 @@
     "target": "es5",
     "experimentalDecorators": true,
     "skipLibCheck": true,
-    "outDir": "temp/vscode-dist"
+    "outDir": "temp/vscode-dist",
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": [
     "node_modules",

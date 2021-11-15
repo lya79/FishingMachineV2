@@ -44,9 +44,6 @@ export class LobbyComponent extends cc.Component {
         }
     }
 
-    // public start() {
-    // }
-
     public onEnable() {
         cc.log("lobby onEnable");
 

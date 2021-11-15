@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "level2Bullet",
+    "_name": "fish_2",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -24,13 +24,10 @@
       },
       {
         "__id__": 3
-      },
-      {
-        "__id__": 4
       }
     ],
     "_prefab": {
-      "__id__": 5
+      "__id__": 4
     },
     "_opacity": 255,
     "_color": {
@@ -42,13 +39,13 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 29,
-      "height": 70
+      "width": 50,
+      "height": 58
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
       "x": 0.5,
-      "y": 1
+      "y": 0.5
     },
     "_position": {
       "__type__": "cc.Vec3",
@@ -73,7 +70,7 @@
     },
     "_skewX": 0,
     "_skewY": 0,
-    "groupIndex": 2,
+    "groupIndex": 0,
     "_id": ""
   },
   {
@@ -85,7 +82,7 @@
     },
     "_enabled": true,
     "_spriteFrame": {
-      "__uuid__": "0061e7ca-07d5-4ea8-b41a-6626cb04e010"
+      "__uuid__": "0c8d0d45-a586-422d-be2a-6a4771a9dad2"
     },
     "_type": 0,
     "_sizeMode": 1,
@@ -100,37 +97,29 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": {
-      "__uuid__": "a41523b7-326d-46e1-848c-c6d01e85eb2b"
+      "__uuid__": "9b42c331-0465-4e9e-b9ed-c8e73f8a64a4"
     },
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_id": ""
   },
   {
-    "__type__": "65756TlzyJDWKE3KbGHB//9",
+    "__type__": "cc.Animation",
     "_name": "",
     "_objFlags": 0,
     "node": {
       "__id__": 1
     },
     "_enabled": true,
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CircleCollider",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 1
+    "_defaultClip": {
+      "__uuid__": "7e441562-5cab-4992-b072-fc0eb8cd7990"
     },
-    "_enabled": true,
-    "tag": 0,
-    "_offset": {
-      "__type__": "cc.Vec2",
-      "x": 0,
-      "y": -13
-    },
-    "_radius": 13,
+    "_clips": [
+      {
+        "__uuid__": "7e441562-5cab-4992-b072-fc0eb8cd7990"
+      }
+    ],
+    "playOnLoad": true,
     "_id": ""
   },
   {
@@ -139,9 +128,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "07c21099-ee64-4020-a543-374faea5998c"
+      "__uuid__": "901fd98c-5f5d-4927-b8ed-21050123dd2c"
     },
-    "fileId": "80i0whSzRKULdbBiN379Sy",
+    "fileId": "b2lvBL88xFPoeWqO9rvkWT",
     "sync": false
   }
 ]

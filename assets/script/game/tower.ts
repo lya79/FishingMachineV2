@@ -24,9 +24,6 @@ export class Tower extends cc.Component {
         }
     }
 
-    // public start() {
-    // }
-
     public onEnable() {
         // let self = this;
         // this.schedule(function (dt) {
