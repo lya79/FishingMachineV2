@@ -10,6 +10,7 @@ export class FishPath {
     private scale: number;
     private path: cc.Vec2[];
     private speedOfPoint: number[];
+    private speedOfObj: number[];
 
     /**
      * 
@@ -19,6 +20,7 @@ export class FishPath {
      * @param scale 魚的大小
      * @param path 魚位移的路徑
      * @param speedOfPoint 每一個點的速度
+     * @param speedOfObj 元件自身的速度
      */
     constructor(
         name: string,
@@ -27,6 +29,7 @@ export class FishPath {
         scale: number,
         path: cc.Vec2[],
         speedOfPoint: number[],
+        speedOfObj: number[],
     ) {
         this.name = name;
         this.delay = delay;
@@ -34,6 +37,7 @@ export class FishPath {
         this.scale = scale;
         this.path = path;
         this.speedOfPoint = speedOfPoint;
+        this.speedOfObj = speedOfObj;
     }
 
     public getName(): string {
@@ -58,6 +62,10 @@ export class FishPath {
 
     public getSpeedOfPoint(): number[] {
         return Array.from(this.speedOfPoint);
+    }
+
+    public getSpeedOfObj(): number[] {
+        return Array.from(this.speedOfObj);
     }
 }
 
@@ -277,35 +285,73 @@ export class SettingManager {
         return arr;
     }
 
-    public static getRandomPath(): { pathArr: cc.Vec2[], speedOfPoint: number[] } {// TODO
+    public static getRandomPath(): {// TODO
+        pathArr: cc.Vec2[], // 位移的點
+        speedOfPoint: number[], // 點與點之間的位移速度
+        speedOfObj: number[], // 魚擺動尾巴的速度
+    } {
         // 畫面大小
         let width = 472;
         let height = 840;
 
+        /**
+         * 每個點和點之間的速度(speedOfPoint)要一樣, 
+         * 如果有加快或減慢, 就需要把自身速度(speedOfObj)跟著改變
+         * 
+         * 假設需要移動的最長距離為 472(左右兩端距離)
+         * 並且需要再 10s完成
+         * 因此可以換算出每一個位置偏移需要耗費 0.02118644067=10/472
+         */
+        let defaultSpeed = 0.02118644067;
+        let speedOfObj = 1;// XXX 亂數增減 // 花費幾成的時間, 數字越小魚的移動速度和擺動尾巴速度就越快
+
         let pathArr: cc.Vec2[] = [];
-        let speedOfPoint: number[] = [];
+        let speedOfPointArr: number[] = [];
+        let speedOfObjArr: number[] = [];
 
         {
             let x = -(width / 2);
             let y = 0;
+
             pathArr.push(new cc.Vec2(x, y));
-            speedOfPoint.push(1); // 一開始先停留多久才開始
+            speedOfPointArr.push(1); // 一開始先停留多久才開始
+            speedOfObjArr.push(1); // 沒任何影響
         }
 
         {
             let x = 0;
             let y = -50;
+            let speed = speedOfObj - 0.5; // XXX 亂數增減
+
             pathArr.push(new cc.Vec2(x, y));
-            speedOfPoint.push(5); // 上一個座標到這一個座標的花費時間
+
+            let distance = this.getDistance(pathArr[pathArr.length - 1], pathArr[pathArr.length - 2]);
+            let speedOfPoint = distance * defaultSpeed * speed;
+
+            speedOfPointArr.push(speedOfPoint); // 上一個座標到這一個座標的花費時間
+            speedOfObjArr.push(1 + (1 - speed));
         }
 
         {
             let x = (width / 2);
             let y = 0;
+            let speed = speedOfObj + 0.5;
+
             pathArr.push(new cc.Vec2(x, y));
-            speedOfPoint.push(5);
+
+            let distance = this.getDistance(pathArr[pathArr.length - 1], pathArr[pathArr.length - 2]);
+            let speedOfPoint = distance * defaultSpeed * speed;
+
+            speedOfPointArr.push(speedOfPoint);
+            speedOfObjArr.push(1 + (1 - speed));
         }
 
-        return { pathArr: pathArr, speedOfPoint: speedOfPoint };
+        return { pathArr: pathArr, speedOfPoint: speedOfPointArr, speedOfObj: speedOfObjArr };
+    }
+
+    private static getDistance(a: cc.Vec2, b: cc.Vec2): number {
+        let x = a.x - b.x;
+        let y = a.y - b.y;
+        return Math.sqrt(x * x + y * y);
     }
 }

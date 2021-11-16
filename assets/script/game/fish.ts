@@ -16,17 +16,19 @@ export class Fish extends cc.Component {
         var anim = this.node.getComponent(cc.Animation);
         anim.getAnimationState(this.node.name).speed = fishPath.getSpeed();
 
-        let path = fishPath.getPath();
+        let pathArr = fishPath.getPath();
 
         this.positionTween = cc.tween(this.node);
 
-        for (let i = 0; i < path.length; i++) { // 動畫串接
-            let x = path[i].x;
-            let y = path[i].y;
+        for (let i = 0; i < pathArr.length; i++) { // 動畫串接
+            let path = pathArr[i];
+            let x = path.x;
+            let y = path.y;
 
             let delay = fishPath.getSpeedOfPoint()[i];
+            let speed = fishPath.getSpeedOfObj()[i];
 
-            if (i == 0 || (i == path.length - 1)) { // 確保起始和結束的位置要在畫面之外
+            if (i == 0 || (i == pathArr.length - 1)) { // 確保起始和結束的位置要在畫面之外
                 if (x < 0) {
                     x -= this.node.width;
                 } else {
@@ -41,14 +43,22 @@ export class Fish extends cc.Component {
 
                 if (i == 0) {
                     this.node.setPosition(x, y); // 起點位置
+                    this.positionTween.then(cc.tween().call(() => {
+                        var anim = this.node.getComponent(cc.Animation);
+                        anim.getAnimationState(this.node.name).speed = speed;
+                    }));
                     this.positionTween.then(cc.tween().delay(delay)); // 稍微停止一下才開始
                     continue;
                 }
             }
 
+            this.positionTween.then(cc.tween().call(() => {
+                var anim = this.node.getComponent(cc.Animation);
+                anim.getAnimationState(this.node.name).speed = speed;
+            }));
             this.positionTween.then(cc.tween().to(delay, { position: new cc.Vec2(x, y) }));
 
-            if (i == path.length - 1) {
+            if (i == pathArr.length - 1) {
                 let self = this;
                 this.positionTween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
                 this.positionTween.then(cc.tween().call(() => { self.node.destroy(); }));
@@ -89,15 +99,32 @@ export class Fish extends cc.Component {
     public clearFish() {
         this.positionTween.stop();// 停止原先的位移動作
 
-        // 加速離開畫面
-        let self = this;
-        let clearTween = cc.tween(this.node);
-        clearTween.then(cc.tween().to(1.5, { position: new cc.Vec2(this.lastX, this.lastY) })); // 1.5s離開畫面
-        clearTween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
-        clearTween.then(cc.tween().call(() => { self.node.destroy(); }));
-        clearTween.start();
+        /**
+         * 假設需要移動的最長距離為 875.6(對角)
+         * 並且需要再 2s完成
+         * 因此可以換算出每一個位置偏移需要耗費 0.00228414801=2/875.6
+         */
+        let currentPosition = this.node.getPosition();
+        let lastPosition = new cc.Vec2(this.lastX, this.lastY)
+        let distance = this.getDistance(currentPosition, lastPosition); //目前差還多少距離到達邊界
+        let delay = distance * 0.00228414801;
+        let speed = 2;
 
-        var anim = this.node.getComponent(cc.Animation);
-        anim.getAnimationState(this.node.name).speed += 2; // 自身的動畫速度加快
+        let self = this;
+        let tween = cc.tween(this.node);
+        tween.then(cc.tween().call(() => {
+            var anim = this.node.getComponent(cc.Animation);
+            anim.getAnimationState(this.node.name).speed *= speed;
+        }));
+        tween.then(cc.tween().to(delay, { position: lastPosition })); // 1.5s離開畫面
+        tween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
+        tween.then(cc.tween().call(() => { self.node.destroy(); }));
+        tween.start();
+    }
+
+    private getDistance(a: cc.Vec2, b: cc.Vec2): number {
+        let x = a.x - b.x;
+        let y = a.y - b.y;
+        return Math.sqrt(x * x + y * y);
     }
 }

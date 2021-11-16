@@ -31,7 +31,7 @@ export class Collision extends cc.Component {
                 btnNode.on(cc.Node.EventType.TOUCH_START, function () {
                     let name = inputNode.getComponent(cc.EditBox).string;
                     let obj = SettingManager.getRandomPath();
-                    self.AddFish(new FishPath(name, 1, 1, 1, obj.pathArr, obj.speedOfPoint));
+                    self.AddFish(new FishPath(name, 1, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj));
                 }, this);
             }
 
