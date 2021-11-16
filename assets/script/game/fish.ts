@@ -6,6 +6,10 @@ export class Fish extends cc.Component {
 
     private fishPath: FishPath;
 
+    /** 魚位移的最後一個位置 */
+    private lastX: number;
+    private lastY: number;
+
     public init(fishPath: FishPath) {
         this.fishPath = fishPath;
 
@@ -48,6 +52,9 @@ export class Fish extends cc.Component {
                 let self = this;
                 this.positionTween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
                 this.positionTween.then(cc.tween().call(() => { self.node.destroy(); }));
+
+                this.lastX = x;
+                this.lastY = y;
             }
         }
     }
@@ -84,10 +91,8 @@ export class Fish extends cc.Component {
 
         // 加速離開畫面
         let self = this;
-        let path = this.fishPath.getPath();
-        let lastPath = path[path.length - 1];
         let clearTween = cc.tween(this.node);
-        clearTween.then(cc.tween().to(1.5, { position: new cc.Vec2(lastPath.x, lastPath.y) })); // 1.5s離開畫面
+        clearTween.then(cc.tween().to(1.5, { position: new cc.Vec2(this.lastX, this.lastY) })); // 1.5s離開畫面
         clearTween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
         clearTween.then(cc.tween().call(() => { self.node.destroy(); }));
         clearTween.start();
