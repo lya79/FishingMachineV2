@@ -129,13 +129,13 @@ export class LoadingComponent extends cc.Component {
                 self.numOfRes += 1;
             }
 
-            {  // 魚的路徑
+            {  // 魚的種類
                 self.totalOfRes += 2;
                 let max = 2;
                 for (let i = 1; i <= max; i++) {
-                    let ok = await self.loadFishPahPrefab(i.toString());
+                    let ok = await self.loadFishPrefab(i.toString());
                     if (!ok) {
-                        self.error = new Error(`error: loadFishPahPrefab fail paht: fish_path_` + i.toString());
+                        self.error = new Error(`error: loadFishPrefab fail paht: fish_` + i.toString());
                         return;
                     }
                     self.numOfRes += 1;
@@ -171,8 +171,8 @@ export class LoadingComponent extends cc.Component {
         run();
     }
 
-    private async loadFishPahPrefab(value: string): Promise<boolean> {
-        let name = `fish_path_` + value;
+    private async loadFishPrefab(value: string): Promise<boolean> {
+        let name = `fish_` + value;
         let path = 'prefab/' + name;
         let type = cc.Prefab;
         let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));

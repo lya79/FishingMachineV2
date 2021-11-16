@@ -2,9 +2,9 @@
 import { EWallet, EWalletResultAction, User } from "../common/user";
 import { EAction as EAudioAction, AudioManager } from "../common/audio";
 import { SettingManager } from "../common/setting";
-import { Mul, GetRandomFloat, GetRandomInt } from "../common/common";
+import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { Tower } from "./tower";
-import { Collision, ChangeStageHandler, EStage } from "./collision";
+import { Collision, ChangeStageHandler } from "./collision";
 import { ResourcesManager } from "../common/resource";
 
 const { ccclass, property } = cc._decorator;
@@ -58,36 +58,6 @@ export class Game extends cc.Component {
     }
 
     public onLoad() {
-        { // 測試用途的按鈕, 不使用的按鈕要設定 active為 false
-            let showFishBtn = false; // 測試各種魚
-            let showNextStageBtn = false; // 測試關卡切換
-
-            if (showFishBtn) {
-                let btnNode = this.node.getChildByName("testBtn").getChildByName("fishBtn");
-                let inputNode = this.node.getChildByName("testBtn").getChildByName("fishInput");
-
-                btnNode.active = true;
-                inputNode.active = true;
-
-                let self = this;
-                btnNode.on(cc.Node.EventType.TOUCH_START, function () {
-                    let fishPath = inputNode.getComponent(cc.EditBox).string;
-                    self.collisionNode.getComponent(Collision).AddFish(fishPath);
-                }, this);
-            }
-
-            if (showNextStageBtn) {
-                let nextStageNode = this.node.getChildByName("testBtn").getChildByName("nextStage");
-
-                nextStageNode.active = true;
-
-                let self = this;
-                nextStageNode.on(cc.Node.EventType.TOUCH_START, function () {
-                    self.collisionNode.getComponent(Collision).nextStage();
-                }, this);
-            }
-        }
-
         let btnNode = this.node.getChildByName("btn");
         if (!btnNode) {
             cc.log('error: btnNode is null');
@@ -277,7 +247,7 @@ export class Game extends cc.Component {
         this.updateAutoBtn();
         this.initCrosshairNode();
         this.updateFocusBtn();
-        this.setTowerLevel(SettingManager.GetTowerByRoomLevel(User.getRoomLevel())[User.getTowerIndex()].getLevel());
+        this.setTowerLevel(SettingManager.getTowerByRoomLevel(User.getRoomLevel())[User.getTowerIndex()].getLevel());
         this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
 
         this.collisionNode.getComponent(Collision).initStage(this.changeStageHandler.bind(this));
@@ -317,16 +287,16 @@ export class Game extends cc.Component {
         this.changeBet(false);
     }
 
-    private changeStageHandler(oldStage: EStage, newStage: EStage) {
-        cc.log("切換道關卡:" + EStage[oldStage] + " => " + EStage[newStage]);
+    private changeStageHandler(oldStage: number, newStage: number) {
+        cc.log("切換道關卡:" + oldStage + " => " + newStage);
 
-        let bgMusic = function (stage: EStage): string {
+        let bgMusic = function (stage: number): string {
             switch (stage) {
-                case EStage.Level1:
+                case 1:
                     return `BG_Leave_01`;
-                case EStage.Level2:
+                case 2:
                     return `BG_Leave_02`;
-                case EStage.Level3:
+                case 3:
                     return `BG_Leave_03`;
                 default:
                     cc.log("error: 無效的遊戲關卡:" + newStage);
@@ -334,21 +304,24 @@ export class Game extends cc.Component {
             }
         }
 
-        if (oldStage == EStage.None) {
+        if (oldStage == 0) {
             AudioManager.play(bgMusic(newStage), false, true);
+
+            // 開始顯示關卡的魚
+            this.collisionNode.getComponent(Collision).startFish();
             return;
         }
 
         let currentBgNode: cc.Node;
         let nextBgNode: cc.Node;
 
-        if (oldStage == EStage.Level1 && newStage == EStage.Level2) {
+        if (oldStage == 1 && newStage == 2) {
             currentBgNode = this.bg1Node;
             nextBgNode = this.bg2Node;
-        } else if (oldStage == EStage.Level2 && newStage == EStage.Level3) {
+        } else if (oldStage == 2 && newStage == 3) {
             currentBgNode = this.bg2Node;
             nextBgNode = this.bg3Node;
-        } else if (oldStage == EStage.Level3 && newStage == EStage.Level1) {
+        } else if (oldStage == 3 && newStage == 1) {
             currentBgNode = this.bg3Node;
             nextBgNode = this.bg1Node;
         } else {
@@ -379,20 +352,20 @@ export class Game extends cc.Component {
 
                 let spriteHeight = sprite.spriteFrame.getRect().height;
                 let startOpacity = 255;
-                let startScale = GetRandomFloat(0.5, 3);
-                let startX = GetRandomInt(-100, 100);
+                let startScale = getRandomFloat(0.5, 3);
+                let startX = getRandomInt(-100, 100);
                 let startY = -(this.node.height / 2) - (startScale * (spriteHeight / 2));
-                startY = GetRandomFloat(startY - 250, startY);
+                startY = getRandomFloat(startY - 400, startY);
 
                 node.setPosition(startX, startY);
                 node.opacity = startOpacity;
                 node.scale = startScale;
 
                 let targetOpacity = 255;
-                let targetScale = GetRandomFloat(4, 5);
-                let targetX = GetRandomInt(-300, 300);
+                let targetScale = getRandomFloat(4, 5);
+                let targetX = getRandomInt(-300, 300);
                 let targetY = (this.node.height / 2) + (targetScale * (spriteHeight / 2));
-                let speed = GetRandomFloat(1.5, 2.0);
+                let speed = getRandomFloat(1.5, 2.0);
 
                 this.effectNode.addChild(node);
 
@@ -408,11 +381,11 @@ export class Game extends cc.Component {
 
         let stageNoticTween: cc.Tween<unknown>;
 
-        let toLevel1 = (oldStage == EStage.Level3 && newStage == EStage.Level1);
+        let toLevel1 = (oldStage == 3 && newStage == 1);
         if (!toLevel1) { // 需要額外顯示關卡名稱
             this.stageNoticeNode.setPosition(0, 600);
-            this.stageNoticeNode.getChildByName("level_2").active = (newStage == EStage.Level2 ? true : false);
-            this.stageNoticeNode.getChildByName("level_3").active = (newStage == EStage.Level3 ? true : false);
+            this.stageNoticeNode.getChildByName("level_2").active = (newStage == 2 ? true : false);
+            this.stageNoticeNode.getChildByName("level_3").active = (newStage == 3 ? true : false);
             this.stageNoticeNode.opacity = 255;
 
             stageNoticTween = cc.tween(this.stageNoticeNode)
@@ -433,7 +406,9 @@ export class Game extends cc.Component {
                 AudioManager.operator(EAudioAction.Stop, false);
 
                 AudioManager.play(`UI_Roulette`, true, false); // 2.22秒
-                // TODO 要求全部的魚在 2.22秒內全部加速離開畫面
+
+                // 要求全部的魚在 2.22秒內全部加速離開畫面
+                this.collisionNode.getComponent(Collision).clearFish();
             })
             .delay(delay1)
             .call(() => {
@@ -450,6 +425,9 @@ export class Game extends cc.Component {
             .delay(delay2)
             .call(() => {
                 AudioManager.play(bgMusic(newStage), false, true);
+
+                // 開始顯示關卡的魚
+                this.collisionNode.getComponent(Collision).startFish();
             })
             .start();
     }
@@ -457,7 +435,7 @@ export class Game extends cc.Component {
     private changeBet(plus: boolean) {
         let roomLevel = User.getRoomLevel();
         let towerIndex = User.getTowerIndex();
-        let towerLength = SettingManager.GetTowerByRoomLevel(roomLevel).length;
+        let towerLength = SettingManager.getTowerByRoomLevel(roomLevel).length;
 
         let newTowerIndex = towerIndex;
 
@@ -473,8 +451,8 @@ export class Game extends cc.Component {
             }
         }
 
-        let oldTowerLevel = SettingManager.GetTowerByRoomLevel(roomLevel)[towerIndex].getLevel();
-        let newTowerLevel = SettingManager.GetTowerByRoomLevel(roomLevel)[newTowerIndex].getLevel();
+        let oldTowerLevel = SettingManager.getTowerByRoomLevel(roomLevel)[towerIndex].getLevel();
+        let newTowerLevel = SettingManager.getTowerByRoomLevel(roomLevel)[newTowerIndex].getLevel();
 
         let changeTower = oldTowerLevel != newTowerLevel; // 換武器
         if (changeTower) {
@@ -504,7 +482,7 @@ export class Game extends cc.Component {
 
         let roomLevel = User.getRoomLevel();
         let towerIndex = User.getTowerIndex();
-        let tower = SettingManager.GetTowerByRoomLevel(roomLevel)[towerIndex];
+        let tower = SettingManager.getTowerByRoomLevel(roomLevel)[towerIndex];
         let bet = Mul(tower.getBet().toString(), tower.getBase().toString());
         label.string = bet.toString();
     }
@@ -678,7 +656,7 @@ export class Game extends cc.Component {
         // 扣款並且檢查是否有足夠的餘額
         let roomLevel = User.getRoomLevel();
         let towerIndex = User.getTowerIndex();
-        let tower = SettingManager.GetTowerByRoomLevel(roomLevel)[towerIndex];
+        let tower = SettingManager.getTowerByRoomLevel(roomLevel)[towerIndex];
         let bet = (Mul(tower.getBet().toString(), tower.getBase().toString())).toString();
 
         let result = User.operatorWallet(EWallet.Pay, bet);

@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.5769349137478221,
-      "y": 0.5769349137478221,
+      "x": 0.8355710800559516,
+      "y": 0.8355710800559516,
       "z": 1
     },
     "_quat": {
@@ -4086,8 +4086,8 @@
     },
     "_enabled": true,
     "_useOriginalSize": true,
-    "_string": "fish_path_1",
-    "_N$string": "fish_path_1",
+    "_string": "fish_2",
+    "_N$string": "fish_2",
     "_fontSize": 20,
     "_lineHeight": 40,
     "_enableWrapText": false,
@@ -4196,7 +4196,7 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_string": "fish_path_1",
+    "_string": "fish_2",
     "_tabIndex": 0,
     "editingDidBegan": [],
     "textChanged": [],
@@ -4612,7 +4612,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 100,
-      "height": 40
+      "height": 35
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

@@ -23,11 +23,11 @@ export function generateUUID(): string {
  * min=1, max=3
  * 輸出可能會是 1,2,3 
  */
-export function GetRandomInt(min, max) {
+export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-export function GetRandomFloat(min, max) {
+export function getRandomFloat(min, max) {
     return Math.random() * (max - min) + min;
 };
 

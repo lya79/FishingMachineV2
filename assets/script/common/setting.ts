@@ -1,28 +1,43 @@
-import { Mul, GetRandomFloat, GetRandomInt } from "../common/common";
+import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 
 /**
  * 魚的組合
  */
 export class FishPath {
-    private fishPath: string; // 魚的路線(prefab的名稱) example:fish_path_1 
-    private delay: number; // 關卡切換後會delay多少秒後開始
-    private speed: number; // 動畫執行速度
-    private scale: number; // 大小
+    private name: string;
+    private delay: number;
+    private speed: number;
+    private scale: number;
+    private path: cc.Vec2[];
+    private speedOfPoint: number[];
 
+    /**
+     * 
+     * @param name 魚的種類
+     * @param delay 關卡開始後幾秒開始
+     * @param speed 魚自身動畫的速度(並不是魚的移動)
+     * @param scale 魚的大小
+     * @param path 魚位移的路徑
+     * @param speedOfPoint 每一個點的速度
+     */
     constructor(
-        fishPath: string,
+        name: string,
         delay: number,
         speed: number,
         scale: number,
+        path: cc.Vec2[],
+        speedOfPoint: number[],
     ) {
-        this.fishPath = fishPath;
+        this.name = name;
         this.delay = delay;
         this.speed = speed;
         this.scale = scale;
+        this.path = path;
+        this.speedOfPoint = speedOfPoint;
     }
 
-    public getFishPath(): string {
-        return this.fishPath;
+    public getName(): string {
+        return this.name;
     }
 
     public getDelay(): number {
@@ -35,6 +50,14 @@ export class FishPath {
 
     public getScale(): number {
         return this.scale;
+    }
+
+    public getPath(): cc.Vec2[] {
+        return Array.from(this.path);
+    }
+
+    public getSpeedOfPoint(): number[] {
+        return Array.from(this.speedOfPoint);
     }
 }
 
@@ -128,11 +151,8 @@ export class SettingManager {
     private static towerMap: Map<number, Tower[]> = new Map<number, Tower[]>();
     private static roomLevelArr: number[] = [];
 
-    private static fishPathMap: Map<number, FishPath[]> = new Map<number, FishPath[]>();
-    private static gameLevelArr: number[] = [];
-
     /** 載入設定檔案 */
-    public static Load(): boolean {
+    public static load(): boolean {
         for (let roomLevel = 1; roomLevel <= 3; roomLevel++) {
             this.roomLevelArr.push(roomLevel);
 
@@ -157,31 +177,10 @@ export class SettingManager {
             this.towerMap.set(roomLevel, towerArr);
         }
 
-        for (let gameLevel = 1; gameLevel <= 3; gameLevel++) {
-            this.gameLevelArr.push(gameLevel);
-
-            let fishPathArr: FishPath[];
-
-            switch (gameLevel) {
-                case 1:
-                    fishPathArr = this.getFishPathByGameLevel1();
-                    break;
-                case 2:
-                    fishPathArr = this.getFishPathByGameLevel2();
-                    break;
-                case 3:
-                    fishPathArr = this.getFishPathByGameLevel3();
-                    break;
-            }
-
-            this.fishPathMap.set(gameLevel, fishPathArr);
-        }
-
-
         return true; // success
     }
 
-    public static GetRoomLevel(): number[] {
+    public static getRoomLevel(): number[] {
         return Array.from(this.roomLevelArr);
     }
 
@@ -194,7 +193,7 @@ export class SettingManager {
         return false;
     }
 
-    public static GetRoomNameByLevel(roomLevel: number): string {
+    public static getRoomNameByLevel(roomLevel: number): string {
         switch (roomLevel) {
             case 1:
                 return "歡樂廳";
@@ -206,7 +205,7 @@ export class SettingManager {
         return "undefined";
     }
 
-    public static GetTowerByRoomLevel(roomLevel: number): Tower[] {
+    public static getTowerByRoomLevel(roomLevel: number): Tower[] {
         let towerArr = this.towerMap.get(roomLevel);
         if (towerArr) {
             return Array.from(towerArr);
@@ -214,56 +213,99 @@ export class SettingManager {
         return [];
     }
 
-    public static GetGameLevel(): number[] {
-        return Array.from(this.gameLevelArr);
+    public static getGameLevel(): number[] {
+        return [1, 2, 3];
     }
 
-    public static isVaildGameLevel(gameLevel: number): boolean {
-        for (let i = 0; i < this.gameLevelArr.length; i++) {
-            if (this.gameLevelArr[i] == gameLevel) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static GetFishPathArr(gameLevel: number): FishPath[] {
-        let fishPathArr = this.fishPathMap.get(gameLevel);
-        if (fishPathArr) {
-            return Array.from(fishPathArr);
+    public static getFishPathArr(gameStage: number): FishPath[] {
+        switch (gameStage) {
+            case 1:
+                return this.getFishPathByGameLevel1();
+                break;
+            case 2:
+                return this.getFishPathByGameLevel2();
+                break;
+            case 3:
+                return this.getFishPathByGameLevel3();
+                break;
         }
         return [];
     }
 
-    private static getFishPathByGameLevel1(): FishPath[] { // TODO ,
+    /**
+     * 每一關卡停留多少秒
+     */
+    public static getGameDelayByGameLevel(gameStage: number): number {
+        switch (gameStage) {
+            case 1:
+                return 3000;//30; // XXX 測試
+            case 2:
+                return 60;
+            case 3:
+                return 90;
+        }
+        return 30;
+    }
+
+    private static getFishPathByGameLevel1(): FishPath[] {// TODO 需要增加更多種類的魚 
         let arr: FishPath[] = [];
 
-        {
-            let name = "fish_path_1";
-            let max = GetRandomInt(5, 10);
-            for (let i = 0; i < max; i++) {
-                arr.push(new FishPath(name, GetRandomFloat(1, 60), GetRandomFloat(1, 3), GetRandomFloat(1, 2)));
-            }
-        }
-
-        {
-            let name = "fish_path_2";
-            let max = GetRandomInt(5, 10);
-            for (let i = 0; i < max; i++) {
-                arr.push(new FishPath(name, GetRandomFloat(1, 60), GetRandomFloat(1, 3), GetRandomFloat(1, 2)));
-            }
-        }
+        // {
+        //     let name = "fish_1";
+        //     let max = getRandomInt(5, 10);
+        //     for (let i = 0; i < max; i++) {
+        //         arr.push(new FishPath(
+        //             name,
+        //             getRandomFloat(1, 30),
+        //             getRandomFloat(1, 3),
+        //             getRandomFloat(1, 1.5),
+        //             this.getRandomPath(),
+        //         ));
+        //     }
+        // }
 
         return arr;
     }
 
-    private static getFishPathByGameLevel2(): FishPath[] {// TODO  
+    private static getFishPathByGameLevel2(): FishPath[] {// TODO 需要增加更多種類的魚 
         let arr: FishPath[] = [];
         return arr;
     }
 
-    private static getFishPathByGameLevel3(): FishPath[] {// TODO  
+    private static getFishPathByGameLevel3(): FishPath[] {// TODO 需要增加更多種類的魚 
         let arr: FishPath[] = [];
         return arr;
+    }
+
+    public static getRandomPath(): { pathArr: cc.Vec2[], speedOfPoint: number[] } {// TODO
+        // 畫面大小
+        let width = 472;
+        let height = 840;
+
+        let pathArr: cc.Vec2[] = [];
+        let speedOfPoint: number[] = [];
+
+        {
+            let x = -(width / 2);
+            let y = 0;
+            pathArr.push(new cc.Vec2(x, y));
+            speedOfPoint.push(1); // 一開始先停留多久才開始
+        }
+
+        {
+            let x = 0;
+            let y = -50;
+            pathArr.push(new cc.Vec2(x, y));
+            speedOfPoint.push(5); // 上一個座標到這一個座標的花費時間
+        }
+
+        {
+            let x = (width / 2);
+            let y = 0;
+            pathArr.push(new cc.Vec2(x, y));
+            speedOfPoint.push(5);
+        }
+
+        return { pathArr: pathArr, speedOfPoint: speedOfPoint };
     }
 }

@@ -11,6 +11,8 @@ const { ccclass, property } = cc._decorator;
 export class Main extends cc.Component {
 
     public onLoad() {
+        // cc.macro.ENABLE_MULTI_TOUCH = false;
+
         this.controlUI(1); // 開啟 loading畫面
 
         this.enableCollision();
@@ -37,7 +39,7 @@ export class Main extends cc.Component {
                 return;
             }
 
-            cc.log('玩家選擇大廳:' + SettingManager.GetRoomNameByLevel(roomLevel));
+            cc.log('玩家選擇大廳:' + SettingManager.getRoomNameByLevel(roomLevel));
             User.setRoomLevel(roomLevel);
 
             self.controlUI(3); // 開啟遊戲畫面
@@ -224,7 +226,7 @@ export class Main extends cc.Component {
     private loadSetting(): boolean {
         cc.log('讀取遊戲設定');
 
-        return SettingManager.Load();
+        return SettingManager.load();
     }
 
     /**
