@@ -29,6 +29,8 @@ export class User {
 
     private static gameState: number = 0; // 遊戲目前關卡
 
+    private static focusUUID: string;
+
     public static setRoomLevel(roomLevel: number) {
         this.roomLevel = roomLevel;
     }
@@ -67,6 +69,14 @@ export class User {
 
     public static setGameState(gameState: number) {
         this.gameState = gameState;
+    }
+
+    public static getFocusUUID(): string {
+        return this.focusUUID;
+    }
+
+    public static setFocusUUID(uuid: string) {
+        this.focusUUID = uuid;
     }
 
     /**

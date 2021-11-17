@@ -273,13 +273,52 @@ export class Game extends cc.Component {
             let tmp = 0; // 計時
             let self = this;
             this.schedule(function (dt) {
-                tmp += dt;
-                let delay = SettingManager.getGameDelayByGameStage(User.getGameState());
-                if (tmp >= delay) {
-                    tmp = 0;
-                    self.nextGameState();
+                { // 切換關卡
+                    tmp += dt;
+                    let delay = SettingManager.getGameDelayByGameStage(User.getGameState());
+                    if (tmp >= delay) {
+                        tmp = 0;
+                        self.nextGameState();
+                    }
                 }
-            }, 1);
+
+                { // 判斷 focus
+                    let focusNode = self.node.getChildByName("crosshair").getChildByName("focus");
+
+                    let isActive = function (): boolean {
+                        if (!User.isFocus()) {
+                            return false;
+                        }
+
+                        if (!User.getFocusUUID()) {
+                            return false;
+                        }
+
+                        if (!self.collisionNode.getChildByUuid(User.getFocusUUID())) {
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    let active = isActive();
+                    focusNode.active = active;
+
+                    if (!active) {
+                        return;
+                    }
+
+                    let node = self.collisionNode.getChildByUuid(User.getFocusUUID());
+                    let worldPosition = node.parent.convertToWorldSpaceAR(node.getPosition());
+
+                    // 在魚的身上顯示 focus圖示
+                    let nodePositon = focusNode.parent.convertToNodeSpaceAR(worldPosition);
+                    focusNode.setPosition(nodePositon);
+
+                    // 砲塔追著魚轉動
+                    self.updateTower(worldPosition, cc.Node.EventType.TOUCH_MOVE, false);
+                }
+            }, 0.05); // XXX 效果看起來不太好, 準心位移會lag的感覺
         }
 
         this.lobbyNode.on(cc.Node.EventType.TOUCH_START, this.backLobby, this);
@@ -484,6 +523,7 @@ export class Game extends cc.Component {
     private changeFocus() {
         AudioManager.play(`UI_Menu_Click`, true, false);
 
+        User.setFocusUUID(null);
         User.setFocus(!User.isFocus());
 
         this.updateFocusBtn();
@@ -504,7 +544,10 @@ export class Game extends cc.Component {
     }
 
     public updateMouseMove(event: cc.Event.EventTouch) {
-        let location = event.getLocation();
+        this.updateTower(event.getLocation(), event.getType(), true);
+    }
+
+    public updateTower(location: cc.Vec2, eventType: string, showAutoNode: boolean) {
         let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
 
         if (!this.isCrosshairArea(locationOfTouch)) {
@@ -517,7 +560,7 @@ export class Game extends cc.Component {
 
         let updateCrosshair = false;
 
-        switch (event.getType()) {
+        switch (eventType) {
             case cc.Node.EventType.TOUCH_MOVE:
             case cc.Node.EventType.TOUCH_START:
                 updateCrosshair = true;
@@ -531,14 +574,14 @@ export class Game extends cc.Component {
 
         if (updateCrosshair) {
             this.crosshairDefNode.setPosition(locationOfTouch);
-            this.crosshairDefNode.active = true;
+            this.crosshairDefNode.active = true && showAutoNode;
             let obj = this.calculatorRotation(locationOfTouch, this.originLocationOfTower);
             this.updateRotationOfTower(obj.rotation, obj.backLocation);
         } else {
             this.crosshairDefNode.active = false;
         }
 
-        if (event.getType() == cc.Node.EventType.TOUCH_START && updateCrosshair) {
+        if (eventType == cc.Node.EventType.TOUCH_START && updateCrosshair) {
             this.stopAutoFire();
             this.fire();
             this.startAutoFire();

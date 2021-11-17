@@ -234,11 +234,11 @@ export class SettingManager {
     public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 15;//30; // XXX 測試
+                return 60000;//30; // XXX 測試
             case 2:
-                return 15;
+                return 60000;
             case 3:
-                return 15;
+                return 60000;
         }
         return 30;
     }
@@ -276,7 +276,7 @@ export class SettingManager {
         return arr;
     }
 
-    public static getRandomPath(): {// TODO
+    public static getRandomPath(): {// TODO 隨機產生魚的位移路線
         pathArr: cc.Vec2[], // 位移的點
         speedOfPoint: number[], // 點與點之間的位移速度
         speedOfObj: number[], // 魚擺動尾巴的速度
@@ -294,7 +294,7 @@ export class SettingManager {
          * 因此可以換算出每一個位置偏移需要耗費 0.02118644067=10/472
          */
         let defaultSpeed = 0.02118644067;
-        let speedOfObj = 1;// XXX 亂數增減 // 花費幾成的時間, 數字越小魚的移動速度和擺動尾巴速度就越快
+        let speedOfObj = 1;// XXX 亂數增減魚的速度(擺尾巴和位移) // 花費幾成的時間, 數字越小魚的移動速度和擺動尾巴速度就越快
 
         let pathArr: cc.Vec2[] = [];
         let speedOfPointArr: number[] = [];
@@ -312,7 +312,7 @@ export class SettingManager {
         {
             let x = 0;
             let y = -50;
-            let speed = speedOfObj - 0.5; // XXX 亂數增減
+            let speed = speedOfObj - 0.5; // XXX 亂數增減魚的速度(擺尾巴和位移)
 
             pathArr.push(new cc.Vec2(x, y));
 

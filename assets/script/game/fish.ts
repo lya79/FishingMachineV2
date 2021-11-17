@@ -15,7 +15,7 @@ export class Fish extends cc.Component {
 
         let pathArr = fishPath.getPath();
 
-        this.positionTween = cc.tween(this.node); 
+        this.positionTween = cc.tween(this.node);
 
         for (let i = 0; i < pathArr.length; i++) { // 動畫串接
             let path = pathArr[i];
@@ -72,22 +72,22 @@ export class Fish extends cc.Component {
 
     public onEnable() {
         this.node.on(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
-        this.node.on(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
+        // this.node.on(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
     }
 
     public onDisable() {
-        this.node.off(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
+        // this.node.off(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
         this.node.off(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
         this.node.destroy();
     }
 
     private touchHandler(event) {
-        // cc.log("touchHandler: " + this.node.name + ", " + event.getType() + ", x:" + this.node.x + ", y:" + this.node.y);
+        User.setFocusUUID(this.node.uuid);
     }
 
-    private positionHandler() {
-        // cc.log("positionHandler: " + this.node.name);
-    }
+    // private positionHandler() {
+    // cc.log("positionHandler: " + this.node.name);
+    // }
 
     public startFish() {
         this.positionTween.start();
