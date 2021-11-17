@@ -27,6 +27,8 @@ export class User {
     private static auto: boolean = false; // 自動射擊
     private static focus: boolean = false; // 鎖定射擊
 
+    private static gameState: number = 0; // 遊戲目前關卡
+
     public static setRoomLevel(roomLevel: number) {
         this.roomLevel = roomLevel;
     }
@@ -57,6 +59,14 @@ export class User {
 
     public static isFocus(): boolean {
         return this.focus;
+    }
+
+    public static getGameState(): number {
+        return this.gameState;
+    }
+
+    public static setGameState(gameState: number) {
+        this.gameState = gameState;
     }
 
     /**

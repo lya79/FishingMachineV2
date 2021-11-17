@@ -13,12 +13,9 @@ export class Fish extends cc.Component {
     public init(fishPath: FishPath) {
         this.fishPath = fishPath;
 
-        var anim = this.node.getComponent(cc.Animation);
-        anim.getAnimationState(this.node.name).speed = fishPath.getSpeed();
-
         let pathArr = fishPath.getPath();
 
-        this.positionTween = cc.tween(this.node);
+        this.positionTween = cc.tween(this.node); 
 
         for (let i = 0; i < pathArr.length; i++) { // 動畫串接
             let path = pathArr[i];
@@ -81,6 +78,7 @@ export class Fish extends cc.Component {
     public onDisable() {
         this.node.off(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
         this.node.off(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
+        this.node.destroy();
     }
 
     private touchHandler(event) {

@@ -6,7 +6,6 @@ import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 export class FishPath {
     private name: string;
     private delay: number;
-    private speed: number;
     private scale: number;
     private path: cc.Vec2[];
     private speedOfPoint: number[];
@@ -16,7 +15,6 @@ export class FishPath {
      * 
      * @param name 魚的種類
      * @param delay 關卡開始後幾秒開始
-     * @param speed 魚自身動畫的速度(並不是魚的移動)
      * @param scale 魚的大小
      * @param path 魚位移的路徑
      * @param speedOfPoint 每一個點的速度
@@ -25,7 +23,6 @@ export class FishPath {
     constructor(
         name: string,
         delay: number,
-        speed: number,
         scale: number,
         path: cc.Vec2[],
         speedOfPoint: number[],
@@ -33,7 +30,6 @@ export class FishPath {
     ) {
         this.name = name;
         this.delay = delay;
-        this.speed = speed;
         this.scale = scale;
         this.path = path;
         this.speedOfPoint = speedOfPoint;
@@ -46,10 +42,6 @@ export class FishPath {
 
     public getDelay(): number {
         return this.delay;
-    }
-
-    public getSpeed(): number {
-        return this.speed;
     }
 
     public getScale(): number {
@@ -221,20 +213,16 @@ export class SettingManager {
         return [];
     }
 
-    public static getGameLevel(): number[] {
-        return [1, 2, 3];
-    }
-
     public static getFishPathArr(gameStage: number): FishPath[] {
         switch (gameStage) {
             case 1:
-                return this.getFishPathByGameLevel1();
+                return this.getFishPathByGameStage1();
                 break;
             case 2:
-                return this.getFishPathByGameLevel2();
+                return this.getFishPathByGameStage2();
                 break;
             case 3:
-                return this.getFishPathByGameLevel3();
+                return this.getFishPathByGameStage3();
                 break;
         }
         return [];
@@ -243,44 +231,47 @@ export class SettingManager {
     /**
      * 每一關卡停留多少秒
      */
-    public static getGameDelayByGameLevel(gameStage: number): number {
+    public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 3000;//30; // XXX 測試
+                return 15;//30; // XXX 測試
             case 2:
-                return 60;
+                return 15;
             case 3:
-                return 90;
+                return 15;
         }
         return 30;
     }
 
-    private static getFishPathByGameLevel1(): FishPath[] {// TODO 需要增加更多種類的魚 
+    private static getFishPathByGameStage1(): FishPath[] {// TODO 需要增加更多種類的魚 
         let arr: FishPath[] = [];
 
-        // {
-        //     let name = "fish_1";
-        //     let max = getRandomInt(5, 10);
-        //     for (let i = 0; i < max; i++) {
-        //         arr.push(new FishPath(
-        //             name,
-        //             getRandomFloat(1, 30),
-        //             getRandomFloat(1, 3),
-        //             getRandomFloat(1, 1.5),
-        //             this.getRandomPath(),
-        //         ));
-        //     }
-        // }
+        {
+            let name = "fish_1";
+            let max = getRandomInt(5, 10);
+            for (let i = 0; i < max; i++) {
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(
+                    name,
+                    getRandomFloat(1, 30), // 關卡開始後幾秒開始
+                    getRandomFloat(1, 1.5), // 魚的大小
+                    obj.pathArr, // 魚的路徑
+                    obj.speedOfPoint, // 點與點之間的移動速度
+                    obj.speedOfObj); // 魚擺動尾巴的速度
+
+                arr.push(fishPath);
+            }
+        }
 
         return arr;
     }
 
-    private static getFishPathByGameLevel2(): FishPath[] {// TODO 需要增加更多種類的魚 
+    private static getFishPathByGameStage2(): FishPath[] {// TODO 需要增加更多種類的魚 
         let arr: FishPath[] = [];
         return arr;
     }
 
-    private static getFishPathByGameLevel3(): FishPath[] {// TODO 需要增加更多種類的魚 
+    private static getFishPathByGameStage3(): FishPath[] {// TODO 需要增加更多種類的魚 
         let arr: FishPath[] = [];
         return arr;
     }
