@@ -246,22 +246,22 @@ export class SettingManager {
     private static getFishPathByGameStage1(): FishPath[] {// TODO 需要增加更多種類的魚 
         let arr: FishPath[] = [];
 
-        {
-            let name = "fish_1";
-            let max = getRandomInt(5, 10);
-            for (let i = 0; i < max; i++) {
-                let obj = SettingManager.getRandomPath();
-                let fishPath = new FishPath(
-                    name,
-                    getRandomFloat(1, 30), // 關卡開始後幾秒開始
-                    getRandomFloat(1, 1.5), // 魚的大小
-                    obj.pathArr, // 魚的路徑
-                    obj.speedOfPoint, // 點與點之間的移動速度
-                    obj.speedOfObj); // 魚擺動尾巴的速度
+        // {
+        //     let name = "fish_1";
+        //     let max = getRandomInt(5, 10); // 魚的數量
+        //     for (let i = 0; i < max; i++) {
+        //         let obj = SettingManager.getRandomPath();
+        //         let fishPath = new FishPath(
+        //             name,
+        //             getRandomFloat(1, 30), // 關卡開始後幾秒開始
+        //             getRandomFloat(1, 1.5), // 魚的大小
+        //             obj.pathArr, // 魚的路徑
+        //             obj.speedOfPoint, // 點與點之間的移動速度
+        //             obj.speedOfObj); // 魚擺動尾巴的速度
 
-                arr.push(fishPath);
-            }
-        }
+        //         arr.push(fishPath);
+        //     }
+        // }
 
         return arr;
     }
@@ -338,6 +338,17 @@ export class SettingManager {
         }
 
         return { pathArr: pathArr, speedOfPoint: speedOfPointArr, speedOfObj: speedOfObjArr };
+    }
+
+    public static getRandomPathV2(// TODO 隨機產生魚的位移路線
+        startPosition: cc.Vec2, // 起始位置
+        endPosititon: cc.Vec2, // 結束位置
+    ): {
+        pathArr: cc.Vec2[], // 位移的點
+        speedOfPoint: number[], // 點與點之間的位移速度
+        speedOfObj: number[], // 魚擺動尾巴的速度
+    } {
+        return;
     }
 
     private static getDistance(a: cc.Vec2, b: cc.Vec2): number {

@@ -55,7 +55,7 @@ export class Game extends cc.Component {
     }
 
     public onLoad() {
-        { // 測試用途的按鈕, 不使用的按鈕要設定 active為 false
+        { // XXX 測試用途的按鈕, 不使用的按鈕要設定 active為 false
             let showFishBtn = true; // 測試各種魚
             let showNextStageBtn = true; // 測試關卡切換
 
