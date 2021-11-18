@@ -55,38 +55,33 @@ export class Game extends cc.Component {
     }
 
     public onLoad() {
-        { // XXX 測試用途的按鈕, 不使用的按鈕要設定 active為 false
-            let showFishBtn = true; // 測試各種魚
-            let showNextStageBtn = true; // 測試關卡切換
-
+        if (SettingManager.addFish) {
             let testBtn = this.node.getChildByName("testBtn");
+            let btnNode = testBtn.getChildByName("fishBtn");
+            let inputNode = testBtn.getChildByName("fishInput");
 
-            if (showFishBtn) {
-                let btnNode = testBtn.getChildByName("fishBtn");
-                let inputNode = testBtn.getChildByName("fishInput");
+            btnNode.active = true;
+            inputNode.active = true;
 
-                btnNode.active = true;
-                inputNode.active = true;
+            let self = this;
+            btnNode.on(cc.Node.EventType.TOUCH_START, function () {
+                let name = inputNode.getComponent(cc.EditBox).string;
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
+                self.collisionNode.getComponent(Collision).AddFish(fishPath);
+            }, this);
+        }
 
-                let self = this;
-                btnNode.on(cc.Node.EventType.TOUCH_START, function () {
-                    let name = inputNode.getComponent(cc.EditBox).string;
-                    let obj = SettingManager.getRandomPath();
-                    let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
-                    self.collisionNode.getComponent(Collision).AddFish(fishPath);
-                }, this);
-            }
+        if (SettingManager.changeGameStage) {
+            let testBtn = this.node.getChildByName("testBtn");
+            let nextStageNode = testBtn.getChildByName("nextStage");
 
-            if (showNextStageBtn) {
-                let nextStageNode = testBtn.getChildByName("nextStage");
+            nextStageNode.active = true;
 
-                nextStageNode.active = true;
-
-                let self = this;
-                nextStageNode.on(cc.Node.EventType.TOUCH_START, function () {
-                    self.nextGameState();
-                }, this);
-            }
+            let self = this;
+            nextStageNode.on(cc.Node.EventType.TOUCH_START, function () {
+                self.nextGameState();
+            }, this);
         }
 
         this.bgNode = this.node.getChildByName("bg");

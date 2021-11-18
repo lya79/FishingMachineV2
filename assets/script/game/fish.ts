@@ -10,7 +10,7 @@ export class Fish extends cc.Component {
     private lastX: number;
     private lastY: number;
 
-    private originLocationOfTower: cc.Vec2; // 暫存砲塔預設位置
+    private pointNodeArr: cc.Node[];
 
     public init(fishPath: FishPath) {
         this.fishPath = fishPath;
@@ -18,6 +18,8 @@ export class Fish extends cc.Component {
         let pathArr = fishPath.getPath();
 
         this.positionTween = cc.tween(this.node);
+
+        let self = this;
 
         for (let i = 0; i < pathArr.length; i++) { // 動畫串接
             let path = pathArr[i];
@@ -29,21 +31,22 @@ export class Fish extends cc.Component {
 
             if (i == 0 || (i == pathArr.length - 1)) { // 確保起始和結束的位置要在畫面之外
                 if (x < 0) {
-                    x -= this.node.width;
+                    x -= this.node.width / 2;
                 } else {
-                    x += this.node.width;
+                    x += this.node.width / 2;
                 }
 
                 if (y < 0) {
-                    y -= this.node.height;
+                    y -= this.node.height / 2;
                 } else {
-                    y += this.node.height;
+                    y += this.node.height / 2;
                 }
             }
 
             if (i == 0) {
                 this.node.setPosition(x, y); // 起點位置
                 this.positionTween.then(cc.tween().call(() => {// 調整魚的擺動速度
+                    self.drawPath();
                     var anim = this.node.getComponent(cc.Animation);
                     anim.getAnimationState(this.node.name).speed = speed;
                 }));
@@ -51,15 +54,15 @@ export class Fish extends cc.Component {
                 continue;
             }
 
-            let self = this;
             let currentLocation = new cc.Vec2(pathArr[i - 1].x, pathArr[i - 1].y);
             let nextLocation = new cc.Vec2(x, y);
-            this.positionTween.then(cc.tween().call(() => {// 調整魚的旋轉角度 // TODO 測試確認是否正確
+
+            this.positionTween.then(cc.tween().call(() => {
+                // 調整魚的旋轉角度
                 let obj = self.calculatorRotation(nextLocation, currentLocation);
                 self.node.rotation = obj.rotation + 180;
-            }));
 
-            this.positionTween.then(cc.tween().call(() => {// 調整魚的擺動速度
+                // 調整魚的擺動速度
                 var anim = this.node.getComponent(cc.Animation);
                 anim.getAnimationState(this.node.name).speed = speed;
             }));
@@ -134,6 +137,12 @@ export class Fish extends cc.Component {
         // this.node.off(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
         this.node.off(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
         this.node.destroy();
+
+        if (this.pointNodeArr) {
+            for (let i = 0; i < this.pointNodeArr.length; i++) {
+                this.pointNodeArr[i].destroy();
+            }
+        }
     }
 
     private touchHandler(event) {
@@ -166,6 +175,11 @@ export class Fish extends cc.Component {
         let self = this;
         let tween = cc.tween(this.node);
         tween.then(cc.tween().call(() => {
+            // 調整魚的旋轉角度
+            let obj = self.calculatorRotation(lastPosition, currentPosition);
+            self.node.rotation = obj.rotation + 180;
+
+            // 調整魚的擺動速度
             var anim = this.node.getComponent(cc.Animation);
             anim.getAnimationState(this.node.name).speed *= speed;
         }));
@@ -179,5 +193,43 @@ export class Fish extends cc.Component {
         let x = a.x - b.x;
         let y = a.y - b.y;
         return Math.sqrt(x * x + y * y);
+    }
+
+    /**
+     * 繪製魚的路徑
+     */
+    private drawPath() {
+        if (!SettingManager.showPathOfFish) {
+            return;
+        }
+
+        this.pointNodeArr = [];
+
+        let drawPoint = function (x, y, color, delay): cc.Node {
+            let node = new cc.Node("point_of_fish");
+
+            let graph = node.addComponent(cc.Graphics);
+            graph.fillColor = color;
+            graph.circle(x, y, 3);
+            // graph.fill();
+            graph.stroke();
+            return node;
+        }
+
+        let fishPath = this.fishPath;
+        for (let i = 0; i < fishPath.getPath().length; i++) {
+            let pathArr = fishPath.getPath()[i];
+            let x = pathArr.x;
+            let y = pathArr.y;
+            let delay = 0;
+            for (let i = 0; i < fishPath.getSpeedOfPoint().length; i++) {
+                delay += fishPath.getSpeedOfPoint()[i];
+            }
+
+            let node = drawPoint(x, y, new cc.Color(255, 0, 0, 255), delay);
+            this.pointNodeArr.push(node);
+
+            this.node.parent.addChild(node);
+        }
     }
 }

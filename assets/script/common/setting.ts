@@ -151,6 +151,11 @@ export class SettingManager {
     private static towerMap: Map<number, Tower[]> = new Map<number, Tower[]>();
     private static roomLevelArr: number[] = [];
 
+
+    public static showPathOfFish = true; // 開啟魚的行徑路線顯示
+    public static addFish = true; // 手動產生各種魚
+    public static changeGameStage = true; // 手動關卡切換
+
     /** 載入設定檔案 */
     public static load(): boolean {
         for (let roomLevel = 1; roomLevel <= 3; roomLevel++) {
@@ -234,7 +239,7 @@ export class SettingManager {
     public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 60000;//30; // XXX 測試
+                return 60000;//30; // TODO 暫時將每一關卡的停留時間設定成 60000
             case 2:
                 return 60000;
             case 3:
@@ -281,74 +286,214 @@ export class SettingManager {
         speedOfPoint: number[], // 點與點之間的位移速度
         speedOfObj: number[], // 魚擺動尾巴的速度
     } {
-        // 畫面大小
-        let width = 472;
-        let height = 840;
+        const countOfPath = 20; // 路線總共有幾個點
 
-        /**
-         * 每個點和點之間的速度(speedOfPoint)要一樣, 
-         * 如果有加快或減慢, 就需要把自身速度(speedOfObj)跟著改變
-         * 
-         * 假設需要移動的最長距離為 472(左右兩端距離)
-         * 並且需要再 10s完成
-         * 因此可以換算出每一個位置偏移需要耗費 0.02118644067=10/472
-         */
-        let defaultSpeed = 0.02118644067;
-        let speedOfObj = 1;// XXX 亂數增減魚的速度(擺尾巴和位移) // 花費幾成的時間, 數字越小魚的移動速度和擺動尾巴速度就越快
+        // 畫面大小
+        const width = 472;
+        const height = 840;
+
+        const defaultSpeed = 0.02118644067;
+        const speedOfObj = getRandomFloat(0.7, 1.3);// 花費幾成的時間, 數字越小魚的移動速度和擺動尾巴速度就越快
 
         let pathArr: cc.Vec2[] = [];
         let speedOfPointArr: number[] = [];
         let speedOfObjArr: number[] = [];
 
-        {
-            let x = -(width / 2);
-            let y = 0;
+        let obj = this.getStartAndEndPosition();
+        let startPosition = obj.startPosition;
+        let endPostion = obj.endPosititon;
 
-            pathArr.push(new cc.Vec2(x, y));
-            speedOfPointArr.push(1); // 一開始先停留多久才開始
-            speedOfObjArr.push(1); // 沒任何影響
+        let positionArr: cc.Vec2[] = [];
+        { // 起始點和結束點是對角位置, 路徑上有點單調, 因此隨機加入一些其他位置的點讓路線更豐富
+            let centerPositionArr: cc.Vec2[] = [];
+            {
+                let count = 1; // 取出幾個中心點
+                let arr: cc.Vec2[] = [];
+                arr.push(startPosition);
+                arr.push(endPostion);
+                let arr2 = this.bezierCalculate(arr, arr.length + count); // 先取得兩點之間的中心點
+                for (let i = 0; i < arr2.length; i++) {
+                    if (i == 0 || i == (arr2.length - 1)) {
+                        continue;
+                    }
+                    let centerPosition = new cc.Vec2( // 將中心點稍微偏離
+                        getRandomInt(arr2[1].x - 400, arr2[1].x + 400),
+                        getRandomInt(arr2[1].y - 400, arr2[1].y + 400),
+                    );
+                    centerPositionArr.push(centerPosition);
+                }
+            }
+
+            let arr = [];
+            arr.push(startPosition);
+
+            for (let i = 0; i < centerPositionArr.length; i++) {
+                let centerPosition = centerPositionArr[i];
+                arr.push(centerPosition);
+            }
+
+            arr.push(endPostion);
+            positionArr = this.bezierCalculate(arr, countOfPath);
         }
 
-        {
-            let x = 0;
-            let y = -50;
-            let speed = speedOfObj - 0.5; // XXX 亂數增減魚的速度(擺尾巴和位移)
+        let lastSpeed = speedOfObj;
+        for (let i = 0; i < positionArr.length; i++) {
+            let position = positionArr[i];
+            if (i == 0) {
+                pathArr.push(position);
+                speedOfPointArr.push(2); // 一開始先停留多久才開始
+                speedOfObjArr.push(1); // 沒任何影響, 但是要保留
+                continue;
+            }
 
-            pathArr.push(new cc.Vec2(x, y));
+            pathArr.push(position);
 
             let distance = this.getDistance(pathArr[pathArr.length - 1], pathArr[pathArr.length - 2]);
+            let speed = lastSpeed + getRandomFloat(-0.1, 0.1); // 亂數增減魚的速度(擺尾巴和位移)
+            if (speed < 0.2) {
+                speed = 0.2;
+            } else if (speed > 1.7) {
+                speed = 1.7;
+            }
+
             let speedOfPoint = distance * defaultSpeed * speed;
 
             speedOfPointArr.push(speedOfPoint); // 上一個座標到這一個座標的花費時間
             speedOfObjArr.push(1 + (1 - speed));
-        }
 
-        {
-            let x = (width / 2);
-            let y = 0;
-            let speed = speedOfObj + 0.5;
-
-            pathArr.push(new cc.Vec2(x, y));
-
-            let distance = this.getDistance(pathArr[pathArr.length - 1], pathArr[pathArr.length - 2]);
-            let speedOfPoint = distance * defaultSpeed * speed;
-
-            speedOfPointArr.push(speedOfPoint);
-            speedOfObjArr.push(1 + (1 - speed));
+            lastSpeed = speed;
         }
 
         return { pathArr: pathArr, speedOfPoint: speedOfPointArr, speedOfObj: speedOfObjArr };
     }
 
-    public static getRandomPathV2(// TODO 隨機產生魚的位移路線
-        startPosition: cc.Vec2, // 起始位置
-        endPosititon: cc.Vec2, // 結束位置
-    ): {
-        pathArr: cc.Vec2[], // 位移的點
-        speedOfPoint: number[], // 點與點之間的位移速度
-        speedOfObj: number[], // 魚擺動尾巴的速度
-    } {
-        return;
+    private static getStartAndEndPosition(): { startPosition: cc.Vec2, endPosititon: cc.Vec2 } {
+        let positionArr = this.getTotalPosition();
+
+        let length = positionArr.length;
+        let startIndex = getRandomInt(0, length - 1); // 起始點
+        let endIndex = startIndex + Math.floor(length / 2); // 取得起始點的對角位置做為結束點
+        if (endIndex >= length) {
+            endIndex = endIndex - length;
+        }
+
+        // 起始位置的+n個點則是結束位置
+        return { startPosition: positionArr[startIndex], endPosititon: positionArr[endIndex] };
+    }
+
+    /** 取得事先分割好的起始點和結束點作為魚的路徑 */
+    public static getTotalPosition(): cc.Vec2[] {
+        // 畫面大小
+        const width = 472;
+        const height = 840;
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        const distance = width / 5; // 每一個點的間隔
+
+        // 將整個畫面的周圍依據固定的間隔分割多個點
+        let pointArr: cc.Vec2[] = [];
+
+        let lastPoint = new cc.Vec2(-halfWidth, halfHeight);
+        for (let i = 0; ; i++) { // 上
+            let x = lastPoint.x + (i * distance);
+            let y = lastPoint.y;
+            let point = new cc.Vec2(x, y);
+            pointArr.push(point);
+            if (x >= halfWidth) {
+                break;
+            }
+        }
+
+        lastPoint = pointArr[pointArr.length - 1];
+        for (let i = 1; ; i++) { // 右
+            let x = lastPoint.x;
+            let y = lastPoint.y - (i * distance);
+            let point = new cc.Vec2(x, y);
+            pointArr.push(point);
+            if (y <= -halfHeight) {
+                break;
+            }
+        }
+
+        lastPoint = pointArr[pointArr.length - 1];
+        for (let i = 1; ; i++) { // 下
+            let x = lastPoint.x - (i * distance);
+            let y = lastPoint.y;
+            let point = new cc.Vec2(x, y);
+            pointArr.push(point);
+            if (x <= -halfWidth) {
+                break;
+            }
+        }
+
+        lastPoint = pointArr[pointArr.length - 1];
+        for (let i = 1; ; i++) { // 左
+            let x = lastPoint.x;
+            let y = lastPoint.y + (i * distance);
+            let point = new cc.Vec2(x, y);
+            pointArr.push(point);
+            if (y >= halfHeight) {
+                break;
+            }
+        }
+
+        return pointArr;
+    }
+
+    public static bezierCalculate(poss, precision) { // 包含頭尾
+        precision -= 1;
+
+        //维度，坐标轴数（二维坐标，三维坐标...）
+        let dimersion = 2;
+
+        //贝塞尔曲线控制点数（阶数）
+        let number = poss.length;
+
+        //控制点数不小于 2 ，至少为二维坐标系
+        if (number < 2 || dimersion < 2)
+            return null;
+
+        let result = new Array();
+
+        //计算杨辉三角
+        let mi = new Array();
+        mi[0] = mi[1] = 1;
+        for (let i = 3; i <= number; i++) {
+
+            let t = new Array();
+            for (let j = 0; j < i - 1; j++) {
+                t[j] = mi[j];
+            }
+
+            mi[0] = mi[i - 1] = 1;
+            for (let j = 0; j < i - 2; j++) {
+                mi[j + 1] = t[j] + t[j + 1];
+            }
+        }
+
+        //计算坐标点
+        for (let i = 0; i <= precision; i++) {
+            let t = i / precision;
+            // let p = new Point(0, 0);
+            let p = {
+                x: 0,
+                y: 0,
+            };
+            result.push(p);
+            for (let j = 0; j < dimersion; j++) {
+                let temp = 0.0;
+                for (let k = 0; k < number; k++) {
+                    temp += Math.pow(1 - t, number - k - 1) * (j == 0 ? poss[k].x : poss[k].y) * Math.pow(t, k) * mi[k];
+                }
+                j == 0 ? p.x = temp : p.y = temp;
+            }
+            // p.x = this.toDecimal(p.x);
+            // p.y = this.toDecimal(p.y);
+        }
+
+        // result.push(poss[poss.length-1])
+
+        return result;
     }
 
     private static getDistance(a: cc.Vec2, b: cc.Vec2): number {
