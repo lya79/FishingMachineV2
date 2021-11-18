@@ -120,7 +120,7 @@ export class Background extends cc.Component {
         let bubbleTweenArray: cc.Tween<unknown>[];
         {// 顯示泡泡的 tween
             bubbleTweenArray = [];
-            let name = "img_bg_bubble";
+            let name = "img_db_glass";
 
             let bubbleMax = 200; // 泡泡預計顆數
 
@@ -130,9 +130,9 @@ export class Background extends cc.Component {
                 sprite.spriteFrame = (ResourcesManager.spriteAtlasMap.get('SS_Symbol_Atlas_03')).getSpriteFrame(name);
 
                 let spriteHeight = sprite.spriteFrame.getRect().height;
-                let startOpacity = 255;
-                let startScale = getRandomFloat(0.5, 3);
-                let startX = getRandomInt(-100, 100);
+                let startOpacity = getRandomInt(200, 255);
+                let startScale = getRandomFloat(0.1, 1);
+                let startX = getRandomInt(-150, 150);
                 let startY = -(this.node.height / 2) - (startScale * (spriteHeight / 2));
                 startY = getRandomFloat(startY - 400, startY);
 
@@ -140,17 +140,18 @@ export class Background extends cc.Component {
                 node.opacity = startOpacity;
                 node.scale = startScale;
 
-                let targetOpacity = 255;
-                let targetScale = getRandomFloat(4, 5);
+                let targetRotation = getRandomInt(0, 360);
+                let targetOpacity = startOpacity - 50;
+                let targetScale = getRandomFloat(startScale, startScale + 0.3);
                 let speed = getRandomFloat(1.5, 2.0);
-                let targetX = getRandomInt(-300, 300);
+                let targetX = getRandomInt(-350, 350);
                 let targetY = (this.node.height / 2) + (targetScale * (spriteHeight / 2));
-                targetY = getRandomInt(targetY, targetY + 100);
+                targetY = getRandomInt(targetY, targetY + 400);
 
                 this.bubbleNode.addChild(node);
 
                 let tween = cc.tween(node)
-                    .to(speed, { position: new cc.Vec2(targetX, targetY), opacity: targetOpacity, scale: targetScale })
+                    .to(speed, { position: new cc.Vec2(targetX, targetY), opacity: targetOpacity, scale: targetScale, rotation: targetRotation })
                     .call(() => {
                         node.destroy();
                     });

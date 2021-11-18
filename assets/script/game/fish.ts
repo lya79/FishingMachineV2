@@ -1,7 +1,7 @@
 import { EWallet, EWalletResultAction, User } from "../common/user";
 import { SettingManager, FishPath } from "../common/setting";
 
-export class Fish extends cc.Component {
+export class Fish extends cc.Component { // TODO 魚的動畫缺少陰影
     private positionTween: cc.Tween<unknown>;
 
     private fishPath: FishPath;

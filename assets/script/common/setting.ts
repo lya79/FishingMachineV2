@@ -263,12 +263,114 @@ export class SettingManager {
         //             obj.pathArr, // 魚的路徑
         //             obj.speedOfPoint, // 點與點之間的移動速度
         //             obj.speedOfObj); // 魚擺動尾巴的速度
-
         //         arr.push(fishPath);
         //     }
         // }
+        return arr;
+    }
+
+    private static getFishPathByGameStage1V2(): FishPath[] {// TODO 需要增加更多種類的魚 
+        let arr: FishPath[] = [];
+
+        {
+            let name = "fish_1";
+            let width = 44;
+            let hight = 46;
+            let max = getRandomInt(5, 10); // 魚的數量
+            for (let i = 0; i < max; i++) {
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(
+                    name,
+                    getRandomFloat(1, 30), // 關卡開始後幾秒開始
+                    getRandomFloat(1, 1.5), // 魚的大小
+                    obj.pathArr, // 魚的路徑
+                    obj.speedOfPoint, // 點與點之間的移動速度
+                    obj.speedOfObj); // 魚擺動尾巴的速度
+                arr.push(fishPath);
+
+                let row = 5;
+                let column = 5;
+                let max = getRandomInt(0, ((row * column) - 1)); // 隊伍內有多少隻魚
+                /**
+                 * P : 是最原先逞生的魚
+                 * - : 隊伍內其他魚可能出現的位置
+                 * 
+                 * 備註: 魚之間都連載一起
+                 * 
+                 * 預先產生組合的種類
+                 * 
+                 * - - - - - - - - - - -
+                 * - - - - - - - - - - -
+                 * - - - - - - - - - - -
+                 * - - - - - - - - - - -
+                 * - - - - - P - - - - -
+                 * - - - - - - - - - - -
+                 * - - - - - - - - - - -
+                 * - - - - - - - - - - -
+                 * - - - - - - - - - - -
+                 * - - - - - - - - - - -
+                 */
+                for (let k = 0; k < max; k++) {
+
+                }
+            }
+        }
 
         return arr;
+    }
+
+    /** 帶入一隻魚的座標得到一個隊伍的座標 */
+    private getGroupByPosition(base: cc.Vec2, kind: number): cc.Vec2[] {
+        let groupArr: cc.Vec2[] = [];
+
+        switch (kind) {
+            case 1:  // 分成正三角, 和反三角
+                /**
+                 * 分成
+                 * 1.正三角或反三角
+                 * 2.內部實心或空心
+                 * 
+                 *       P
+                 *     - - -
+                 *   - - - - -
+                 * - - - - - - -
+                 */
+                break;
+            case 2:
+                /**
+                 * 分成
+                 * 1.直線或橫線
+                 * 
+                 *      P
+                 *      -
+                 *      -
+                 */
+                break;
+            case 3:
+                /**
+                 * 分成
+                 * 1.圓圈實心或空心
+                 * 
+                 *      - 
+                 *   -  P -
+                 *      -
+                 */
+                break;
+            default:
+                break;
+        }
+
+        return groupArr;
+    }
+
+    private static getImageSizeByName(name: string): { width: number, height: number } { // TODO 用來查詢圖片大小, 產生魚群隊伍時候會需要計算間隔避免重疊
+        switch (name) {
+            case "fish_1": // TODO 用map儲存起來, 第一次讀取時會從 ResourcesManager讀取圖片大小
+                let width = 44;
+                let height = 46;
+                return { width: width, height: height };
+        }
+        return;
     }
 
     private static getFishPathByGameStage2(): FishPath[] {// TODO 需要增加更多種類的魚 
