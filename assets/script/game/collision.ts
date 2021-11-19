@@ -22,23 +22,6 @@ export class Collision extends cc.Component {
         this.unscheduleAllCallbacks();
     }
 
-    public AddBullet(
-        roomLevel: number,
-        tower: Tower,
-        location: cc.Vec2,
-        rotataion: number) {
-        // let name = 'bullet';
-        // let prefab = ResourcesManager.prefabMap.get(name);
-        // if (!prefab) {
-        //     cc.log("error: prefab not found name:" + name);
-        //     return;
-        // }
-        // let node = cc.instantiate(prefab);
-        // node.name = name;
-        // node.setPosition(2000, 2000); 
-        // this.node.addChild(node);
-    }
-
     /**
      * 開始計時新關卡
      */
@@ -100,5 +83,32 @@ export class Collision extends cc.Component {
         fish.startFish();
 
         this.node.addChild(node);
+    }
+
+    /**
+     * 畫面加入子彈
+     */
+    public AddBullet(
+        roomLevel: number,
+        tower: Tower,
+        location: cc.Vec2,
+        rotataion: number) {
+
+        let name = 'bullet';
+        let prefab = ResourcesManager.prefabMap.get(name);
+        if (!prefab) {
+            cc.log("error: prefab not found name:" + name);
+            return;
+        }
+
+        let node = cc.instantiate(prefab);
+        node.name = name;
+        node.setPosition(2000, 2000);
+
+        this.node.addChild(node);
+
+        let bullet = node.addComponent(Bullet);
+        bullet.init(roomLevel, tower, location, rotataion);
+        bullet.startBullet();
     }
 }

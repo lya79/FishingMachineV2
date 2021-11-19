@@ -1,4 +1,74 @@
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
+import { ResourcesManager } from "../common/resource";
+
+abstract class FishGroup {
+    public positionLead: cc.Vec2[];
+    public nameLead: string;
+    public nameActor: string;
+    public countActor: number;
+    public spacging: number // 魚之間的間距;
+
+    /**
+     * 產生配角魚群的路線(不包含主角魚)
+     */
+    public abstract generate(): cc.Vec2[][];
+}
+
+/**
+ * 產生直線魚群
+ */
+class Line extends FishGroup {
+    public mode = 0; // lead位置, 0:在中央, 1:在頭, 2:在尾
+    public mode2 = 0;// 隊伍形狀, 0:直線, 1:橫線
+
+    public generate(): cc.Vec2[][] { // TODO 實作直線魚群產生
+        let positionOfActorArr: cc.Vec2[][] = [];
+
+        let sizeLead = ResourcesManager.getContentSizeeByFishName(this.nameLead);
+        let sizeActor = ResourcesManager.getContentSizeeByFishName(this.nameActor);
+
+        for (let k = 0; k < this.countActor; k++) {
+            let pathActor: cc.Vec2[] = [];
+
+            for (let i = 0; i < this.positionLead.length; i++) {
+                let pathLead = this.positionLead[i];
+
+                let x = pathLead.x
+                let y = pathLead.y;
+
+
+                if (this.mode2 == 0) { // 直線, 控制y軸
+                    switch (this.mode) {
+                        case 0:
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                        default:
+                            break;
+                    }
+                } else { // 橫線, 控制x軸
+                    switch (this.mode) {
+                        case 0:
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                        default:
+                            break;
+                    }
+                }
+
+                let path = new cc.Vec2(x, y);
+                pathActor.push(path)
+            }
+
+            positionOfActorArr.push(pathActor);
+        }
+
+        return positionOfActorArr;
+    }
+}
 
 /**
  * 魚的組合
@@ -222,6 +292,7 @@ export class SettingManager {
         switch (gameStage) {
             case 1:
                 return this.getFishPathByGameStage1();
+                // return this.getFishPathByGameStage1V2(); // TODO
                 break;
             case 2:
                 return this.getFishPathByGameStage2();
@@ -258,7 +329,7 @@ export class SettingManager {
         //         let obj = SettingManager.getRandomPath();
         //         let fishPath = new FishPath(
         //             name,
-        //             getRandomFloat(1, 30), // 關卡開始後幾秒開始
+        //             getRandomFloat(1, 5), // 關卡開始後幾秒開始
         //             getRandomFloat(1, 1.5), // 魚的大小
         //             obj.pathArr, // 魚的路徑
         //             obj.speedOfPoint, // 點與點之間的移動速度
@@ -266,111 +337,74 @@ export class SettingManager {
         //         arr.push(fishPath);
         //     }
         // }
+
+        // {
+        //     let name = "fish_2";
+        //     let max = getRandomInt(5, 10); // 魚的數量
+        //     for (let i = 0; i < max; i++) {
+        //         let obj = SettingManager.getRandomPath();
+        //         let fishPath = new FishPath(
+        //             name,
+        //             getRandomFloat(1, 5), // 關卡開始後幾秒開始
+        //             getRandomFloat(1, 1.5), // 魚的大小
+        //             obj.pathArr, // 魚的路徑
+        //             obj.speedOfPoint, // 點與點之間的移動速度
+        //             obj.speedOfObj); // 魚擺動尾巴的速度
+        //         arr.push(fishPath);
+        //     }
+        // }
+
+
         return arr;
     }
 
-    private static getFishPathByGameStage1V2(): FishPath[] {// TODO 需要增加更多種類的魚 
-        let arr: FishPath[] = [];
+    public static getFishPathByGameStage1V2(): FishPath[] {// TODO 需要增加更多種類的魚 
+        let result: FishPath[] = [];
 
         {
-            let name = "fish_1";
-            let width = 44;
-            let hight = 46;
-            let max = getRandomInt(5, 10); // 魚的數量
-            for (let i = 0; i < max; i++) {
+            const nameLead = "fish_1";
+            const nameActor = "fish_2";
+            const countish = 3; // 隊伍內有多少隻魚(不包含主角魚)
+
+            let fishPathLead: FishPath;
+            { // 產生主角魚
                 let obj = SettingManager.getRandomPath();
-                let fishPath = new FishPath(
-                    name,
-                    getRandomFloat(1, 30), // 關卡開始後幾秒開始
-                    getRandomFloat(1, 1.5), // 魚的大小
+                fishPathLead = new FishPath(
+                    nameLead,
+                    2, // 關卡開始後幾秒開始
+                    1, // 魚的大小
                     obj.pathArr, // 魚的路徑
                     obj.speedOfPoint, // 點與點之間的移動速度
                     obj.speedOfObj); // 魚擺動尾巴的速度
-                arr.push(fishPath);
+                result.push(fishPathLead);
+            }
 
-                let row = 5;
-                let column = 5;
-                let max = getRandomInt(0, ((row * column) - 1)); // 隊伍內有多少隻魚
-                /**
-                 * P : 是最原先逞生的魚
-                 * - : 隊伍內其他魚可能出現的位置
-                 * 
-                 * 備註: 魚之間都連載一起
-                 * 
-                 * 預先產生組合的種類
-                 * 
-                 * - - - - - - - - - - -
-                 * - - - - - - - - - - -
-                 * - - - - - - - - - - -
-                 * - - - - - - - - - - -
-                 * - - - - - P - - - - -
-                 * - - - - - - - - - - -
-                 * - - - - - - - - - - -
-                 * - - - - - - - - - - -
-                 * - - - - - - - - - - -
-                 * - - - - - - - - - - -
-                 */
-                for (let k = 0; k < max; k++) {
+            { // 產生配角魚
+                let line = new Line();
+                line.positionLead = fishPathLead.getPath();
+                line.nameLead = nameLead;
+                line.nameActor = nameActor;
+                line.countActor = countish;
+                line.mode = 1;
+                line.mode2 = 0;
+                line.spacging = 0;
 
+                let arr = line.generate();
+                for (let i = 0; i < arr.length; i++) {
+                    let pathArr = arr[i];
+                    let fishPath = new FishPath(
+                        nameActor,
+                        fishPathLead.getDelay(), // 關卡開始後幾秒開始
+                        fishPathLead.getScale(), // 魚的大小
+                        pathArr, // 魚的路徑
+                        fishPathLead.getSpeedOfPoint(), // 點與點之間的移動速度
+                        fishPathLead.getSpeedOfObj()); // 魚擺動尾巴的速度
+                    result.push(fishPath);
                 }
             }
         }
 
-        return arr;
-    }
-
-    /** 帶入一隻魚的座標得到一個隊伍的座標 */
-    private getGroupByPosition(base: cc.Vec2, kind: number): cc.Vec2[] {
-        let groupArr: cc.Vec2[] = [];
-
-        switch (kind) {
-            case 1:  // 分成正三角, 和反三角
-                /**
-                 * 分成
-                 * 1.正三角或反三角
-                 * 2.內部實心或空心
-                 * 
-                 *       P
-                 *     - - -
-                 *   - - - - -
-                 * - - - - - - -
-                 */
-                break;
-            case 2:
-                /**
-                 * 分成
-                 * 1.直線或橫線
-                 * 
-                 *      P
-                 *      -
-                 *      -
-                 */
-                break;
-            case 3:
-                /**
-                 * 分成
-                 * 1.圓圈實心或空心
-                 * 
-                 *      - 
-                 *   -  P -
-                 *      -
-                 */
-                break;
-            default:
-                break;
-        }
-
-        return groupArr;
-    }
-
-    private static getImageSizeByName(name: string): { width: number, height: number } { // TODO 用來查詢圖片大小, 產生魚群隊伍時候會需要計算間隔避免重疊
-        switch (name) {
-            case "fish_1": // TODO 用map儲存起來, 第一次讀取時會從 ResourcesManager讀取圖片大小
-                let width = 44;
-                let height = 46;
-                return { width: width, height: height };
-        }
-        return;
+        return result;
     }
 
     private static getFishPathByGameStage2(): FishPath[] {// TODO 需要增加更多種類的魚 
@@ -383,7 +417,7 @@ export class SettingManager {
         return arr;
     }
 
-    public static getRandomPath(): {// TODO 隨機產生魚的位移路線
+    public static getRandomPath(): {
         pathArr: cc.Vec2[], // 位移的點
         speedOfPoint: number[], // 點與點之間的位移速度
         speedOfObj: number[], // 魚擺動尾巴的速度

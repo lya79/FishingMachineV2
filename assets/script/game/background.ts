@@ -83,6 +83,9 @@ export class Background extends cc.Component {
             this.bg3Node.active = false;
             this.noticeNode.active = false;
 
+            // 開始顯示關卡的魚
+            this.startFishHandler();
+
             return;
         }
 
@@ -122,7 +125,7 @@ export class Background extends cc.Component {
             bubbleTweenArray = [];
             let name = "img_db_glass";
 
-            let bubbleMax = 200; // 泡泡預計顆數
+            let bubbleMax = 150; // 泡泡預計顆數
 
             for (let i = 0; i < bubbleMax; i++) {
                 let node = new cc.Node("bubble");

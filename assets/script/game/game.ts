@@ -65,10 +65,18 @@ export class Game extends cc.Component {
 
             let self = this;
             btnNode.on(cc.Node.EventType.TOUCH_START, function () {
-                let name = inputNode.getComponent(cc.EditBox).string;
-                let obj = SettingManager.getRandomPath();
-                let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
-                self.collisionNode.getComponent(Collision).AddFish(fishPath);
+                {
+                    let name = inputNode.getComponent(cc.EditBox).string;
+                    let obj = SettingManager.getRandomPath();
+                    let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
+                    self.collisionNode.getComponent(Collision).AddFish(fishPath);
+                }
+                {
+                    // let groupFish = SettingManager.getFishPathByGameStage1V2();
+                    // for (let i = 0; i < groupFish.length; i++) {
+                    //     self.collisionNode.getComponent(Collision).AddFish(groupFish[i]);
+                    // }
+                }
             }, this);
         }
 
@@ -278,25 +286,9 @@ export class Game extends cc.Component {
                 }
 
                 { // 判斷 focus
+                    let active = this.focusActive();
+
                     let focusNode = self.node.getChildByName("crosshair").getChildByName("focus");
-
-                    let isActive = function (): boolean {
-                        if (!User.isFocus()) {
-                            return false;
-                        }
-
-                        if (!User.getFocusUUID()) {
-                            return false;
-                        }
-
-                        if (!self.collisionNode.getChildByUuid(User.getFocusUUID())) {
-                            return false;
-                        }
-
-                        return true;
-                    }
-
-                    let active = isActive();
                     focusNode.active = active;
 
                     if (!active) {
@@ -334,6 +326,22 @@ export class Game extends cc.Component {
         this.node.on(cc.Node.EventType.TOUCH_START, this.updateMouseMove, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this.updateMouseMove, this); // node內放開
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.updateMouseMove, this); // node外放開
+    }
+
+    private focusActive = function (): boolean {
+        if (!User.isFocus()) {
+            return false;
+        }
+
+        if (!User.getFocusUUID()) {
+            return false;
+        }
+
+        if (!this.collisionNode.getChildByUuid(User.getFocusUUID())) {
+            return false;
+        }
+
+        return true;
     }
 
     private nextGameState() {
@@ -542,7 +550,7 @@ export class Game extends cc.Component {
         this.updateTower(event.getLocation(), event.getType(), true);
     }
 
-    public updateTower(location: cc.Vec2, eventType: string, showAutoNode: boolean) {
+    public updateTower(location: cc.Vec2, eventType: string, showAutoNode: boolean) { // FIXME 瞄準功能開啟時候, 如果點擊畫面則需要停止瞄準
         let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
 
         if (!this.isCrosshairArea(locationOfTouch)) {
