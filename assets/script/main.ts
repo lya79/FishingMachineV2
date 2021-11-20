@@ -62,7 +62,7 @@ export class Main extends cc.Component {
 
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
-        manager.enabledDebugDraw = true;
+        // manager.enabledDebugDraw = true;
         // manager.enabledDrawBoundingBox = true;
     }
 

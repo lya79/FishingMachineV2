@@ -1,4 +1,4 @@
-import { ESkill, Skill, Tower } from "../common/setting";
+import { ESkill, Tower } from "../common/setting";
 
 type handler = (other: cc.Collider, self: cc.Collider) => void;
 
@@ -15,6 +15,9 @@ class BulletCollision extends cc.Component {
         }
     }
 }
+
+// TODO 子彈水平發射會造成子彈碰撞到牆壁後轉向錯誤
+// TODO 子彈prefab最上層因為沒有設定長寬, 所以無法設定錨點, 導致子彈碰撞牆壁的時候會超過牆壁
 
 export class Bullet extends cc.Component {
     private bulletNode: cc.Node;
@@ -40,17 +43,15 @@ export class Bullet extends cc.Component {
     private bgWidth: number;
     private bgHeight: number;
 
-    // 計時器
-    private timerOfFps: number;
-    private timerOfSleep: number;
-
     // 開始更新子彈位置
     private running: boolean;
 
-    private fpsOfXY: number; // 多久更新一次子彈實際的 x、y座標
-    private fpsOfCanvas: number;// 多久刷一次子彈顯示位置, 16ms = 60fps, 33ms = 30fps
+    private fpsOfXY: number; // 每幾偵偏移一次子彈座標
+    private fpsOfCanvas: number;// 每幾偵偏更新一次子彈的node座標
+    private timerOfFps: number; // 計時器
+    private timerOfSleep: number; // 計時器
 
-    public init(
+    public init( 
         roomLevel: number,
         tower: Tower,
         location: cc.Vec2,
@@ -61,16 +62,15 @@ export class Bullet extends cc.Component {
         this.location = location;
         this.rotate = rotataion;
 
+        // XXX 
         this.running = false;
-        this.speed = 20;// XXX 
         this.bgWidth = 472;
         this.bgHeight = 840;
-        this.fpsOfXY = 1;
+        this.speed = 20;
+        this.fpsOfXY = 10;
         this.fpsOfCanvas = 1;
         this.timerOfFps = 0;
         this.timerOfSleep = 0;
-        this.timerOfFps = 0; // 初始化計時器
-        this.timerOfSleep = 0; // 初始化計時器
 
         this.dx = Math.sin((this.rotate * Math.PI) / 180) * this.speed;
         this.dy = Math.cos((this.rotate * Math.PI) / 180) * this.speed;
@@ -92,28 +92,24 @@ export class Bullet extends cc.Component {
         let self = this;
 
         let obj = this.bulletNode.addComponent(BulletCollision);
-        obj.init(function (fish: cc.Collider, bullet: cc.Collider) {
+        obj.init(function (fishCollider: cc.Collider, bulletCollider: cc.Collider) {
             if (!self.running) {
                 return;
             }
 
-            // cc.log("onCollisionEnter: bullet:" + bullet.name + " fish:" + fish.name);
-
             self.running = false;
             self.bulletNode.active = false;
             self.netNode.active = true;
-
-            cc.tween(fish.node) // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
-                .call(() => { fish.node.color = new cc.Color(255, 0, 0); })
-                .delay(0.8)
-                .call(() => { fish.node.color = new cc.Color(255, 255, 255); })
-                .start();
 
             cc.tween(self.netNode)
                 .to(0.8, { scale: 1.1 }, { easing: 'bounceOut' })
                 .call(() => { self.netNode.active = false })
                 .start();
         });
+    }
+
+    public getTower(): Tower {
+        return this.tower;
     }
 
     public startBullet() {
@@ -141,16 +137,16 @@ export class Bullet extends cc.Component {
     public cancelBullet() {
     }
 
-    public update(dt) {// XXX 要確認應該用 update(dt)還是 schedule
+    public update(dt) {
         if (!this.running) {
             return;
         }
 
-        this.draw(dt);
         this.updateXY(dt);
+        this.updateNodeXY(dt);
     }
 
-    private draw(dt) {// 更新子彈顯示位置
+    private updateNodeXY(dt) {// 更新子彈顯示位置
         {// 計時
             this.timerOfFps += 1;
             if (this.timerOfFps < this.fpsOfCanvas) {

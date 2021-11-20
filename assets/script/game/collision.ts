@@ -1,8 +1,9 @@
-import { ESkill, Skill, Tower } from "../common/setting";
+import { ESkill, Tower } from "../common/setting";
 import { ResourcesManager } from "../common/resource";
 import { SettingManager, FishPath } from "../common/setting";
 import { Bullet } from "./bullet"
-import { Fish } from "./fish";
+// import { Fish } from "./fish";
+import { Fish } from "./fishV2";
 import { EWallet, EWalletResultAction, User } from "../common/user";
 
 export type ChangeStageHandler = (oldStage: number, newStage: number) => void;
@@ -79,10 +80,11 @@ export class Collision extends cc.Component {
         node.name = name;
         node.scale = scale;
         let fish = node.addComponent(Fish);
-        fish.init(fishPath);
-        fish.startFish();
-
+        fish.init(fishPath, name);
+        
         this.node.addChild(node);
+
+        fish.startFish();
     }
 
     /**

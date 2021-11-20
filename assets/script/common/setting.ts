@@ -142,40 +142,19 @@ export enum ESkill {
 }
 
 /**
- * 技能資訊
- */
-export class Skill {
-    private skill: ESkill; // 技能種類
-    private probability: number; // 發動技能的機率, 最小值帶入1, 假設帶入1則代表機率為 萬分之1
-
-    constructor(skill: ESkill, probability: number) {
-        this.skill = skill;
-        this.probability = probability;
-    }
-
-    public getSkill(): number {
-        return this.skill;
-    }
-
-    public getProbability(): number {
-        return this.probability;
-    }
-}
-
-/**
  * 砲塔資訊
  */
 export class Tower {
     private level: number;
     private bet: number;
     private base: number;
-    private skillArr: Skill[];
+    private skillArr: ESkill[];
 
     constructor(
         level: number,
         bet: number,
         base: number,
-        skillArr: Skill[],
+        skillArr: ESkill[],
     ) {
         this.level = level;
         this.bet = bet;
@@ -195,7 +174,7 @@ export class Tower {
         return this.base;
     }
 
-    public getSkillArr(): Skill[] {
+    public getSkillArr(): ESkill[] {
         if (!this.skillArr) {
             return [];
         }
@@ -239,20 +218,33 @@ export class SettingManager {
                 new Tower(1, 0.3, base, null),
                 new Tower(1, 0.4, base, null),
 
-                new Tower(2, 0.5, base, [new Skill(ESkill.Level_2, 6000)]),
-                new Tower(2, 0.6, base, [new Skill(ESkill.Level_2, 6000)]),
-                new Tower(2, 0.7, base, [new Skill(ESkill.Level_2, 6000)]),
+                new Tower(2, 0.5, base, [ESkill.Level_2]),
+                new Tower(2, 0.6, base, [ESkill.Level_2]),
+                new Tower(2, 0.7, base, [ESkill.Level_2]),
 
-                new Tower(3, 0.8, base, [new Skill(ESkill.Level_3, 6000)]),
-                new Tower(3, 0.9, base, [new Skill(ESkill.Level_3, 6000)]),
+                new Tower(3, 0.8, base, [ESkill.Level_3]),
+                new Tower(3, 0.9, base, [ESkill.Level_3]),
 
-                new Tower(4, 1, base, [new Skill(ESkill.Level_4_1, 10000), new Skill(ESkill.Level_4_2, 6000)]),
+                new Tower(4, 1, base, [ESkill.Level_4_1, ESkill.Level_4_2]),
             ];
 
             this.towerMap.set(roomLevel, towerArr);
         }
 
         return true; // success
+    }
+
+    public static addSkill( // TODO
+        fishNode: cc.Node,
+        skill: ESkill,
+        dead: boolean, // 有些情況是魚已經被普通攻擊打死
+    ) {
+        // export enum ESkill {
+        //     Level_2, // 冰凍技能
+        //     Level_3, // 閃電連鎖
+        //     Level_4_1, // 普通子彈的雷電連鎖
+        //     Level_4_2, // 電光炮
+        // }
     }
 
     public static getRoomLevel(): number[] {
@@ -422,7 +414,7 @@ export class SettingManager {
         speedOfPoint: number[], // 點與點之間的位移速度
         speedOfObj: number[], // 魚擺動尾巴的速度
     } {
-        const countOfPath = 20; // 路線總共有幾個點
+        const countOfPath = 10; // 路線總共有幾個點
 
         // 畫面大小
         const width = 472;
@@ -636,5 +628,40 @@ export class SettingManager {
         let x = a.x - b.x;
         let y = a.y - b.y;
         return Math.sqrt(x * x + y * y);
+    }
+
+    public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
+        probability: number, // 中獎機率
+        win: number, // 反獎倍率
+    } {
+        switch (name) {
+            case "fish_1":
+                return { probability: 0.5, win: 2 };
+            case "fish_2":
+                return { probability: 0.5, win: 2 };
+        }
+
+        cc.log("error undefined, name:" + name);
+        return { probability: 0.0, win: 0 };
+    }
+
+    public static getSkillInfo(skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): {
+        probability: number, // 中獎機率
+        min: number, // 最少中獎幾隻
+        max: number,  // 最多中獎幾隻
+    } {
+        switch (skill) {
+            case ESkill.Level_2:// 冰凍技能
+                return { probability: 0.5, min: 2, max: 5 };
+            case ESkill.Level_3:// 閃電連鎖
+                return { probability: 0.5, min: 2, max: 5 };
+            case ESkill.Level_4_1:// 普通子彈的雷電連鎖
+                return { probability: 0.5, min: 2, max: 5 };
+            case ESkill.Level_4_2:// 電光炮
+                return { probability: 0.5, min: 2, max: 5 };
+        }
+
+        cc.log("error undefined, ESkill:" + skill);
+        return { probability: 0, min: 0, max: 0 };
     }
 }

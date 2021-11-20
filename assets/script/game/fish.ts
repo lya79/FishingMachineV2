@@ -1,10 +1,13 @@
 import { EWallet, EWalletResultAction, User } from "../common/user";
 import { SettingManager, FishPath } from "../common/setting";
+import { Bullet } from "./bullet";
+import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 
 export class Fish extends cc.Component { // TODO 魚的動畫缺少陰影
     private positionTween: cc.Tween<unknown>;
 
     private fishPath: FishPath;
+    private fishName: string;
 
     /** 魚位移的最後一個位置 */
     private lastX: number;
@@ -12,8 +15,13 @@ export class Fish extends cc.Component { // TODO 魚的動畫缺少陰影
 
     private pointNodeArr: cc.Node[];
 
-    public init(fishPath: FishPath) {
+    private running: boolean;
+
+    public init(fishPath: FishPath, fishName: string) {
         this.fishPath = fishPath;
+        this.fishName = fishName;
+
+        this.running = false;
 
         let pathArr = fishPath.getPath();
 
@@ -77,6 +85,45 @@ export class Fish extends cc.Component { // TODO 魚的動畫缺少陰影
                 this.lastY = y;
             }
         }
+    }
+
+    public onCollisionEnter(bulletCollider: cc.Collider, fishCollider: cc.Collider) {
+        if (!this.running) {
+            return;
+        }
+
+        cc.tween(this.node) // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
+            .call(() => { this.node.color = new cc.Color(255, 0, 0); })
+            .delay(0.8)
+            .call(() => { this.node.color = new cc.Color(255, 255, 255); })
+            .start();
+
+        let bullet = bulletCollider.node.parent.getComponent(Bullet);
+        let tower = bullet.getTower();
+
+        let obj = SettingManager.getFishInfo(this.fishName);
+        let bingo = getRandomFloat(0.0, 1.0) <= obj.probability
+        if (!bingo) { // 沒打中魚
+            return;
+        }
+
+        // 確認技能是否觸發
+        for (let i = 0; i < tower.getSkillArr().length; i++) {
+            let skill = tower.getSkillArr()[i];
+            let obj = SettingManager.getSkillInfo(skill)
+            let bingo = getRandomFloat(0.0, 1.0) <= obj.probability
+            if (bingo) {// 發動技能 // TODO 要想好每一種技能的處理流程
+
+            }
+        }
+
+        // 魚消失(音效) // TODO
+
+        // 顯示贏數字(音效) // TODO
+
+        // 顯示金幣跑到砲塔的動畫(音效) // TODO
+
+        // 錢包增加錢(音效) // TODO
     }
 
     /**
@@ -155,6 +202,7 @@ export class Fish extends cc.Component { // TODO 魚的動畫缺少陰影
 
     public startFish() {
         this.positionTween.start();
+        this.running = true;
     }
 
     /** 加速離開畫面 */

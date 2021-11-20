@@ -1,4 +1,4 @@
-import { ESkill, Skill, Tower } from "../common/setting";
+import { ESkill, Tower } from "../common/setting";
 import { ResourcesManager } from "../common/resource";
 import { SettingManager, FishPath } from "../common/setting";
 import { Bullet } from "./bullet"
