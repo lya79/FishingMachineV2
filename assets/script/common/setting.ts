@@ -1,73 +1,9 @@
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { ResourcesManager } from "../common/resource";
 
-abstract class FishGroup {
-    public positionLead: cc.Vec2[];
-    public nameLead: string;
-    public nameActor: string;
-    public countActor: number;
-    public spacging: number // 魚之間的間距;
-
-    /**
-     * 產生配角魚群的路線(不包含主角魚)
-     */
-    public abstract generate(): cc.Vec2[][];
-}
-
-/**
- * 產生直線魚群
- */
-class Line extends FishGroup {
-    public mode = 0; // lead位置, 0:在中央, 1:在頭, 2:在尾
-    public mode2 = 0;// 隊伍形狀, 0:直線, 1:橫線
-
-    public generate(): cc.Vec2[][] { // TODO 實作直線魚群產生
-        let positionOfActorArr: cc.Vec2[][] = [];
-
-        let sizeLead = ResourcesManager.getContentSizeeByFishName(this.nameLead);
-        let sizeActor = ResourcesManager.getContentSizeeByFishName(this.nameActor);
-
-        for (let k = 0; k < this.countActor; k++) {
-            let pathActor: cc.Vec2[] = [];
-
-            for (let i = 0; i < this.positionLead.length; i++) {
-                let pathLead = this.positionLead[i];
-
-                let x = pathLead.x
-                let y = pathLead.y;
-
-
-                if (this.mode2 == 0) { // 直線, 控制y軸
-                    switch (this.mode) {
-                        case 0:
-                            break;
-                        case 1:
-                            break;
-                        case 2:
-                        default:
-                            break;
-                    }
-                } else { // 橫線, 控制x軸
-                    switch (this.mode) {
-                        case 0:
-                            break;
-                        case 1:
-                            break;
-                        case 2:
-                        default:
-                            break;
-                    }
-                }
-
-                let path = new cc.Vec2(x, y);
-                pathActor.push(path)
-            }
-
-            positionOfActorArr.push(pathActor);
-        }
-
-        return positionOfActorArr;
-    }
+export class Collision {
+    bulletCollider: cc.Collider;
+    fishCollider: cc.Collider;
 }
 
 /**
@@ -200,7 +136,9 @@ export class SettingManager {
     private static towerMap: Map<number, Tower[]> = new Map<number, Tower[]>();
     private static roomLevelArr: number[] = [];
 
+    public static collisionArr: Collision[] = [];
 
+    // 控制測試功能開啟/關閉的參數
     public static showPathOfFish = true; // 開啟魚的行徑路線顯示
     public static addFish = true; // 手動產生各種魚
     public static changeGameStage = true; // 手動關卡切換
@@ -232,19 +170,6 @@ export class SettingManager {
         }
 
         return true; // success
-    }
-
-    public static addSkill( // TODO
-        fishNode: cc.Node,
-        skill: ESkill,
-        dead: boolean, // 有些情況是魚已經被普通攻擊打死
-    ) {
-        // export enum ESkill {
-        //     Level_2, // 冰凍技能
-        //     Level_3, // 閃電連鎖
-        //     Level_4_1, // 普通子彈的雷電連鎖
-        //     Level_4_2, // 電光炮
-        // }
     }
 
     public static getRoomLevel(): number[] {
@@ -284,14 +209,10 @@ export class SettingManager {
         switch (gameStage) {
             case 1:
                 return this.getFishPathByGameStage1();
-                // return this.getFishPathByGameStage1V2(); // TODO
-                break;
             case 2:
                 return this.getFishPathByGameStage2();
-                break;
             case 3:
                 return this.getFishPathByGameStage3();
-                break;
         }
         return [];
     }
@@ -299,10 +220,10 @@ export class SettingManager {
     /**
      * 每一關卡停留多少秒
      */
-    public static getGameDelayByGameStage(gameStage: number): number {
+    public static getGameDelayByGameStage(gameStage: number): number {// TODO 暫時將每一關卡的停留時間設定成 60000
         switch (gameStage) {
             case 1:
-                return 60000;//30; // TODO 暫時將每一關卡的停留時間設定成 60000
+                return 60000;
             case 2:
                 return 60000;
             case 3:
@@ -348,55 +269,6 @@ export class SettingManager {
 
 
         return arr;
-    }
-
-    public static getFishPathByGameStage1V2(): FishPath[] {// TODO 需要增加更多種類的魚 
-        let result: FishPath[] = [];
-
-        {
-            const nameLead = "fish_1";
-            const nameActor = "fish_2";
-            const countish = 3; // 隊伍內有多少隻魚(不包含主角魚)
-
-            let fishPathLead: FishPath;
-            { // 產生主角魚
-                let obj = SettingManager.getRandomPath();
-                fishPathLead = new FishPath(
-                    nameLead,
-                    2, // 關卡開始後幾秒開始
-                    1, // 魚的大小
-                    obj.pathArr, // 魚的路徑
-                    obj.speedOfPoint, // 點與點之間的移動速度
-                    obj.speedOfObj); // 魚擺動尾巴的速度
-                result.push(fishPathLead);
-            }
-
-            { // 產生配角魚
-                let line = new Line();
-                line.positionLead = fishPathLead.getPath();
-                line.nameLead = nameLead;
-                line.nameActor = nameActor;
-                line.countActor = countish;
-                line.mode = 1;
-                line.mode2 = 0;
-                line.spacging = 0;
-
-                let arr = line.generate();
-                for (let i = 0; i < arr.length; i++) {
-                    let pathArr = arr[i];
-                    let fishPath = new FishPath(
-                        nameActor,
-                        fishPathLead.getDelay(), // 關卡開始後幾秒開始
-                        fishPathLead.getScale(), // 魚的大小
-                        pathArr, // 魚的路徑
-                        fishPathLead.getSpeedOfPoint(), // 點與點之間的移動速度
-                        fishPathLead.getSpeedOfObj()); // 魚擺動尾巴的速度
-                    result.push(fishPath);
-                }
-            }
-        }
-
-        return result;
     }
 
     private static getFishPathByGameStage2(): FishPath[] {// TODO 需要增加更多種類的魚 
@@ -646,22 +518,24 @@ export class SettingManager {
     }
 
     public static getSkillInfo(skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): {
-        probability: number, // 中獎機率
-        min: number, // 最少中獎幾隻
-        max: number,  // 最多中獎幾隻
+        probability: number, // 發動機率
+        probability2: number, // 技能擊殺機率
+        min: number, // 技能發動時至少攻擊幾隻
+        max: number,  // 技能發動時最多攻擊幾隻
+        pauseTime: number, // 被打到要暫停幾秒
     } {
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.5, min: 2, max: 5 };
+                return { probability: 0.5, probability2: -1, min: 2, max: 5, pauseTime: 3 };
             case ESkill.Level_3:// 閃電連鎖
-                return { probability: 0.5, min: 2, max: 5 };
+                return { probability: 0.5, probability2: 0.5, min: 2, max: 5, pauseTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 0.5, min: 2, max: 5 };
+                return { probability: 0.5, probability2: 0.5, min: 2, max: 5, pauseTime: 0 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: 0.5, min: 2, max: 5 };
+                return { probability: 0.5, probability2: 0.5, min: 2, max: 5, pauseTime: 0 };
         }
 
         cc.log("error undefined, ESkill:" + skill);
-        return { probability: 0, min: 0, max: 0 };
+        return { probability: 0, probability2: 0.5, min: 0, max: 0, pauseTime: 0 };
     }
 }

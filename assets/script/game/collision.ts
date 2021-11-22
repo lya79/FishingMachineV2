@@ -23,6 +23,19 @@ export class Collision extends cc.Component {
         this.unscheduleAllCallbacks();
     }
 
+    public getAllFishNode(): cc.Node[] {
+        let arr: cc.Node[] = [];
+        let length = this.node.children.length;
+        for (let i = 0; i < length; i++) {
+            let node = this.node.children[i];
+            if (!node.name.startsWith("fish_")) {
+                continue;
+            }
+            arr.push(node);
+        }
+        return arr;
+    }
+
     /**
      * 開始計時新關卡
      */
@@ -81,10 +94,8 @@ export class Collision extends cc.Component {
         node.scale = scale;
         let fish = node.addComponent(Fish);
         fish.init(fishPath, name);
-        
-        this.node.addChild(node);
 
-        fish.startFish();
+        this.node.addChild(node);
     }
 
     /**
@@ -107,10 +118,9 @@ export class Collision extends cc.Component {
         node.name = name;
         node.setPosition(2000, 2000);
 
-        this.node.addChild(node);
-
         let bullet = node.addComponent(Bullet);
         bullet.init(roomLevel, tower, location, rotataion);
-        bullet.startBullet();
+
+        this.node.addChild(node);
     }
 }

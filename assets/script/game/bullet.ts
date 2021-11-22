@@ -1,23 +1,7 @@
 import { ESkill, Tower } from "../common/setting";
 
-type handler = (other: cc.Collider, self: cc.Collider) => void;
-
-class BulletCollision extends cc.Component {
-    private handler: handler;
-
-    public init(handler: handler) {
-        this.handler = handler;
-    }
-
-    public onCollisionEnter(other: cc.Collider, self: cc.Collider) {
-        if (this.handler) {
-            this.handler(other, self);
-        }
-    }
-}
-
-// TODO 子彈水平發射會造成子彈碰撞到牆壁後轉向錯誤
-// TODO 子彈prefab最上層因為沒有設定長寬, 所以無法設定錨點, 導致子彈碰撞牆壁的時候會超過牆壁
+// FIXME 子彈水平發射會造成子彈碰撞到牆壁後轉向錯誤, 垂直發射也要確認看看
+// FIXME 子彈prefab最上層因為沒有設定長寬, 所以無法設定錨點, 導致子彈碰撞牆壁的時候會超過牆壁
 
 export class Bullet extends cc.Component {
     private bulletNode: cc.Node;
@@ -51,7 +35,7 @@ export class Bullet extends cc.Component {
     private timerOfFps: number; // 計時器
     private timerOfSleep: number; // 計時器
 
-    public init( 
+    public init(
         roomLevel: number,
         tower: Tower,
         location: cc.Vec2,
@@ -62,12 +46,11 @@ export class Bullet extends cc.Component {
         this.location = location;
         this.rotate = rotataion;
 
-        // XXX 
         this.running = false;
         this.bgWidth = 472;
         this.bgHeight = 840;
-        this.speed = 20;
-        this.fpsOfXY = 10;
+        this.speed = 5;
+        this.fpsOfXY = 1;
         this.fpsOfCanvas = 1;
         this.timerOfFps = 0;
         this.timerOfSleep = 0;
@@ -89,34 +72,6 @@ export class Bullet extends cc.Component {
             }
         }
 
-        let self = this;
-
-        let obj = this.bulletNode.addComponent(BulletCollision);
-        obj.init(function (fishCollider: cc.Collider, bulletCollider: cc.Collider) {
-            if (!self.running) {
-                return;
-            }
-
-            self.running = false;
-            self.bulletNode.active = false;
-            self.netNode.active = true;
-
-            cc.tween(self.netNode)
-                .to(0.8, { scale: 1.1 }, { easing: 'bounceOut' })
-                .call(() => { self.netNode.active = false })
-                .start();
-        });
-    }
-
-    public getTower(): Tower {
-        return this.tower;
-    }
-
-    public startBullet() {
-        if (this.running) {
-            return;
-        }
-
         const offsetOfStartPos = 78;
 
         let dx = Math.sin((this.rotate * Math.PI) / 180) * offsetOfStartPos;
@@ -134,7 +89,26 @@ export class Bullet extends cc.Component {
         this.running = true;
     }
 
-    public cancelBullet() {
+    public attack() {
+        if (!this.running) {
+            return;
+        }
+
+        this.running = false;
+
+        this.bulletNode.active = false;
+        this.netNode.active = true;
+
+        let self = this;
+        cc.tween(this.netNode)
+            .to(0.8, { scale: 1.1 }, { easing: 'bounceOut' })
+            .call(() => { self.netNode.active = false; })
+            .call(() => { self.node.destroy(); })
+            .start();
+    }
+
+    public getTower(): Tower {
+        return this.tower;
     }
 
     public update(dt) {

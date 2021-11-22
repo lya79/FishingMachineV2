@@ -1,12 +1,14 @@
 
 import { EWallet, EWalletResultAction, User } from "../common/user";
 import { EAction as EAudioAction, AudioManager } from "../common/audio";
-import { SettingManager, FishPath } from "../common/setting";
+import { SettingManager, FishPath, Collision as CollisionObj } from "../common/setting";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { Tower } from "./tower";
 import { Collision, ChangeStageHandler } from "./collision";
 import { Background } from "./background";
 import { ResourcesManager } from "../common/resource";
+import { Bullet } from "./bullet";
+import { Fish } from "./fishV2";
 
 const { ccclass, property } = cc._decorator;
 
@@ -255,6 +257,83 @@ export class Game extends cc.Component {
         this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
 
 
+        { // 控制魚被子彈打到 // TODO 控制魚被子彈打到
+            let self = this;
+            this.schedule(function (dt) {
+                let length = SettingManager.collisionArr.length;
+                if (length <= 0) {
+                    return;
+                }
+
+                for (let i = 0; i < length; i++) {
+                    let collision = SettingManager.collisionArr.shift();
+
+                    let fishNode = collision.fishCollider.node;
+                    let fish = fishNode.getComponent(Fish);
+
+                    let bulletNode = collision.bulletCollider.node.parent;
+                    let bullet = bulletNode.getComponent(Bullet);
+                    bullet.attack();
+
+                    let fishInfo = SettingManager.getFishInfo(fish.getFishName());
+
+                    let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode();
+
+                    /**
+                     * 技能攻擊優先判斷
+                     * 如果被普通攻擊打到的魚還沒被技能打死
+                     * 才會判斷普通攻擊
+                     */
+                    let srcFishAttacked = false;
+
+                    // 確認技能是否觸發
+                    let tower = bullet.getTower();
+                    for (let i = 0; i < tower.getSkillArr().length; i++) {
+                        let skillInfo = SettingManager.getSkillInfo(tower.getSkillArr()[i])
+                        let bingoSkill = getRandomFloat(0, 1) <= skillInfo.probability
+                        if (!bingoSkill) {// 是否發動技能 
+                            continue;
+                        }
+
+                        let count = getRandomInt(skillInfo.min, skillInfo.max); // 有幾隻魚要被技能攻擊
+
+                        { // 只要有發動技能, 最初始被子彈打到的魚一定也會被技能攻擊
+                            count -= 1;
+                            let bingoSkillAttack = getRandomFloat(0, 1) <= skillInfo.probability2 // 技能攻擊是否擊殺成功
+                            srcFishAttacked = bingoSkillAttack;
+                            fish.getComponent(Fish).attacked(bingoSkillAttack); // TODO 把 freeze prefab補上
+                            cc.tween(fishNode)
+                                .call(() => { fish.pauseFish(true); })
+                                .delay(skillInfo.pauseTime)
+                                .call(() => { fish.pauseFish(false); })
+                                .start();
+                        }
+
+                        for (let i = 0; i < allFishNodeArr.length; i++) {
+                            let targetFishNode = allFishNodeArr[i];
+                            if (targetFishNode.uuid == fishNode.uuid) {
+                                continue;
+                            }
+
+                            if (count <= 0) {
+                                break;
+                            }
+
+                            count -= 1;
+
+                            let bingoSkillAttack = getRandomFloat(0, 1) <= skillInfo.probability2 // 技能攻擊是否擊殺成功
+                            targetFishNode.getComponent(Fish).attacked(bingoSkillAttack);
+                        }
+                    }
+
+                    if (!srcFishAttacked) { // 還沒被技能打死就要判斷普通攻擊
+                        let bingoNormalAttack = getRandomFloat(0, 1) <= fishInfo.probability // 普通攻擊是否擊殺成功
+                        fish.attacked(bingoNormalAttack);
+                    }
+                }
+            }, 0.05);
+        }
+
         {
             let self = this;
             let startFishHandler = function () {
@@ -286,7 +365,7 @@ export class Game extends cc.Component {
                 }
 
                 { // 判斷 focus
-                    let active = this.focusActive();
+                    let active = self.focusActive();
 
                     let focusNode = self.node.getChildByName("crosshair").getChildByName("focus");
                     focusNode.active = active;
