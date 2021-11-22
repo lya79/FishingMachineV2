@@ -508,9 +508,9 @@ export class SettingManager {
     } {
         switch (name) {
             case "fish_1":
-                return { probability: 0.5, win: 2 };
+                return { probability: 0.1, win: 2 };
             case "fish_2":
-                return { probability: 0.5, win: 2 };
+                return { probability: 0.1, win: 2 };
         }
 
         cc.log("error undefined, name:" + name);
@@ -526,7 +526,7 @@ export class SettingManager {
     } {
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.5, probability2: -1, min: 2, max: 5, pauseTime: 3 };
+                return { probability: 0.5, probability2: -1, min: 2, max: 5, pauseTime: 4 };
             case ESkill.Level_3:// 閃電連鎖
                 return { probability: 0.5, probability2: 0.5, min: 2, max: 5, pauseTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖

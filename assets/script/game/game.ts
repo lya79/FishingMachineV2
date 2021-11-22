@@ -1,7 +1,7 @@
 
 import { EWallet, EWalletResultAction, User } from "../common/user";
 import { EAction as EAudioAction, AudioManager } from "../common/audio";
-import { SettingManager, FishPath, Collision as CollisionObj } from "../common/setting";
+import { SettingManager, FishPath, Collision as CollisionObj, ESkill } from "../common/setting";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { Tower } from "./tower";
 import { Collision, ChangeStageHandler } from "./collision";
@@ -289,28 +289,57 @@ export class Game extends cc.Component {
                     // 確認技能是否觸發
                     let tower = bullet.getTower();
                     for (let i = 0; i < tower.getSkillArr().length; i++) {
-                        let skillInfo = SettingManager.getSkillInfo(tower.getSkillArr()[i])
+                        let skill = tower.getSkillArr()[i];
+                        let skillInfo = SettingManager.getSkillInfo(skill)
                         let bingoSkill = getRandomFloat(0, 1) <= skillInfo.probability
                         if (!bingoSkill) {// 是否發動技能 
                             continue;
                         }
 
+                        let freeze = (skill == ESkill.Level_2); // 需要額外顯示冰凍效果
                         let count = getRandomInt(skillInfo.min, skillInfo.max); // 有幾隻魚要被技能攻擊
 
                         { // 只要有發動技能, 最初始被子彈打到的魚一定也會被技能攻擊
                             count -= 1;
                             let bingoSkillAttack = getRandomFloat(0, 1) <= skillInfo.probability2 // 技能攻擊是否擊殺成功
                             srcFishAttacked = bingoSkillAttack;
-                            fish.getComponent(Fish).attacked(bingoSkillAttack); // TODO 把 freeze prefab補上
-                            cc.tween(fishNode)
-                                .call(() => { fish.pauseFish(true); })
-                                .delay(skillInfo.pauseTime)
-                                .call(() => { fish.pauseFish(false); })
-                                .start();
+                            fish.getComponent(Fish).attacked(bingoSkillAttack);
+                            fish.pauseFish(skillInfo.pauseTime, freeze);
                         }
 
-                        for (let i = 0; i < allFishNodeArr.length; i++) {
+                        let tempArr: cc.Node[] = [];
+                        for (let i = 0; i < allFishNodeArr.length; i++) { // XXX 為了隨機取出 fish node, 需要優化
                             let targetFishNode = allFishNodeArr[i];
+                            if (targetFishNode.uuid == fishNode.uuid) {
+                                continue;
+                            }
+
+                            tempArr.push(targetFishNode);
+
+                            if (tempArr.length == 2) {
+                                let change = (getRandomInt(0, tempArr.length - 1) == 1);
+                                if (change) {
+                                    let a = tempArr[0];
+                                    tempArr[0] = tempArr[1];
+                                    tempArr[1] = a;
+                                }
+                            } else if (tempArr.length > 2) {
+                                let index1 = getRandomInt(0, tempArr.length - 1);
+                                let index2;
+                                for (; ;) {
+                                    index2 = getRandomInt(0, tempArr.length - 1);
+                                    if (index2 != index1) {
+                                        break;
+                                    }
+                                }
+                                let a = tempArr[index1];
+                                tempArr[index1] = tempArr[index2];
+                                tempArr[index2] = a;
+                            }
+                        }
+
+                        for (let i = 0; i < tempArr.length; i++) {
+                            let targetFishNode = tempArr[i];
                             if (targetFishNode.uuid == fishNode.uuid) {
                                 continue;
                             }
@@ -323,6 +352,7 @@ export class Game extends cc.Component {
 
                             let bingoSkillAttack = getRandomFloat(0, 1) <= skillInfo.probability2 // 技能攻擊是否擊殺成功
                             targetFishNode.getComponent(Fish).attacked(bingoSkillAttack);
+                            targetFishNode.getComponent(Fish).pauseFish(skillInfo.pauseTime, freeze);
                         }
                     }
 

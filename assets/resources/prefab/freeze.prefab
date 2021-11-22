@@ -85,7 +85,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "clip_lv2_frost_01",
+    "_name": "base",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -181,20 +181,20 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "07682ff6-dd91-4f8c-825f-2f08e56cdadb"
     },
     "fileId": "c7iTl0nr5CrJh0LMn6Dft6",
     "sync": false
   },
   {
     "__type__": "cc.Node",
-    "_name": "img_frost_ice_S",
+    "_name": "ice_s",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_level": 2,
     "_components": [
       {
@@ -284,20 +284,20 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "07682ff6-dd91-4f8c-825f-2f08e56cdadb"
     },
     "fileId": "33nR2GcwFDfZUhviroHK9q",
     "sync": false
   },
   {
     "__type__": "cc.Node",
-    "_name": "img_frost_ice_M",
+    "_name": "ice_m",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_level": 2,
     "_components": [
       {
@@ -387,20 +387,20 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "07682ff6-dd91-4f8c-825f-2f08e56cdadb"
     },
     "fileId": "f5zA9UFFpGPYZxe2xFburm",
     "sync": false
   },
   {
     "__type__": "cc.Node",
-    "_name": "img_frost_ice_L",
+    "_name": "ice_l",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_level": 2,
     "_components": [
       {
@@ -490,7 +490,7 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "07682ff6-dd91-4f8c-825f-2f08e56cdadb"
     },
     "fileId": "a9ulYTPKlA8r+xDxfFz7BC",
     "sync": false
@@ -503,13 +503,15 @@
       "__id__": 1
     },
     "_enabled": true,
-    "_defaultClip": null,
+    "_defaultClip": {
+      "__uuid__": "fa2cf98f-a0c8-448c-878f-f422d319b21b"
+    },
     "_clips": [
       {
         "__uuid__": "fa2cf98f-a0c8-448c-878f-f422d319b21b"
       }
     ],
-    "playOnLoad": false,
+    "playOnLoad": true,
     "_id": ""
   },
   {
@@ -518,7 +520,7 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "07682ff6-dd91-4f8c-825f-2f08e56cdadb"
     },
     "fileId": "95F0VB0DNE4ZFJvlpYVMGf",
     "sync": false

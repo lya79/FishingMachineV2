@@ -142,6 +142,16 @@ export class LoadingComponent extends cc.Component {
                 }
             }
 
+            {  // 魚的種類
+                self.totalOfRes += 1;
+                let ok = await self.loadFreezePrefab();
+                if (!ok) {
+                    self.error = new Error(`error: loadFreezePrefab fail paht: freeze`);
+                    return;
+                }
+                self.numOfRes += 1;
+            }
+
             {  // 其他資源載入
                 let arr: string[] = ["01", "03", "06", "08", "09"];
                 self.totalOfRes += arr.length;
@@ -187,6 +197,24 @@ export class LoadingComponent extends cc.Component {
 
         return true;
     }
+
+    private async loadFreezePrefab(): Promise<boolean> {
+        let name = `freeze`;
+        let path = 'prefab/' + name;
+        let type = cc.Prefab;
+        let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));
+        if (result instanceof Error) {
+            cc.log('err Loader.Resources, err:' + result);
+            return false;
+        }
+
+        let level1Bullet: cc.Prefab = <cc.Prefab>result;
+
+        ResourcesManager.prefabMap.set(name, level1Bullet);
+
+        return true;
+    }
+
 
     private async loadBulletPrefab(): Promise<boolean> {
         let name = `bullet`;

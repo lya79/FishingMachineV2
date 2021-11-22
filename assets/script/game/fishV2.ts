@@ -2,6 +2,7 @@ import { EWallet, EWalletResultAction, User } from "../common/user";
 import { SettingManager, FishPath, Collision } from "../common/setting";
 import { Bullet } from "./bullet";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
+import { ResourcesManager } from "../common/resource";
 
 // XXX 魚的動畫缺少陰影
 // FIXME 魚水平移動會造成轉向錯誤, 垂直移動也要確認看看
@@ -28,6 +29,9 @@ export class Fish extends cc.Component {
 
     private lockState: boolean; // 判斷是否可以再更改狀態
     private pause: boolean;
+
+    private pauseTime: number; // 需要暫停的時間
+    private freezeEffect: boolean;
 
     public init(fishPath: FishPath, fishName: string) {
         this.fishPath = fishPath;
@@ -105,12 +109,53 @@ export class Fish extends cc.Component {
         this.lockState = false;
 
         this.node.on(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
+
+        let interval = 0.1; // 用來控制是否暫停移動魚
+        this.schedule(function (dt) {
+            self.pause = (self.pauseTime > 0);
+
+            if (self.pauseTime > 0) {
+                self.pauseTime -= dt;
+            } else {
+                self.pauseTime = 0;
+            }
+
+            if (self.freezeEffect) { // TODO 被冰凍時候要暫停擺動尾巴, 雷擊的暫停情況則是可以繼續擺動尾巴
+                self.freezeEffect = false;
+
+                let name = "freeze";
+
+                let freezeNode = self.node.getChildByName(name);
+                if (freezeNode) {// XXX 需要優化減少產生 prefab
+                    freezeNode.destroy();
+                }
+
+                let prefab = ResourcesManager.prefabMap.get(name);
+                if (!prefab) {
+                    cc.log("error: prefab not found, name:" + name);
+                    return;
+                }
+
+                let iceNode = cc.instantiate(prefab);
+                iceNode.name = name;
+                iceNode.setPosition(0, 0);
+
+                // TODO 需要依照魚種的大小來判斷要用哪一種大小的冰塊: ice_s ice_m ice_l, prefab的動護需要去設定
+                iceNode.getChildByName("ice_s").active = true;
+
+                self.node.addChild(iceNode);
+
+                cc.tween(iceNode).delay(self.pauseTime).call(() => { iceNode.destroy(); }).start();
+            }
+        }, interval);
     }
 
     public onDisable() {
         this.node.off(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
 
         this.lockState = true;
+
+        this.node.cleanup();
 
         if (this.pointNodeArr) {
             for (let i = 0; i < this.pointNodeArr.length; i++) {
@@ -181,12 +226,16 @@ export class Fish extends cc.Component {
     }
 
     /** 只會影響魚能不能移動 */
-    public pauseFish(pause: boolean) {
+    public pauseFish(delay: number, freezeEffect: boolean) {
         if (this.lockState) {
             return;
         }
 
-        this.pause = pause;
+        if (delay > this.pauseTime) {
+            this.pauseTime = delay;
+        }
+
+        this.freezeEffect = freezeEffect;
     }
 
     public isPause(): boolean {
