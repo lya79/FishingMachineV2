@@ -1,30 +1,30 @@
 {
   "services": [
     {
-      "service_id": "7",
-      "service_name": "AnySDK",
-      "service_icon": "https://download.cocos.com/CocosUdc/client/872b94af2e/3ba1fcf9029140cf08d95813e387d04a.png",
-      "service_desc": "<font color=red>AnySDK计划关停公告</font> http://www.anysdk.com/2019/05/2203\n<em>强烈建议新用户或新的游戏不要再开通和使用 AnySDK</em> https://forum.cocos.com/t/creator2-0-10-ios-sdk/79061/10\n",
-      "service_title": "游戏快速接入第三方SDK的解决方案",
-      "service_guide_url": "http://docs.anysdk.com",
-      "service_sample_url": "http://github.com/AnySDK",
-      "service_dev_url": "https://service.cocos.com/serviceConsole/jump?client_id=7&app_id=<app_id>&language=zh",
-      "service_type": "2",
-      "service_type_zh": "仅支持公司游戏",
+      "service_id": "315",
+      "service_name": "易盾",
+      "service_icon": "https://download.cocos.com/CocosUdc/client/ba8776b5e3/c14b56b30d2b156c2682cb820c7f55b1.png",
+      "service_desc": "为开发者提供游戏包体加固及游戏反外挂能力，开发者构建过程中自助完成SDK集成、构建完成后一键式进行包体加固，开发者无需再为游戏安全防护进行额外开发工作，可以专注于游戏业务，轻松搭建游戏防御体系。支持全平台：Android、iOS、H5。",
+      "service_title": "提供游戏包体加固、反外挂一站式服务",
+      "service_guide_url": "https://service.cocos.com/document/zh/neteaseyidun.html",
+      "service_sample_url": "https://github.com/CocosService/neteaseDemo",
+      "service_dev_url": "https://service.cocos.com/serviceConsole/jump?client_id=315&app_id=<app_id>&language=zh",
+      "service_type": "3",
+      "service_type_zh": "公司和个人游戏",
       "support_platform": [
         "安卓",
-        "iOS",
-        "H5"
+        "iOS"
       ],
-      "package_download_url": "https://download.cocos.com/CocosUdc/plugins/service-anysdk/1.0.1_2.2.5.zip",
-      "package_version_desc": "<p><strong>更新日期：</strong> 2019/3/7\n<strong>更新说明：</strong>\n1、修复 Creator 2.0.x 系列版本 2.0.7 以上因调用 cc.game.restart(); 而导致的 AnySDK 调用失败的错误</p>",
-      "service_component_name": "service-anysdk",
+      "package_download_url": "https://download.cocos.com/CocosUdc/plugins/service-neteaseyidun/0.5.3_5.0.4_1.7.1.3.zip",
+      "package_version_desc": "<p><strong>更新日期：</strong> 2021/11/15<br />\n<strong>更新说明：</strong><br />\n1.改为 WEBVIEW 的方式打开注册页面取代浏览器<br />\n2.注册时自动帮助用户填写公司名称和手机号等字段（由用户 Cocos 账号获取）<br />\n",
+      "service_component_name": "service-neteaseyidun",
       "package_versions": [
-        "1.0.1_2.2.5"
+        "0.5.2_5.0.4_1.7.1.3",
+        "0.5.3_5.0.4_1.7.1.3"
       ],
       "build_platform": [
       ],
-      "require_verify": 0,
+      "require_verify": 1,
       "service_price": "",
       "service_protocol": "游戏首次开启该服务时，Cocos会后台通知服务方为游戏开通服务并初始化参数，服务方根据需要可能会获取您的Cocos账户信息，包括账户基本资料、游戏基本资料、账户余额等，点击确认开通按钮即视为您同意该服务访问您的账户信息，详见<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_User_Service_Agreement_cn_20200904.html'>《Cocos用户服务协议》</a>和<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_Privacy_Policy_cn_20200904.html'>《Cocos隐私政策》</a>",
       "service_group": "",
@@ -272,7 +272,7 @@
       "service_price": "",
       "service_protocol": "游戏首次开启该服务时，Cocos会后台通知服务方为游戏开通服务并初始化参数，服务方根据需要可能会获取您的Cocos账户信息，包括账户基本资料、游戏基本资料、账户余额等，点击确认开通按钮即视为您同意该服务访问您的账户信息，详见<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_User_Service_Agreement_cn_20200904.html'>《Cocos用户服务协议》</a>和<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_Privacy_Policy_cn_20200904.html'>《Cocos隐私政策》</a>",
       "service_group": "HUAWEI HMS Core",
-      "service_group_id": "1002",
+      "service_group_id": "",
       "not_service": false
     },
     {
@@ -304,7 +304,7 @@
       "service_price": "",
       "service_protocol": "游戏首次开启该服务时，Cocos会后台通知服务方为游戏开通服务并初始化参数，服务方根据需要可能会获取您的Cocos账户信息，包括账户基本资料、游戏基本资料、账户余额等，点击确认开通按钮即视为您同意该服务访问您的账户信息，详见<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_User_Service_Agreement_cn_20200904.html'>《Cocos用户服务协议》</a>和<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_Privacy_Policy_cn_20200904.html'>《Cocos隐私政策》</a>",
       "service_group": "HUAWEI HMS Core",
-      "service_group_id": "1002",
+      "service_group_id": "",
       "not_service": false
     },
     {
@@ -618,37 +618,6 @@
       "not_service": false
     },
     {
-      "service_id": "315",
-      "service_name": "易盾",
-      "service_icon": "https://download.cocos.com/CocosUdc/client/ba8776b5e3/c14b56b30d2b156c2682cb820c7f55b1.png",
-      "service_desc": "为开发者提供游戏包体加固及游戏反外挂能力，开发者构建过程中自助完成SDK集成、构建完成后一键式进行包体加固，开发者无需再为游戏安全防护进行额外开发工作，可以专注于游戏业务，轻松搭建游戏防御体系。支持全平台：Android、iOS、H5。",
-      "service_title": "提供游戏包体加固、反外挂一站式服务",
-      "service_guide_url": "https://service.cocos.com/document/zh/neteaseyidun.html",
-      "service_sample_url": "https://github.com/CocosService/neteaseDemo",
-      "service_dev_url": "https://service.cocos.com/serviceConsole/jump?client_id=315&app_id=<app_id>&language=zh",
-      "service_type": "3",
-      "service_type_zh": "公司和个人游戏",
-      "support_platform": [
-        "安卓",
-        "iOS"
-      ],
-      "package_download_url": "https://download.cocos.com/CocosUdc/plugins/service-neteaseyidun/0.5.3_5.0.4_1.7.1.3.zip",
-      "package_version_desc": "<p><strong>更新日期：</strong> 2021/11/15<br />\n<strong>更新说明：</strong><br />\n1.改为 WEBVIEW 的方式打开注册页面取代浏览器<br />\n2.注册时自动帮助用户填写公司名称和手机号等字段（由用户 Cocos 账号获取）<br />\n",
-      "service_component_name": "service-neteaseyidun",
-      "package_versions": [
-        "0.5.2_5.0.4_1.7.1.3",
-        "0.5.3_5.0.4_1.7.1.3"
-      ],
-      "build_platform": [
-      ],
-      "require_verify": 1,
-      "service_price": "",
-      "service_protocol": "游戏首次开启该服务时，Cocos会后台通知服务方为游戏开通服务并初始化参数，服务方根据需要可能会获取您的Cocos账户信息，包括账户基本资料、游戏基本资料、账户余额等，点击确认开通按钮即视为您同意该服务访问您的账户信息，详见<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_User_Service_Agreement_cn_20200904.html'>《Cocos用户服务协议》</a>和<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_Privacy_Policy_cn_20200904.html'>《Cocos隐私政策》</a>",
-      "service_group": "",
-      "service_group_id": "",
-      "not_service": false
-    },
-    {
       "service_id": "351",
       "service_name": "FrontJS",
       "service_icon": "https://download.cocos.com/CocosUdc/client/4b80de6d6b/0bc144d702f68e557ffa73aead1a14f1.png",
@@ -672,6 +641,37 @@
         "1.0.1_1.0.1",
         "1.1.0_1.1.0",
         "1.1.3_1.1.3"
+      ],
+      "build_platform": [
+      ],
+      "require_verify": 0,
+      "service_price": "",
+      "service_protocol": "游戏首次开启该服务时，Cocos会后台通知服务方为游戏开通服务并初始化参数，服务方根据需要可能会获取您的Cocos账户信息，包括账户基本资料、游戏基本资料、账户余额等，点击确认开通按钮即视为您同意该服务访问您的账户信息，详见<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_User_Service_Agreement_cn_20200904.html'>《Cocos用户服务协议》</a>和<a href='https://download.cocos.com/CocosUdc/agreement/Cocos_Privacy_Policy_cn_20200904.html'>《Cocos隐私政策》</a>",
+      "service_group": "",
+      "service_group_id": "",
+      "not_service": false
+    },
+    {
+      "service_id": "7",
+      "service_name": "AnySDK",
+      "service_icon": "https://download.cocos.com/CocosUdc/client/872b94af2e/3ba1fcf9029140cf08d95813e387d04a.png",
+      "service_desc": "<font color=red>AnySDK计划关停公告</font> http://www.anysdk.com/2019/05/2203\n<em>强烈建议新用户或新的游戏不要再开通和使用 AnySDK</em> https://forum.cocos.com/t/creator2-0-10-ios-sdk/79061/10\n",
+      "service_title": "游戏快速接入第三方SDK的解决方案",
+      "service_guide_url": "http://docs.anysdk.com",
+      "service_sample_url": "http://github.com/AnySDK",
+      "service_dev_url": "https://service.cocos.com/serviceConsole/jump?client_id=7&app_id=<app_id>&language=zh",
+      "service_type": "2",
+      "service_type_zh": "仅支持公司游戏",
+      "support_platform": [
+        "安卓",
+        "iOS",
+        "H5"
+      ],
+      "package_download_url": "https://download.cocos.com/CocosUdc/plugins/service-anysdk/1.0.1_2.2.5.zip",
+      "package_version_desc": "<p><strong>更新日期：</strong> 2019/3/7\n<strong>更新说明：</strong>\n1、修复 Creator 2.0.x 系列版本 2.0.7 以上因调用 cc.game.restart(); 而导致的 AnySDK 调用失败的错误</p>",
+      "service_component_name": "service-anysdk",
+      "package_versions": [
+        "1.0.1_2.2.5"
       ],
       "build_platform": [
       ],

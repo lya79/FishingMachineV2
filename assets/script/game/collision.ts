@@ -3,7 +3,7 @@ import { ResourcesManager } from "../common/resource";
 import { SettingManager, FishPath } from "../common/setting";
 import { Bullet } from "./bullet"
 // import { Fish } from "./fish";
-import { Fish } from "./fishV2";
+import { Fish } from "./fish";
 import { EWallet, EWalletResultAction, User } from "../common/user";
 
 export type ChangeStageHandler = (oldStage: number, newStage: number) => void;

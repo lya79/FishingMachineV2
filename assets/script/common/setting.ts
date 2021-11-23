@@ -503,21 +503,22 @@ export class SettingManager {
     }
 
     public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
-        probability: number, // 中獎機率
+        probability: number, // 中獎擊殺機率
         win: number, // 反獎倍率
+        size: number, // 0:小, 1:中 2:大
     } {
         switch (name) {
             case "fish_1":
-                return { probability: 0.1, win: 2 };
+                return { probability: -1, win: 2, size: 0 };
             case "fish_2":
-                return { probability: 0.1, win: 2 };
+                return { probability: -1, win: 2, size: 0 };
         }
 
         cc.log("error undefined, name:" + name);
-        return { probability: 0.0, win: 0 };
+        return { probability: 0.0, win: 0, size: 0 };
     }
 
-    public static getSkillInfo(skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): {
+    public static getSkillInfo(name: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): {
         probability: number, // 發動機率
         probability2: number, // 技能擊殺機率
         min: number, // 技能發動時至少攻擊幾隻
@@ -526,16 +527,36 @@ export class SettingManager {
     } {
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.5, probability2: -1, min: 2, max: 5, pauseTime: 4 };
+                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseTime: 4 };
             case ESkill.Level_3:// 閃電連鎖
-                return { probability: 0.5, probability2: 0.5, min: 2, max: 5, pauseTime: 2 };
+                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 0.5, probability2: 0.5, min: 2, max: 5, pauseTime: 0 };
+                return { probability: 0.5, probability2: 0.1, min: 2, max: 4, pauseTime: 0 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: 0.5, probability2: 0.5, min: 2, max: 5, pauseTime: 0 };
+                return { probability: 0.5, probability2: 0.1, min: 2, max: 4, pauseTime: 0 };
         }
 
         cc.log("error undefined, ESkill:" + skill);
         return { probability: 0, probability2: 0.5, min: 0, max: 0, pauseTime: 0 };
+    }
+
+    /**
+     * 用來判斷是否成功擊殺
+     * 
+     * @param probability 擊殺機率
+     * @returns 
+     */
+    public static attack(probability: number): boolean {
+        return getRandomFloat(0, 1) <= probability;
+    }
+
+    /**
+     * 用來判斷技能是否發動
+     * 
+     * @param probability 發動機綠
+     * @returns 
+     */
+    public static isActiveSkill(probability: number): boolean {
+        return getRandomFloat(0, 1) <= probability;
     }
 }

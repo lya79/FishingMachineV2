@@ -1,129 +1,320 @@
 import { EWallet, EWalletResultAction, User } from "../common/user";
-import { SettingManager, FishPath } from "../common/setting";
+import { SettingManager, FishPath, Collision } from "../common/setting";
 import { Bullet } from "./bullet";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
+import { ResourcesManager } from "../common/resource";
+
+// XXX 魚的動畫缺少陰影
+// FIXME 魚水平移動會造成轉向錯誤, 垂直移動也要確認看看
 
 export class Fish extends cc.Component {
-    private positionTween: cc.Tween<unknown>;
-
     private fishPath: FishPath;
     private fishName: string;
 
-    /** 魚位移的最後一個位置 */
-    private lastX: number;
-    private lastY: number;
-
     private pointNodeArr: cc.Node[];
 
-    private running: boolean;
+    private fpsOfXY: number; // 每幾偵偏移一次座標(影響移動速度)
+    private fpsOfCanvas: number;// 每幾偵偏更新一次node
+    private timerOfFps: number; // 計時器
+    private timerOfSleep: number; // 計時器
+
+    private targetPosIndex: number; // 目前要前往的座標
+    private x: number;// 座標
+    private y: number;
+    private dx: number; // 偏移座標
+    private dy: number;
+    private speedXY: number; // 每次移動多少距離
+    private rotationFish: number; // 旋轉角度
+    private speedFIsh: number; // 擺動尾巴速度
+
+    private lockState: boolean; // 判斷是否可以再更改狀態
+    private pause: boolean;
+
+    private pauseTime: number; // 需要暫停的時間
+    private freezeEffect: boolean;
 
     public init(fishPath: FishPath, fishName: string) {
         this.fishPath = fishPath;
         this.fishName = fishName;
 
-        this.running = false;
+        this.lockState = true;
+        this.pause = false;
+        this.targetPosIndex = 0;
+        this.fpsOfXY = 1;
+        this.fpsOfCanvas = 1;
+        this.timerOfFps = 0;
+        this.timerOfSleep = 0;
+        this.speedXY = 1;
+    }
 
-        let pathArr = fishPath.getPath();
-
-        this.positionTween = cc.tween(this.node);
-
-        let self = this;
-
-        for (let i = 0; i < pathArr.length; i++) { // 動畫串接
-            let path = pathArr[i];
-            let x = path.x;
-            let y = path.y;
-
-            let delay = fishPath.getSpeedOfPoint()[i];
-            let speed = fishPath.getSpeedOfObj()[i];
-
-            if (i == 0 || (i == pathArr.length - 1)) { // 確保起始和結束的位置要在畫面之外
-                if (x < 0) {
-                    x -= this.node.width / 2;
-                } else {
-                    x += this.node.width / 2;
-                }
-
-                if (y < 0) {
-                    y -= this.node.height / 2;
-                } else {
-                    y += this.node.height / 2;
-                }
-            }
-
-            if (i == 0) {
-                this.node.setPosition(x, y); // 起點位置
-                this.positionTween.then(cc.tween().call(() => {// 調整魚的擺動速度
-                    self.drawPath();
-                    var anim = this.node.getComponent(cc.Animation);
-                    anim.getAnimationState(this.node.name).speed = speed;
-                }));
-                this.positionTween.then(cc.tween().delay(delay)); // 稍微停止一下才開始
-                continue;
-            }
-
-            let currentLocation = new cc.Vec2(pathArr[i - 1].x, pathArr[i - 1].y);
-            let nextLocation = new cc.Vec2(x, y);
-
-            this.positionTween.then(cc.tween().call(() => {
-                // 調整魚的旋轉角度
-                let obj = self.calculatorRotation(nextLocation, currentLocation);
-                self.node.rotation = obj.rotation + 180;
-
-                // 調整魚的擺動速度
-                var anim = this.node.getComponent(cc.Animation);
-                anim.getAnimationState(this.node.name).speed = speed;
-            }));
-            this.positionTween.then(cc.tween().to(delay, { position: new cc.Vec2(x, y) }));
-
-            if (i == pathArr.length - 1) {
-                let self = this;
-                this.positionTween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
-                this.positionTween.then(cc.tween().call(() => { self.node.destroy(); }));
-
-                this.lastX = x;
-                this.lastY = y;
-            }
-        }
+    public getFishName(): string {
+        return this.fishName;
     }
 
     public onCollisionEnter(bulletCollider: cc.Collider, fishCollider: cc.Collider) {
-        if (!this.running) {
+        if (this.lockState) {
             return;
         }
 
-        cc.tween(this.node)
-            .call(() => { this.node.color = new cc.Color(255, 0, 0); })
-            .delay(0.8)
-            .call(() => { this.node.color = new cc.Color(255, 255, 255); })
-            .start();
+        let obj = new Collision();
+        obj.bulletCollider = bulletCollider;
+        obj.fishCollider = fishCollider;
 
-        let bullet = bulletCollider.node.parent.getComponent(Bullet);
-        let tower = bullet.getTower();
+        SettingManager.collisionArr.push(obj);
+    }
 
-        let obj = SettingManager.getFishInfo(this.fishName);
-        let bingo = getRandomFloat(0.0, 1.0) <= obj.probability
-        if (!bingo) { // 沒打中魚
-            return;
+    public onLoad() {
+        this.drawPath();
+
+        this.targetPosIndex = 1; // 前往第二個座標
+
+        let self = this;
+
+        // 確保起始和結束的位置要在畫面之外
+        let getPos = function (x: number, y: number): { newX: number, newY: number } {
+            let width = self.node.width;
+            let height = self.node.height;
+
+            // 考慮到 node可能旋轉, 因此要找出最大的邊
+            let max = (height > width ? height : width);
+
+            if (x < 0) {
+                x -= max;
+            } else {
+                x += max;
+            }
+            if (y < 0) {
+                y -= max;
+            } else {
+                y += max;
+            }
+
+            return { newX: x, newY: y };
         }
 
-        // 確認技能是否觸發
-        for (let i = 0; i < tower.getSkillArr().length; i++) {
-            let skill = tower.getSkillArr()[i];
-            let obj = SettingManager.getSkillInfo(skill)
-            let bingo = getRandomFloat(0.0, 1.0) <= obj.probability
-            if (bingo) {// 發動技能 
+        let lastPos = this.fishPath.getPath()[this.fishPath.getPath().length - 1];
+        let obj = getPos(lastPos.x, lastPos.y);
+        lastPos.x = obj.newX;
+        lastPos.y = obj.newY;
 
+        let fistPos = this.fishPath.getPath()[0];
+        obj = getPos(fistPos.x, fistPos.y);
+        fistPos.x = obj.newX;
+        fistPos.y = obj.newY;
+
+        this.x = fistPos.x;
+        this.y = fistPos.y;
+        this.node.setPosition(fistPos.x, fistPos.y); // 起點位置
+
+        this.lockState = false;
+
+        this.node.on(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
+
+        let interval = 0.1; // 用來控制是否暫停移動魚
+        this.schedule(function (dt) {
+            self.pause = (self.pauseTime > 0);
+
+            if (self.pauseTime > 0) {
+                self.pauseTime -= dt;
+            } else {
+                self.pauseTime = 0;
+            }
+
+            if (self.freezeEffect) {
+                self.freezeEffect = false;
+
+                // 暫停擺動尾巴速度
+                self.node.getComponent(cc.Animation).pause();
+
+                let name = "skill_2_freeze";
+
+                let iceNode = self.node.getChildByName(name);
+                if (iceNode) {
+                    iceNode.destroy();
+                }
+
+                let prefab = ResourcesManager.prefabMap.get(name);
+                if (!prefab) {
+                    cc.log("error: prefab not found, name:" + name);
+                    return;
+                }
+
+                iceNode = cc.instantiate(prefab);
+                iceNode.name = name;
+                iceNode.setPosition(0, 0);
+                iceNode.rotation = getRandomInt(0, 360);
+
+                iceNode.getChildByName("ice_s").active = false;
+                iceNode.getChildByName("ice_m").active = false;
+                iceNode.getChildByName("ice_l").active = false;
+                switch (SettingManager.getFishInfo(this.fishName).size) {
+                    case 0:
+                        iceNode.getChildByName("ice_s").active = true;
+                        break;
+                    case 1:
+                        iceNode.getChildByName("ice_m").active = true;
+                        break;
+                    case 2:
+                        iceNode.getChildByName("ice_l").active = true;
+                        break;
+                }
+
+                self.node.addChild(iceNode);
+
+                cc.tween(iceNode).delay(self.pauseTime).call(() => {
+                    iceNode.destroy();
+
+                    // 恢復擺動尾巴速度
+                    self.node.getComponent(cc.Animation).resume();
+                }).start();
+            }
+        }, interval);
+    }
+
+    public onDisable() {
+        this.node.off(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
+
+        this.lockState = true;
+
+        this.node.cleanup();
+
+        if (this.pointNodeArr) {
+            for (let i = 0; i < this.pointNodeArr.length; i++) {
+                this.pointNodeArr[i].destroy();
             }
         }
 
-        // 魚消失(音效) 
+        this.node.destroy();
+    }
 
-        // 顯示贏數字(音效) 
+    public update(dt) {
+        if (this.lockState) {
+            return;
+        }
 
-        // 顯示金幣跑到砲塔的動畫(音效) 
+        if (this.pause) {
+            return;
+        }
 
-        // 錢包增加錢(音效) 
+        this.updateXY(dt);
+        this.updateNodeXY(dt);
+    }
+
+    private touchHandler(event) {
+        User.setFocusUUID(this.node.uuid);
+    }
+
+    public attacked(dead: boolean, delay: number, freezeEffect: boolean) {
+        if (this.lockState) {
+            return;
+        }
+
+        if (delay > this.pauseTime) {
+            this.pauseTime = delay;
+        }
+
+        if (freezeEffect != null) {
+            this.freezeEffect = freezeEffect;
+        }
+
+        if (dead) {
+            this.lockState = true;
+            this.pause = true;
+        }
+
+        this.node.color = new cc.Color(255, 0, 0);
+
+        if (!dead) { // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
+            // 反映受攻擊
+            cc.tween(this.node)
+                .delay(0.5)
+                .call(() => { this.node.color = new cc.Color(255, 255, 255); })
+                .start();
+            return;
+        }
+
+        let tween = cc.tween(this.node);
+
+        if (delay > 0) {
+            tween.then(cc.tween().delay(delay));
+        }
+
+        { // 反映受攻擊
+            // tween.then(
+            //     cc.tween()
+            //         .call(() => { this.node.color = new cc.Color(255, 0, 0); })
+            //         .delay(0.8));
+        }
+
+        {// TODO 錢幣動畫、音效、錢包餘額增加
+
+        }
+
+        { // 釋放 node
+            let self = this;
+            tween.then(cc.tween().call(() => { self.node.destroy(); }));
+        }
+
+        tween.start();
+    }
+
+    /** 只會影響魚能不能移動 */
+    // public pauseFish(delay: number, freezeEffect: boolean) {
+    //     if (this.lockState) {
+    //         return;
+    //     }
+
+    //     if (delay > this.pauseTime) {
+    //         this.pauseTime = delay;
+    //     }
+
+    //     this.freezeEffect = freezeEffect;
+    // }
+
+    public isPause(): boolean {
+        return this.pause;
+    }
+
+    public isLockState(): boolean {
+        return this.lockState;
+    }
+
+    /** 加速離開畫面 */
+    public clearFish() {
+        if (!this.lockState) {
+            return;
+        }
+
+        this.lockState = true;
+        this.pause = true;
+
+        /**
+         * 假設需要移動的最長距離為 875.6(對角)
+         * 並且需要再 2s完成
+         * 因此可以換算出每一個位置偏移需要耗費 0.00228414801=2/875.6
+         */
+        let lastPos = this.fishPath.getPath()[this.fishPath.getPath().length - 1];
+        let currentPosition = this.node.getPosition();
+        let lastPosition = new cc.Vec2(lastPos.x, lastPos.y);
+        let distance = this.getDistance(currentPosition, lastPosition); //目前差還多少距離到達邊界
+        let delay = distance * 0.00228414801;
+        let speed = 2;
+
+        let self = this;
+        let tween = cc.tween(this.node);
+        tween.then(cc.tween().call(() => {
+            // 調整魚的旋轉角度
+            let obj = self.calculatorRotation(lastPosition, currentPosition);
+            self.node.rotation = obj.rotation + 180;
+
+            // 調整魚的擺動速度
+            var anim = this.node.getComponent(cc.Animation);
+            anim.getAnimationState(this.node.name).speed *= speed;
+        }));
+        tween.then(cc.tween().to(delay, { position: lastPosition })); // 1.5s離開畫面
+        tween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
+        tween.then(cc.tween().call(() => { self.node.destroy(); }));
+        tween.start();
     }
 
     /**
@@ -171,70 +362,82 @@ export class Fish extends cc.Component {
         return angleA;
     }
 
-    public onLoad() {
 
+    private updateNodeXY(dt) {// 更新魚顯示位置
+        {// 計時
+            this.timerOfFps += 1;
+            if (this.timerOfFps < this.fpsOfCanvas) {
+                return;
+            }
+            this.timerOfFps = 0;
+        }
+
+        // 位置
+        this.node.setPosition(this.x, this.y);
+
+        // 擺動尾巴速度
+        var anim = this.node.getComponent(cc.Animation);
+        anim.getAnimationState(this.node.name).speed = this.speedFIsh;
+
+        // 旋轉角度
+        this.node.rotation = this.rotationFish - 180;
     }
 
-    public onEnable() {
-        this.node.on(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
-        // this.node.on(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
-    }
+    private updateXY(dt) {// 更新魚的 x、y座標
+        {// 計時
+            this.timerOfSleep += 1;
+            if (this.timerOfSleep < this.fpsOfXY) {
+                return;
+            }
+            this.timerOfSleep = 0;
+        }
 
-    public onDisable() {
-        // this.node.off(cc.Node.EventType.POSITION_CHANGED, this.positionHandler, this);
-        this.node.off(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
-        this.node.destroy();
+        { // 判斷是否要更新 targetPosIndex
+            if (this.targetPosIndex >= this.fishPath.getSpeedOfPoint().length) {
+                this.lockState = false;
+                return;
+            }
 
-        if (this.pointNodeArr) {
-            for (let i = 0; i < this.pointNodeArr.length; i++) {
-                this.pointNodeArr[i].destroy();
+            let targetPos = this.fishPath.getPath()[this.targetPosIndex];
+            let currentPos = new cc.Vec2(this.x, this.y);
+            let distance = this.getDistance(targetPos, currentPos);
+
+            // 目前位置和目標位置的距離小於等於移動距離時候, 就代表要前往下一個位置
+            if (distance <= (this.speedXY * 1.2)) { // XXX 在思考有沒有更好的方式做判斷
+                this.targetPosIndex += 1;
+            }
+
+            // 判斷已經到達最後一個座標點
+            if (this.targetPosIndex >= this.fishPath.getSpeedOfPoint().length) {
+                this.lockState = false;
+                return;
             }
         }
-    }
 
-    private touchHandler(event) {
-        User.setFocusUUID(this.node.uuid);
-    }
+        { // 旋轉 目前位置和目標位置 targetPosIndex rotationFish
+            let currentPos = new cc.Vec2(this.x, this.y);
+            let targetPos = this.fishPath.getPath()[this.targetPosIndex];
+            let obj = this.calculatorRotation(targetPos, currentPos);
+            this.rotationFish = obj.rotation;
+        }
 
-    // private positionHandler() {
-    // cc.log("positionHandler: " + this.node.name);
-    // }
+        { // 更新偏移 dx dy, 先做旋轉才能計算 dx dy
+            this.dx = Math.sin((this.rotationFish * Math.PI) / 180) * this.speedXY;
+            this.dy = Math.cos((this.rotationFish * Math.PI) / 180) * this.speedXY;
+        }
 
-    public startFish() {
-        this.positionTween.start();
-        this.running = true;
-    }
+        { // 更新xy x y
+            this.x += this.dx;
+            this.y += this.dy;
+        }
 
-    /** 加速離開畫面 */
-    public clearFish() {
-        this.positionTween.stop();// 停止原先的位移動作
+        { // 更新移動速度 fpsOfXY
+            this.fpsOfXY = this.fishPath.getSpeedOfPoint()[this.targetPosIndex];
+        }
 
-        /**
-         * 假設需要移動的最長距離為 875.6(對角)
-         * 並且需要再 2s完成
-         * 因此可以換算出每一個位置偏移需要耗費 0.00228414801=2/875.6
-         */
-        let currentPosition = this.node.getPosition();
-        let lastPosition = new cc.Vec2(this.lastX, this.lastY)
-        let distance = this.getDistance(currentPosition, lastPosition); //目前差還多少距離到達邊界
-        let delay = distance * 0.00228414801;
-        let speed = 2;
-
-        let self = this;
-        let tween = cc.tween(this.node);
-        tween.then(cc.tween().call(() => {
-            // 調整魚的旋轉角度
-            let obj = self.calculatorRotation(lastPosition, currentPosition);
-            self.node.rotation = obj.rotation + 180;
-
-            // 調整魚的擺動速度
-            var anim = this.node.getComponent(cc.Animation);
-            anim.getAnimationState(this.node.name).speed *= speed;
-        }));
-        tween.then(cc.tween().to(delay, { position: lastPosition })); // 1.5s離開畫面
-        tween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
-        tween.then(cc.tween().call(() => { self.node.destroy(); }));
-        tween.start();
+        { // 更新擺動尾巴速度 speedFIsh
+            this.speedFIsh = this.fishPath.getSpeedOfObj()[this.targetPosIndex];
+        }
     }
 
     private getDistance(a: cc.Vec2, b: cc.Vec2): number {

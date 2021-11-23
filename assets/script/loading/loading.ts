@@ -135,7 +135,7 @@ export class LoadingComponent extends cc.Component {
                 for (let i = 1; i <= max; i++) {
                     let ok = await self.loadFishPrefab(i.toString());
                     if (!ok) {
-                        self.error = new Error(`error: loadFishPrefab fail paht: fish_` + i.toString());
+                        self.error = new Error(`error: loadFishPrefab fail name: fish_` + i.toString());
                         return;
                     }
                     self.numOfRes += 1;
@@ -143,17 +143,22 @@ export class LoadingComponent extends cc.Component {
             }
 
             {  // 魚的種類
-                self.totalOfRes += 1;
-                let ok = await self.loadFreezePrefab();
-                if (!ok) {
-                    self.error = new Error(`error: loadFreezePrefab fail paht: freeze`);
-                    return;
+                self.totalOfRes += 4;
+                // let name = `skill_2_freeze`;
+                let skillArr: string[] = ["skill_2_freeze", "skill_3_line", "skill_3_src_point", "skill_3_target_point"];
+                for (let i = 0; i < skillArr.length; i++) {
+                    let name = skillArr[i];
+                    let ok = await self.loadSkillPrefab(name);
+                    if (!ok) {
+                        self.error = new Error(`error: loadFreezePrefab fail name: ` + name);
+                        return;
+                    }
+                    self.numOfRes += 1;
                 }
-                self.numOfRes += 1;
             }
 
             {  // 其他資源載入
-                let arr: string[] = ["01", "03", "06", "08", "09"];
+                let arr: string[] = ["01", "02", "03", "06", "08", "09"];
                 self.totalOfRes += arr.length;
                 let max = arr.length;
                 for (let i = 0; i < max; i++) {
@@ -198,8 +203,7 @@ export class LoadingComponent extends cc.Component {
         return true;
     }
 
-    private async loadFreezePrefab(): Promise<boolean> {
-        let name = `freeze`;
+    private async loadSkillPrefab(name: string): Promise<boolean> {
         let path = 'prefab/' + name;
         let type = cc.Prefab;
         let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));

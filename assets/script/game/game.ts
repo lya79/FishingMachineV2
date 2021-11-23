@@ -8,7 +8,7 @@ import { Collision, ChangeStageHandler } from "./collision";
 import { Background } from "./background";
 import { ResourcesManager } from "../common/resource";
 import { Bullet } from "./bullet";
-import { Fish } from "./fishV2";
+import { Fish } from "./fish";
 
 const { ccclass, property } = cc._decorator;
 
@@ -257,7 +257,8 @@ export class Game extends cc.Component {
         this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
 
 
-        { // 控制魚被子彈打到 // TODO 控制魚被子彈打到
+        // TODO 控制魚被子彈和技能攻擊
+        { // 控制魚被子彈打到 
             let self = this;
             this.schedule(function (dt) {
                 let length = SettingManager.collisionArr.length;
@@ -277,7 +278,7 @@ export class Game extends cc.Component {
 
                     let fishInfo = SettingManager.getFishInfo(fish.getFishName());
 
-                    let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode();
+                    let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode(); 
 
                     /**
                      * 技能攻擊優先判斷
@@ -290,56 +291,26 @@ export class Game extends cc.Component {
                     let tower = bullet.getTower();
                     for (let i = 0; i < tower.getSkillArr().length; i++) {
                         let skill = tower.getSkillArr()[i];
-                        let skillInfo = SettingManager.getSkillInfo(skill)
-                        let bingoSkill = getRandomFloat(0, 1) <= skillInfo.probability
-                        if (!bingoSkill) {// 是否發動技能 
+                        let skillInfo = SettingManager.getSkillInfo(fish.getFishName(), skill);
+                        if (!SettingManager.isActiveSkill(skillInfo.probability)) {// 是否發動技能
                             continue;
                         }
 
                         let freeze = (skill == ESkill.Level_2); // 需要額外顯示冰凍效果
                         let count = getRandomInt(skillInfo.min, skillInfo.max); // 有幾隻魚要被技能攻擊
 
+                        let effectNodeArr: cc.Node[] = [];
+                        effectNodeArr.push(fishNode);
+
                         { // 只要有發動技能, 最初始被子彈打到的魚一定也會被技能攻擊
                             count -= 1;
-                            let bingoSkillAttack = getRandomFloat(0, 1) <= skillInfo.probability2 // 技能攻擊是否擊殺成功
-                            srcFishAttacked = bingoSkillAttack;
-                            fish.getComponent(Fish).attacked(bingoSkillAttack);
-                            fish.pauseFish(skillInfo.pauseTime, freeze);
+                            srcFishAttacked = SettingManager.attack(skillInfo.probability2); // 技能攻擊是否擊殺成功
+                            fishNode.getComponent(Fish).attacked(srcFishAttacked, skillInfo.pauseTime, freeze);
                         }
 
-                        let tempArr: cc.Node[] = [];
-                        for (let i = 0; i < allFishNodeArr.length; i++) { // XXX 為了隨機取出 fish node, 需要優化
+                        let targetFishArr: cc.Node[] = [];
+                        for (let i = 0; i < allFishNodeArr.length; i++) {
                             let targetFishNode = allFishNodeArr[i];
-                            if (targetFishNode.uuid == fishNode.uuid) {
-                                continue;
-                            }
-
-                            tempArr.push(targetFishNode);
-
-                            if (tempArr.length == 2) {
-                                let change = (getRandomInt(0, tempArr.length - 1) == 1);
-                                if (change) {
-                                    let a = tempArr[0];
-                                    tempArr[0] = tempArr[1];
-                                    tempArr[1] = a;
-                                }
-                            } else if (tempArr.length > 2) {
-                                let index1 = getRandomInt(0, tempArr.length - 1);
-                                let index2;
-                                for (; ;) {
-                                    index2 = getRandomInt(0, tempArr.length - 1);
-                                    if (index2 != index1) {
-                                        break;
-                                    }
-                                }
-                                let a = tempArr[index1];
-                                tempArr[index1] = tempArr[index2];
-                                tempArr[index2] = a;
-                            }
-                        }
-
-                        for (let i = 0; i < tempArr.length; i++) {
-                            let targetFishNode = tempArr[i];
                             if (targetFishNode.uuid == fishNode.uuid) {
                                 continue;
                             }
@@ -350,15 +321,94 @@ export class Game extends cc.Component {
 
                             count -= 1;
 
-                            let bingoSkillAttack = getRandomFloat(0, 1) <= skillInfo.probability2 // 技能攻擊是否擊殺成功
-                            targetFishNode.getComponent(Fish).attacked(bingoSkillAttack);
-                            targetFishNode.getComponent(Fish).pauseFish(skillInfo.pauseTime, freeze);
+                            targetFishArr.push(targetFishNode);
+                        }
+
+                        for (let i = 0; i < targetFishArr.length; i++) { // TODO 被技能攻擊的對象要要特定的邏輯去選擇
+                            let targetFishNode = targetFishArr[i];
+
+                            effectNodeArr.push(targetFishNode);
+
+                            targetFishNode.getComponent(Fish).attacked(SettingManager.attack(skillInfo.probability2), skillInfo.pauseTime, freeze);// 技能攻擊是否擊殺成功
+                        }
+
+
+                        if (skill == ESkill.Level_3) {
+                            for (let k = 0; k < effectNodeArr.length; k++) {
+                                let currentNode = effectNodeArr[k];
+
+                                let targetNode: cc.Node;
+                                if (k + 1 < effectNodeArr.length) {
+                                    targetNode = effectNodeArr[k + 1];
+                                }
+
+                                if (targetNode) {
+                                    let currentPos = currentNode.getPosition();
+                                    let targetPos = targetNode.getPosition();
+
+                                    {
+                                        let name = 'skill_3_line';
+                                        let prefab = ResourcesManager.prefabMap.get(name);
+                                        if (!prefab) {
+                                            cc.log("error: prefab not found name:" + name);
+                                            return;
+                                        }
+
+                                        let effectNode = cc.instantiate(prefab);
+                                        effectNode.name = name;
+                                        effectNode.setPosition(currentPos);
+                                        effectNode.rotation = self.calculatorRotation(targetPos, currentPos).rotation;
+
+                                        effectNode.width = 40;
+                                        effectNode.height = self.getDistance(currentPos, targetPos);
+
+                                        currentNode.parent.addChild(effectNode);
+
+                                        var animation = effectNode.getComponent(cc.Animation); // XXX spriteFrame替換的時候大小會被重置, 因此需要不斷修改大小
+                                        animation.schedule(function () {
+                                            effectNode.width = 40;
+                                            effectNode.height = self.getDistance(currentPos, targetPos);
+                                        }, 0.01);
+
+                                        animation.scheduleOnce(function () {
+                                            animation.stop();
+                                            effectNode.destroy();
+                                        }, skillInfo.pauseTime);
+                                    }
+                                }
+
+                                {
+                                    let name = (k == 0 ? "skill_3_src_point" : "skill_3_target_point");
+                                    let prefab = ResourcesManager.prefabMap.get(name);
+                                    if (!prefab) {
+                                        cc.log("error: prefab not found name:" + name);
+                                        return;
+                                    }
+
+                                    let effectNode = cc.instantiate(prefab);
+                                    effectNode.name = name;
+                                    effectNode.setPosition(0, 0);
+
+                                    effectNode.setScale(0.3, 0.3);
+
+                                    currentNode.addChild(effectNode);
+
+                                    var animation = effectNode.getComponent(cc.Animation); // XXX spriteFrame替換的時候大小會被重置, 因此需要不斷修改大小
+                                    animation.schedule(function () {
+                                        effectNode.setScale(0.3, 0.3);
+                                    }, 0.01);
+
+                                    animation.scheduleOnce(function () {
+                                        animation.stop();
+                                        effectNode.destroy();
+                                    }, skillInfo.pauseTime);
+                                }
+                            }
                         }
                     }
 
                     if (!srcFishAttacked) { // 還沒被技能打死就要判斷普通攻擊
-                        let bingoNormalAttack = getRandomFloat(0, 1) <= fishInfo.probability // 普通攻擊是否擊殺成功
-                        fish.attacked(bingoNormalAttack);
+                        fish.attacked(SettingManager.attack(fishInfo.probability), 0, null);// 普通攻擊是否擊殺成功
                     }
                 }
             }, 0.05);
@@ -835,5 +885,11 @@ export class Game extends cc.Component {
         }
 
         return true;
+    }
+
+    private getDistance(a: cc.Vec2, b: cc.Vec2): number {
+        let x = a.x - b.x;
+        let y = a.y - b.y;
+        return Math.sqrt(x * x + y * y);
     }
 }
