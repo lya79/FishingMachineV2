@@ -522,22 +522,24 @@ export class SettingManager {
         probability: number, // 發動機率
         probability2: number, // 技能擊殺機率
         min: number, // 技能發動時至少攻擊幾隻
-        max: number,  // 技能發動時最多攻擊幾隻
-        pauseTime: number, // 被打到要暫停幾秒
+        max: number,  // 技能發動時最多攻擊幾隻, 至少設定1, 因為包含被普通攻擊的魚
+        pauseMoveTime: number, // 被打到要暫停幾秒
+        pauseSelfActionTime: number, //  花費多少時間停止擺動尾巴
+        durationTime: number, // 技能動畫持續時間
     } {
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseTime: 4 };
+                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
             case ESkill.Level_3:// 閃電連鎖
-                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseTime: 2 };
+                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 0.5, probability2: 0.1, min: 2, max: 4, pauseTime: 0 };
+                return { probability: 1, probability2: -1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: 0.5, probability2: 0.1, min: 2, max: 4, pauseTime: 0 };
+                return { probability: -1, probability2: -1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 0 };
         }
 
         cc.log("error undefined, ESkill:" + skill);
-        return { probability: 0, probability2: 0.5, min: 0, max: 0, pauseTime: 0 };
+        return { probability: 0, probability2: 0.5, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 0 };
     }
 
     /**

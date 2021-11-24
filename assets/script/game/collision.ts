@@ -17,20 +17,38 @@ export class Collision extends cc.Component {
     }
 
     public onEnable() {
+        // let self = this;
+        // this.schedule(function () {
+        //     cc.log("count: " + self.getAllFishNode().length);
+        // }, 0.01);
     }
 
     public onDisable() {
         this.unscheduleAllCallbacks();
     }
 
+    /**
+     * 找出目前還活著的魚
+     * 而且顯示在畫面上(部分魚因為路線關係會超出邊界還活著)
+     */
     public getAllFishNode(): cc.Node[] {
         let arr: cc.Node[] = [];
         let length = this.node.children.length;
         for (let i = 0; i < length; i++) {
             let node = this.node.children[i];
-            if (!node.name.startsWith("fish_")) {
+            let fish = node.getComponent(Fish);
+            if (!fish) {
                 continue;
             }
+
+            if (fish.isLockState()) {
+                continue;
+            }
+
+            if (!fish.isInCanvas()) {
+                continue;
+            }
+
             arr.push(node);
         }
         return arr;

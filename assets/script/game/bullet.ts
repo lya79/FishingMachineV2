@@ -89,7 +89,7 @@ export class Bullet extends cc.Component {
         this.running = true;
     }
 
-    public attack() {
+    public attack() { // TODO 播放子彈碰撞的音效
         if (!this.running) {
             return;
         }

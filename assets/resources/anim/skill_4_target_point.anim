@@ -1,6 +1,6 @@
 {
   "__type__": "cc.AnimationClip",
-  "_name": "skill_2_target_point",
+  "_name": "skill_4_target_point",
   "_objFlags": 0,
   "_native": "",
   "_duration": 0.26666666666666666,
@@ -14,49 +14,49 @@
           {
             "frame": 0,
             "value": {
-              "__uuid__": "3ab24320-5bb8-4c78-a916-6e33a4779071"
+              "__uuid__": "abc175b0-a2ae-49b4-a5c3-3b82f8dae0d4"
             }
           },
           {
             "frame": 0.03333333333333333,
             "value": {
-              "__uuid__": "2ae0d8fc-a55f-4d0d-af3a-61ab6915863b"
+              "__uuid__": "46b77067-bb84-4f82-9951-9aa85025900b"
             }
           },
           {
             "frame": 0.06666666666666667,
             "value": {
-              "__uuid__": "2dae7f1a-fa55-465c-83ad-6ae878fb1e1e"
+              "__uuid__": "6caf8290-fbb2-436f-af71-cfd8335d64ac"
             }
           },
           {
             "frame": 0.1,
             "value": {
-              "__uuid__": "c5a21a6c-ac4d-4f84-9150-daa34a8e8520"
+              "__uuid__": "9437a41c-f273-48c9-8e15-7a67e923cbe8"
             }
           },
           {
             "frame": 0.13333333333333333,
             "value": {
-              "__uuid__": "fbc14045-6e17-427b-9c7d-cb7fcc3e4991"
+              "__uuid__": "b10d9445-9d1c-40bd-b25a-1f1066c8f60e"
             }
           },
           {
             "frame": 0.16666666666666666,
             "value": {
-              "__uuid__": "fba5b02e-916c-4c1c-99fd-3d97db455058"
+              "__uuid__": "354d58f4-54e8-4fe9-9778-5422631a43cb"
             }
           },
           {
             "frame": 0.2,
             "value": {
-              "__uuid__": "3e2b08f3-098c-46de-bbe4-97e8f1aa2915"
+              "__uuid__": "790cf6e2-0808-4265-9526-1b0bea6b45db"
             }
           },
           {
             "frame": 0.23333333333333334,
             "value": {
-              "__uuid__": "2eca8426-1a14-4d35-b1c7-540033c1e688"
+              "__uuid__": "cecf31f0-5ea2-4228-bbab-26e3ef509347"
             }
           }
         ]

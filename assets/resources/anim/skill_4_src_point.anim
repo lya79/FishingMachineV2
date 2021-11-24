@@ -1,6 +1,6 @@
 {
   "__type__": "cc.AnimationClip",
-  "_name": "skill_2_target_point",
+  "_name": "skill_4_src_point",
   "_objFlags": 0,
   "_native": "",
   "_duration": 0.26666666666666666,
@@ -14,49 +14,49 @@
           {
             "frame": 0,
             "value": {
-              "__uuid__": "3ab24320-5bb8-4c78-a916-6e33a4779071"
+              "__uuid__": "c0e93a89-eb9f-4c24-8cb7-e9d20e3fb9f3"
             }
           },
           {
             "frame": 0.03333333333333333,
             "value": {
-              "__uuid__": "2ae0d8fc-a55f-4d0d-af3a-61ab6915863b"
+              "__uuid__": "8835b6cb-387a-4567-8616-a7c6a23e7610"
             }
           },
           {
             "frame": 0.06666666666666667,
             "value": {
-              "__uuid__": "2dae7f1a-fa55-465c-83ad-6ae878fb1e1e"
+              "__uuid__": "4a75a3eb-3153-44b6-a7c9-f51166be74c4"
             }
           },
           {
             "frame": 0.1,
             "value": {
-              "__uuid__": "c5a21a6c-ac4d-4f84-9150-daa34a8e8520"
+              "__uuid__": "021e1e81-85b4-46b4-bce0-d50204b4dc44"
             }
           },
           {
             "frame": 0.13333333333333333,
             "value": {
-              "__uuid__": "fbc14045-6e17-427b-9c7d-cb7fcc3e4991"
+              "__uuid__": "ee3afc07-2b28-4e41-a12d-32a41b5ff4ee"
             }
           },
           {
             "frame": 0.16666666666666666,
             "value": {
-              "__uuid__": "fba5b02e-916c-4c1c-99fd-3d97db455058"
+              "__uuid__": "6297edae-43cc-436e-bf3f-cb4caff4402a"
             }
           },
           {
             "frame": 0.2,
             "value": {
-              "__uuid__": "3e2b08f3-098c-46de-bbe4-97e8f1aa2915"
+              "__uuid__": "4bb59136-8c42-4ba2-ac97-37f4144a5958"
             }
           },
           {
             "frame": 0.23333333333333334,
             "value": {
-              "__uuid__": "2eca8426-1a14-4d35-b1c7-540033c1e688"
+              "__uuid__": "bc1d0125-bd89-47c1-8419-3bc72a658565"
             }
           }
         ]

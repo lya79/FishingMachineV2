@@ -30,14 +30,14 @@ export class Fish extends cc.Component {
     private lockState: boolean; // 判斷是否可以再更改狀態
     private pause: boolean;
 
-    private pauseTime: number; // 需要暫停的時間
-    private freezeEffect: boolean;
+    private pauseMoveTime: number; // 需要暫停的時間
+    private pauseSelfActionTime: number;
 
     public init(fishPath: FishPath, fishName: string) {
         this.fishPath = fishPath;
         this.fishName = fishName;
 
-        this.lockState = true;
+        this.lockState = false;
         this.pause = false;
         this.targetPosIndex = 0;
         this.fpsOfXY = 1;
@@ -45,6 +45,8 @@ export class Fish extends cc.Component {
         this.timerOfFps = 0;
         this.timerOfSleep = 0;
         this.speedXY = 1;
+        this.pauseMoveTime = 0;
+        this.pauseSelfActionTime = 0;
     }
 
     public getFishName(): string {
@@ -106,67 +108,32 @@ export class Fish extends cc.Component {
         this.y = fistPos.y;
         this.node.setPosition(fistPos.x, fistPos.y); // 起點位置
 
-        this.lockState = false;
-
         this.node.on(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
 
         let interval = 0.1; // 用來控制是否暫停移動魚
         this.schedule(function (dt) {
-            self.pause = (self.pauseTime > 0);
+            self.pause = (self.pauseMoveTime > 0);
 
-            if (self.pauseTime > 0) {
-                self.pauseTime -= dt;
+            if (self.pauseMoveTime > 0) {
+                self.pauseMoveTime -= dt;
             } else {
-                self.pauseTime = 0;
+                self.pauseMoveTime = 0;
             }
 
-            if (self.freezeEffect) {
-                self.freezeEffect = false;
+            if (self.pauseSelfActionTime > 0) {
+                self.pauseSelfActionTime -= dt;
 
-                // 暫停擺動尾巴速度
-                self.node.getComponent(cc.Animation).pause();
-
-                let name = "skill_2_freeze";
-
-                let iceNode = self.node.getChildByName(name);
-                if (iceNode) {
-                    iceNode.destroy();
+                let animationState = self.node.getComponent(cc.Animation).getAnimationState(self.fishName);
+                if (!animationState.isPaused) {
+                    animationState.pause();
                 }
+            } else if (self.pauseSelfActionTime < 0) {
+                self.pauseSelfActionTime = 0;
 
-                let prefab = ResourcesManager.prefabMap.get(name);
-                if (!prefab) {
-                    cc.log("error: prefab not found, name:" + name);
-                    return;
+                let animationState = self.node.getComponent(cc.Animation).getAnimationState(self.fishName);
+                if (animationState.isPaused) {
+                    animationState.play();
                 }
-
-                iceNode = cc.instantiate(prefab);
-                iceNode.name = name;
-                iceNode.setPosition(0, 0);
-                iceNode.rotation = getRandomInt(0, 360);
-
-                iceNode.getChildByName("ice_s").active = false;
-                iceNode.getChildByName("ice_m").active = false;
-                iceNode.getChildByName("ice_l").active = false;
-                switch (SettingManager.getFishInfo(this.fishName).size) {
-                    case 0:
-                        iceNode.getChildByName("ice_s").active = true;
-                        break;
-                    case 1:
-                        iceNode.getChildByName("ice_m").active = true;
-                        break;
-                    case 2:
-                        iceNode.getChildByName("ice_l").active = true;
-                        break;
-                }
-
-                self.node.addChild(iceNode);
-
-                cc.tween(iceNode).delay(self.pauseTime).call(() => {
-                    iceNode.destroy();
-
-                    // 恢復擺動尾巴速度
-                    self.node.getComponent(cc.Animation).resume();
-                }).start();
             }
         }, interval);
     }
@@ -204,17 +171,22 @@ export class Fish extends cc.Component {
         User.setFocusUUID(this.node.uuid);
     }
 
-    public attacked(dead: boolean, delay: number, freezeEffect: boolean) {
+    /**
+     * @param dead 是否被擊殺
+     * @param durationTime 技能動畫持續時間(技能攻擊的動畫結束才能讓魚被擊殺)
+     * @param pauseMoveTime 花費多少時間停止位移
+     * @param pauseSelfActionTime 花費多少時間停止擺動尾巴
+     * @returns 
+     */
+    public attacked(
+        dead: boolean,
+        durationTime: number,
+        pauseMoveTime: number,
+        pauseSelfActionTime: number
+
+    ) {
         if (this.lockState) {
             return;
-        }
-
-        if (delay > this.pauseTime) {
-            this.pauseTime = delay;
-        }
-
-        if (freezeEffect != null) {
-            this.freezeEffect = freezeEffect;
         }
 
         if (dead) {
@@ -222,54 +194,64 @@ export class Fish extends cc.Component {
             this.pause = true;
         }
 
-        this.node.color = new cc.Color(255, 0, 0);
+        if (pauseMoveTime && pauseMoveTime > this.pauseMoveTime) {
+            this.pauseMoveTime = pauseMoveTime;
+        }
 
-        if (!dead) { // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
-            // 反映受攻擊
-            cc.tween(this.node)
+        if (pauseSelfActionTime && pauseSelfActionTime > this.pauseSelfActionTime) {
+            this.pauseSelfActionTime = pauseSelfActionTime;
+        }
+
+        // TODO 播放魚碰撞子彈的音效 
+        { // 播放魚被攻擊的動畫 
+            let tween = cc.tween(this.node);
+
+            tween.then(cc.tween() // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
+                .call(() => { this.node.color = new cc.Color(255, 0, 0); })
                 .delay(0.5)
                 .call(() => { this.node.color = new cc.Color(255, 255, 255); })
-                .start();
+            )
+
+            if (durationTime && durationTime > 0) {
+                tween.then(
+                    cc.tween().delay(durationTime)
+                );
+            }
+
+            tween.start();
+        }
+
+        if (!dead) {
             return;
         }
 
-        let tween = cc.tween(this.node);
+        // TODO 播放子魚被打死的音效
+        { // 控制魚多久後被擊殺 
+            let self = this;
 
-        if (delay > 0) {
-            tween.then(cc.tween().delay(delay));
-        }
+            let tween = cc.tween(this.node);
 
-        { // 反映受攻擊
-            // tween.then(
-            //     cc.tween()
-            //         .call(() => { this.node.color = new cc.Color(255, 0, 0); })
-            //         .delay(0.8));
+            if (durationTime && durationTime > 0) {
+                tween.then(
+                    cc.tween().delay(durationTime)
+                );
+            }
+
+            tween.then(
+                cc.tween()
+                    .call(() => {
+                        self.lockState = true;
+                        self.node.destroy();
+                    })
+            );
+
+            tween.start();
         }
 
         {// TODO 錢幣動畫、音效、錢包餘額增加
 
         }
-
-        { // 釋放 node
-            let self = this;
-            tween.then(cc.tween().call(() => { self.node.destroy(); }));
-        }
-
-        tween.start();
     }
-
-    /** 只會影響魚能不能移動 */
-    // public pauseFish(delay: number, freezeEffect: boolean) {
-    //     if (this.lockState) {
-    //         return;
-    //     }
-
-    //     if (delay > this.pauseTime) {
-    //         this.pauseTime = delay;
-    //     }
-
-    //     this.freezeEffect = freezeEffect;
-    // }
 
     public isPause(): boolean {
         return this.pause;
@@ -279,9 +261,21 @@ export class Fish extends cc.Component {
         return this.lockState;
     }
 
+    public isInCanvas(): boolean {
+        let width = this.node.parent.width / 2;
+        let height = this.node.parent.height / 2;
+
+        if (this.node.x >= -width && this.node.y >= -height
+            && this.node.x <= width && this.node.y <= height) {
+            return true;
+        }
+
+        return false;
+    }
+
     /** 加速離開畫面 */
     public clearFish() {
-        if (!this.lockState) {
+        if (this.lockState) {
             return;
         }
 
@@ -394,7 +388,8 @@ export class Fish extends cc.Component {
 
         { // 判斷是否要更新 targetPosIndex
             if (this.targetPosIndex >= this.fishPath.getSpeedOfPoint().length) {
-                this.lockState = false;
+                this.lockState = true;
+                this.node.destroy();
                 return;
             }
 
@@ -409,7 +404,8 @@ export class Fish extends cc.Component {
 
             // 判斷已經到達最後一個座標點
             if (this.targetPosIndex >= this.fishPath.getSpeedOfPoint().length) {
-                this.lockState = false;
+                this.lockState = true;
+                this.node.destroy();
                 return;
             }
         }

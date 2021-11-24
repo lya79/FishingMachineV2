@@ -143,9 +143,9 @@ export class LoadingComponent extends cc.Component {
             }
 
             {  // 魚的種類
-                self.totalOfRes += 4;
-                // let name = `skill_2_freeze`;
-                let skillArr: string[] = ["skill_2_freeze", "skill_3_line", "skill_3_src_point", "skill_3_target_point"];
+                // XXX 改成加載整個目錄
+                let skillArr: string[] = ["skill_2_freeze", "skill_3_line", "skill_3_src_point", "skill_3_target_point", "skill_4_line", "skill_4_src_point", "skill_4_target_point"];
+                self.totalOfRes += skillArr.length;
                 for (let i = 0; i < skillArr.length; i++) {
                     let name = skillArr[i];
                     let ok = await self.loadSkillPrefab(name);

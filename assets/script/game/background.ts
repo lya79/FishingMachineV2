@@ -127,7 +127,7 @@ export class Background extends cc.Component {
 
             let bubbleMax = 150; // 泡泡預計顆數
 
-            for (let i = 0; i < bubbleMax; i++) {
+            for (let i = 0; i < bubbleMax; i++) { // TODO 改用 SS_Symbol_Atlas_04裡面的泡泡圖片輪播
                 let node = new cc.Node("bubble");
                 var sprite = node.addComponent(cc.Sprite);
                 sprite.spriteFrame = (ResourcesManager.spriteAtlasMap.get('SS_Symbol_Atlas_03')).getSpriteFrame(name);

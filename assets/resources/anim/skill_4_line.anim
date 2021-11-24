@@ -1,6 +1,6 @@
 {
   "__type__": "cc.AnimationClip",
-  "_name": "skill_2_target_point",
+  "_name": "skill_4_line",
   "_objFlags": 0,
   "_native": "",
   "_duration": 0.26666666666666666,
@@ -14,49 +14,49 @@
           {
             "frame": 0,
             "value": {
-              "__uuid__": "3ab24320-5bb8-4c78-a916-6e33a4779071"
+              "__uuid__": "67092fe9-f67a-44cb-b82a-0b3093dde19d"
             }
           },
           {
             "frame": 0.03333333333333333,
             "value": {
-              "__uuid__": "2ae0d8fc-a55f-4d0d-af3a-61ab6915863b"
+              "__uuid__": "89b0a45b-6758-4c2b-b132-72d9861c1b85"
             }
           },
           {
             "frame": 0.06666666666666667,
             "value": {
-              "__uuid__": "2dae7f1a-fa55-465c-83ad-6ae878fb1e1e"
+              "__uuid__": "6bf92dbb-c2b2-4341-9354-5a36b357fe66"
             }
           },
           {
             "frame": 0.1,
             "value": {
-              "__uuid__": "c5a21a6c-ac4d-4f84-9150-daa34a8e8520"
+              "__uuid__": "5d82b916-81f1-4b11-96cf-2f002639ff29"
             }
           },
           {
             "frame": 0.13333333333333333,
             "value": {
-              "__uuid__": "fbc14045-6e17-427b-9c7d-cb7fcc3e4991"
+              "__uuid__": "44e79400-2cbf-4103-aba8-a77bc490b03c"
             }
           },
           {
             "frame": 0.16666666666666666,
             "value": {
-              "__uuid__": "fba5b02e-916c-4c1c-99fd-3d97db455058"
+              "__uuid__": "e3ecebb5-3a2b-4fae-890a-9a4387b9ef0c"
             }
           },
           {
             "frame": 0.2,
             "value": {
-              "__uuid__": "3e2b08f3-098c-46de-bbe4-97e8f1aa2915"
+              "__uuid__": "ad0a0fa6-3b11-40e7-8d41-d758cf70a7da"
             }
           },
           {
             "frame": 0.23333333333333334,
             "value": {
-              "__uuid__": "2eca8426-1a14-4d35-b1c7-540033c1e688"
+              "__uuid__": "720182e8-5255-45d7-9cbd-3642eefae432"
             }
           }
         ]

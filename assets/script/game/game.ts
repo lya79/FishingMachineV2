@@ -257,7 +257,14 @@ export class Game extends cc.Component {
         this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
 
 
-        // TODO 控制魚被子彈和技能攻擊
+        /**
+         * 技能和普通攻擊說明:
+         * 會先檢查技能是否需要施放, 如果需要施放會先施放技能, 技能施放完畢後會檢查魚是否被擊殺, 如果沒有被擊殺, 則會另外判斷是否被普通攻擊擊殺.
+         * 
+         * 技能攻擊: 
+         * step1.會先找出目前畫面上全部的魚, 過濾出還存活的魚
+         * step2.隨機挑選上一步驟找出的魚進行技能
+         */
         { // 控制魚被子彈打到 
             let self = this;
             this.schedule(function (dt) {
@@ -269,25 +276,19 @@ export class Game extends cc.Component {
                 for (let i = 0; i < length; i++) {
                     let collision = SettingManager.collisionArr.shift();
 
+                    // 被子彈碰撞的魚
                     let fishNode = collision.fishCollider.node;
                     let fish = fishNode.getComponent(Fish);
 
+                    // 子彈
                     let bulletNode = collision.bulletCollider.node.parent;
                     let bullet = bulletNode.getComponent(Bullet);
-                    bullet.attack();
+                    bullet.attack(); // 產生子彈碰撞魚的效果(子彈消失、顯示漁網)
 
+                    // 指定魚種的資訊
                     let fishInfo = SettingManager.getFishInfo(fish.getFishName());
 
-                    let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode(); 
-
-                    /**
-                     * 技能攻擊優先判斷
-                     * 如果被普通攻擊打到的魚還沒被技能打死
-                     * 才會判斷普通攻擊
-                     */
-                    let srcFishAttacked = false;
-
-                    // 確認技能是否觸發
+                    // 處理子彈附帶的技能
                     let tower = bullet.getTower();
                     for (let i = 0; i < tower.getSkillArr().length; i++) {
                         let skill = tower.getSkillArr()[i];
@@ -296,89 +297,145 @@ export class Game extends cc.Component {
                             continue;
                         }
 
-                        let freeze = (skill == ESkill.Level_2); // 需要額外顯示冰凍效果
-                        let count = getRandomInt(skillInfo.min, skillInfo.max); // 有幾隻魚要被技能攻擊
+                        let count = getRandomInt(skillInfo.min, skillInfo.max) - 1; // 有幾隻魚要被技能攻擊(包和被普通攻擊的魚)
 
-                        let effectNodeArr: cc.Node[] = [];
-                        effectNodeArr.push(fishNode);
-
-                        { // 只要有發動技能, 最初始被子彈打到的魚一定也會被技能攻擊
-                            count -= 1;
-                            srcFishAttacked = SettingManager.attack(skillInfo.probability2); // 技能攻擊是否擊殺成功
-                            fishNode.getComponent(Fish).attacked(srcFishAttacked, skillInfo.pauseTime, freeze);
-                        }
-
+                        // 暫存需要被技能攻擊的魚
                         let targetFishArr: cc.Node[] = [];
-                        for (let i = 0; i < allFishNodeArr.length; i++) {
-                            let targetFishNode = allFishNodeArr[i];
-                            if (targetFishNode.uuid == fishNode.uuid) {
-                                continue;
-                            }
+                        {
+                            targetFishArr.push(fishNode);
 
-                            if (count <= 0) {
-                                break;
-                            }
-
-                            count -= 1;
-
-                            targetFishArr.push(targetFishNode);
-                        }
-
-                        for (let i = 0; i < targetFishArr.length; i++) { // TODO 被技能攻擊的對象要要特定的邏輯去選擇
-                            let targetFishNode = targetFishArr[i];
-
-                            effectNodeArr.push(targetFishNode);
-
-                            targetFishNode.getComponent(Fish).attacked(SettingManager.attack(skillInfo.probability2), skillInfo.pauseTime, freeze);// 技能攻擊是否擊殺成功
-                        }
-
-
-                        if (skill == ESkill.Level_3) {
-                            for (let k = 0; k < effectNodeArr.length; k++) {
-                                let currentNode = effectNodeArr[k];
-
-                                let targetNode: cc.Node;
-                                if (k + 1 < effectNodeArr.length) {
-                                    targetNode = effectNodeArr[k + 1];
+                            // 目前還活著而且顯示在畫面上的全部魚
+                            let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode();
+                            for (let i = 0; i < allFishNodeArr.length; i++) {
+                                let targetFishNode = allFishNodeArr[i];
+                                if (targetFishNode.uuid == fishNode.uuid) {
+                                    continue;
                                 }
 
-                                if (targetNode) {
-                                    let currentPos = currentNode.getPosition();
-                                    let targetPos = targetNode.getPosition();
+                                if (count <= 0) {
+                                    break;
+                                }
 
-                                    {
-                                        let name = 'skill_3_line';
-                                        let prefab = ResourcesManager.prefabMap.get(name);
-                                        if (!prefab) {
-                                            cc.log("error: prefab not found name:" + name);
-                                            return;
-                                        }
+                                count -= 1;
 
-                                        let effectNode = cc.instantiate(prefab);
-                                        effectNode.name = name;
-                                        effectNode.setPosition(currentPos);
-                                        effectNode.rotation = self.calculatorRotation(targetPos, currentPos).rotation;
+                                targetFishArr.push(targetFishNode); // TODO 被技能攻擊的對象要要特定的邏輯去選擇
+                            }
+                        }
 
-                                        effectNode.width = 40;
-                                        effectNode.height = self.getDistance(currentPos, targetPos);
+                        // 使用技能去攻擊魚
+                        for (let i = 0; i < targetFishArr.length; i++) {
+                            let targetFishNode = targetFishArr[i];
+                            targetFishNode.getComponent(Fish).attacked(
+                                SettingManager.attack(skillInfo.probability2),
+                                skillInfo.durationTime,
+                                skillInfo.pauseMoveTime,
+                                skillInfo.pauseSelfActionTime);// 技能攻擊是否擊殺成功
+                        }
 
-                                        currentNode.parent.addChild(effectNode);
+                        // 播放技能動畫
+                        if (skill == ESkill.Level_2) { // TODO 播放技能音效
+                            for (let k = 0; k < targetFishArr.length; k++) {
+                                let currentNode = targetFishArr[k];
 
-                                        var animation = effectNode.getComponent(cc.Animation); // XXX spriteFrame替換的時候大小會被重置, 因此需要不斷修改大小
-                                        animation.schedule(function () {
-                                            effectNode.width = 40;
-                                            effectNode.height = self.getDistance(currentPos, targetPos);
-                                        }, 0.01);
+                                let name = "skill_2_freeze";
+                                let prefab = ResourcesManager.prefabMap.get(name);
+                                if (!prefab) {
+                                    cc.log("error: prefab not found name:" + name);
+                                    return;
+                                }
 
-                                        animation.scheduleOnce(function () {
-                                            animation.stop();
-                                            effectNode.destroy();
-                                        }, skillInfo.pauseTime);
+                                { // 如果重複冰凍要先把舊的冰塊移除
+                                    let effectNode = currentNode.getChildByName(name);
+                                    if (effectNode) {
+                                        effectNode.destroy();
                                     }
                                 }
 
+                                let effectNode = cc.instantiate(prefab);
+                                effectNode.name = name;
+                                effectNode.rotation = getRandomInt(0, 360);
+                                effectNode.setPosition(0, 0);
+
+                                effectNode.getChildByName("ice_s").active = false;
+                                effectNode.getChildByName("ice_m").active = false;
+                                effectNode.getChildByName("ice_l").active = false;
+                                switch (SettingManager.getFishInfo(currentNode.getComponent(Fish).getFishName()).size) {
+                                    case 0:
+                                        effectNode.getChildByName("ice_s").active = true;
+                                        break;
+                                    case 1:
+                                        effectNode.getChildByName("ice_m").active = true;
+                                        break;
+                                    case 2:
+                                        effectNode.getChildByName("ice_l").active = true;
+                                        break;
+                                }
+
+                                currentNode.addChild(effectNode);
+
+                                cc.tween(effectNode)
+                                    .delay(skillInfo.durationTime)
+                                    .to(0.2, { opacity: 0 })
+                                    .call(() => { effectNode.destroy(); })
+                                    .start();
+                            }
+                        } else if (skill == ESkill.Level_3 || skill == ESkill.Level_4_1) { // TODO 播放技能音效
+                            let lineName = 'skill_3_line';
+                            let pointName1 = "skill_3_src_point";
+                            let pointName2 = "skill_3_target_point";
+
+                            if (skill == ESkill.Level_4_1) {
+                                lineName = 'skill_4_line';
+                                pointName1 = "skill_4_src_point";
+                                pointName2 = "skill_4_target_point";
+                            }
+
+                            for (let k = 0; k < targetFishArr.length; k++) {
+                                let currentNode = targetFishArr[k];
+
+                                let targetNode: cc.Node;
+                                if (k + 1 < targetFishArr.length) {
+                                    targetNode = targetFishArr[k + 1];
+                                }
+
+                                if (targetNode) {
+                                    let name = lineName;
+                                    let prefab = ResourcesManager.prefabMap.get(name);
+                                    if (!prefab) {
+                                        cc.log("error: prefab not found name:" + name);
+                                        return;
+                                    }
+
+                                    let effectNode = cc.instantiate(prefab);
+                                    effectNode.name = name;
+
+                                    effectNode.setPosition(currentNode.getPosition());
+                                    effectNode.rotation = self.calculatorRotation(targetNode.getPosition(), currentNode.getPosition()).rotation;
+                                    effectNode.width = 40;
+                                    effectNode.height = self.getDistance(currentNode.getPosition(), targetNode.getPosition());
+
+                                    currentNode.parent.addChild(effectNode);
+
+                                    // XXX spriteFrame替換的時候大小會被重置, 因此需要不斷修改大小
+                                    // 解決方法1: 設定一個 schedule不斷修改 node長寬
+                                    // 解決方法2: 用程式將每一張圖產生一個 node並且設定長寬, 然後用 tween輪播
+                                    // 解決方法3: 類似方法2, prefab事先將每一張圖獨立一個 node, 當要撥放之前再用程式控制每一個 node長寬
+                                    var animation = effectNode.getComponent(cc.Animation);
+                                    animation.schedule(function () {
+                                        effectNode.setPosition(currentNode.getPosition());
+                                        effectNode.rotation = self.calculatorRotation(targetNode.getPosition(), currentNode.getPosition()).rotation;
+                                        effectNode.width = 40;
+                                        effectNode.height = self.getDistance(currentNode.getPosition(), targetNode.getPosition());
+                                    }, 0.01);
+
+                                    animation.scheduleOnce(function () {
+                                        animation.stop();
+                                        effectNode.destroy();
+                                    }, skillInfo.durationTime);
+                                }
+
                                 {
-                                    let name = (k == 0 ? "skill_3_src_point" : "skill_3_target_point");
+                                    let name = (k == 0 ? pointName1 : pointName2);
                                     let prefab = ResourcesManager.prefabMap.get(name);
                                     if (!prefab) {
                                         cc.log("error: prefab not found name:" + name);
@@ -389,26 +446,27 @@ export class Game extends cc.Component {
                                     effectNode.name = name;
                                     effectNode.setPosition(0, 0);
 
-                                    effectNode.setScale(0.3, 0.3);
+                                    let scale = (skill == ESkill.Level_4_1 ? 0.2 : 0.3);
+                                    effectNode.setScale(scale); // XXX 不同的魚種要設定不同大小
 
                                     currentNode.addChild(effectNode);
 
-                                    var animation = effectNode.getComponent(cc.Animation); // XXX spriteFrame替換的時候大小會被重置, 因此需要不斷修改大小
-                                    animation.schedule(function () {
-                                        effectNode.setScale(0.3, 0.3);
-                                    }, 0.01);
-
+                                    var animation = effectNode.getComponent(cc.Animation);
                                     animation.scheduleOnce(function () {
                                         animation.stop();
                                         effectNode.destroy();
-                                    }, skillInfo.pauseTime);
+                                    }, skillInfo.durationTime);
                                 }
                             }
                         }
                     }
 
-                    if (!srcFishAttacked) { // 還沒被技能打死就要判斷普通攻擊
-                        fish.attacked(SettingManager.attack(fishInfo.probability), 0, null);// 普通攻擊是否擊殺成功
+                    if (!fish.isLockState()) { // 還沒被技能打死就要判斷普通攻擊
+                        fish.attacked(
+                            SettingManager.attack(fishInfo.probability),
+                            null,
+                            null,
+                            null);
                     }
                 }
             }, 0.05);
