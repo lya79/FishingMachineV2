@@ -268,12 +268,12 @@ export class Game extends cc.Component {
         { // 控制魚被子彈打到 
             let self = this;
             this.schedule(function (dt) {
-                let length = SettingManager.collisionArr.length;
-                if (length <= 0) {
+                let collisionArrlength = SettingManager.collisionArr.length;
+                if (collisionArrlength <= 0) {
                     return;
                 }
 
-                for (let i = 0; i < length; i++) {
+                for (let i = 0; i < collisionArrlength; i++) {
                     let collision = SettingManager.collisionArr.shift();
 
                     // 被子彈碰撞的魚
@@ -283,6 +283,10 @@ export class Game extends cc.Component {
                     // 子彈
                     let bulletNode = collision.bulletCollider.node.parent;
                     let bullet = bulletNode.getComponent(Bullet);
+                    if (!bullet) { // 最高級技能會造成魚的碰撞, 但是該技能並沒有 Bullet組件
+                        continue;
+                    }
+
                     bullet.attack(); // 產生子彈碰撞魚的效果(子彈消失、顯示漁網)
 
                     // 指定魚種的資訊
@@ -295,6 +299,135 @@ export class Game extends cc.Component {
                         let skillInfo = SettingManager.getSkillInfo(fish.getFishName(), skill);
                         if (!SettingManager.isActiveSkill(skillInfo.probability)) {// 是否發動技能
                             continue;
+                        }
+
+                        if (skill == ESkill.Level_4_2) { // 最高級技能需要特殊處理
+                            let sleep = skillInfo.durationTime * 1000;
+                            let success = SettingManager.lockSkill0402(sleep);
+                            if (!success) {
+                                continue;
+                            }
+
+                            {
+                                let name = "skill_4_2";
+                                let prefab = ResourcesManager.prefabMap.get(name);
+                                if (!prefab) {
+                                    cc.log("error: prefab not found name:" + name);
+                                    return;
+                                }
+
+                                let effectNode = cc.instantiate(prefab);
+                                effectNode.name = name;
+
+                                {
+                                    let originLocationOfTower = self.originLocationOfTower; // 使用砲塔原始位置作為基準點
+                                    let rotation = self.towerNode.rotation; // 砲塔目前旋轉角度
+
+                                    effectNode.rotation = rotation;
+
+                                    const offsetOfStartPos = 70;
+
+                                    let dx = Math.sin((rotation * Math.PI) / 180) * offsetOfStartPos;
+                                    let dy = Math.cos((rotation * Math.PI) / 180) * offsetOfStartPos;
+
+                                    let startX = originLocationOfTower.x + dx;
+                                    let startY = originLocationOfTower.y + dy;
+
+                                    effectNode.setPosition(startX, startY);
+                                }
+
+
+                                self.collisionNode.addChild(effectNode);
+
+                                {
+                                    let fireFlag = false;
+                                    let animation = effectNode.getComponent(cc.Animation);
+                                    animation.schedule(function () {
+                                        let originLocationOfTower = self.originLocationOfTower; // 使用砲塔原始位置作為基準點
+                                        let rotation = self.towerNode.rotation; // 砲塔目前旋轉角度
+
+                                        effectNode.rotation = rotation;
+
+                                        const offsetOfStartPos = 70;
+
+                                        let dx = Math.sin((rotation * Math.PI) / 180) * offsetOfStartPos;
+                                        let dy = Math.cos((rotation * Math.PI) / 180) * offsetOfStartPos;
+
+                                        let startX = originLocationOfTower.x + dx;
+                                        let startY = originLocationOfTower.y + dy;
+
+                                        effectNode.setPosition(startX, startY);
+
+                                        let fire = effectNode.getChildByName("fire").opacity > 0;
+                                        if (fire && !fireFlag) { // 發射技能
+                                            fireFlag = true;
+
+                                            let bulletName = "bullet_skill_4_2";
+                                            let bulletPrefab = ResourcesManager.prefabMap.get(bulletName);
+                                            if (!bulletPrefab) {
+                                                cc.log("error: prefab not found name:" + bulletName);
+                                                return;
+                                            }
+
+                                            let bulletEffectNode = cc.instantiate(bulletPrefab);
+                                            bulletEffectNode.name = bulletName;
+
+                                            bulletEffectNode.rotation = rotation;
+                                            bulletEffectNode.setPosition(startX, startY);
+
+                                            let tmpCollisionFishArr: cc.Node[] = [];
+                                            class TmpCollision extends cc.Component {
+                                                public onCollisionEnter(fishCollider: cc.Collider, bullethCollider: cc.Collider) {
+                                                    // cc.log("onCollisionEnter fish: " + fishCollider.node.name);
+                                                    tmpCollisionFishArr.push(fishCollider.node);
+                                                }
+
+                                                // public onCollisionStay(fishCollider: cc.Collider, bullethCollider: cc.Collider) {
+                                                //     cc.log("onCollisionStay fish: " + fishCollider.node.name);
+                                                // }
+
+                                                // public onCollisionExit(fishCollider: cc.Collider, bullethCollider: cc.Collider) {
+                                                //     cc.log("onCollisionExit fish: " + fishCollider.node.name);
+                                                // }
+                                            }
+
+                                            bulletEffectNode.addComponent(TmpCollision);
+
+                                            self.collisionNode.addChild(bulletEffectNode);
+
+                                            // 砲擊持續時間大約 1秒, 判斷碰撞使用 0.5即可
+                                            cc.tween(bulletEffectNode)
+                                                .delay(0.5)
+                                                .call(() => {
+                                                    bulletEffectNode.destroy();
+
+                                                    let length = tmpCollisionFishArr.length;
+                                                    for (let i = 0; i < length; i++) {
+                                                        let node = tmpCollisionFishArr.shift();
+                                                        let fish = node.getComponent(Fish);
+
+                                                        let tmpSkillInfo = SettingManager.getSkillInfo(fish.getFishName(), ESkill.Level_4_2);
+
+                                                        fish.attacked(// TODO 要花 3秒旋轉離場
+                                                            SettingManager.attack(tmpSkillInfo.probability2),
+                                                            true,
+                                                            3,
+                                                            tmpSkillInfo.pauseMoveTime,
+                                                            tmpSkillInfo.pauseSelfActionTime);
+
+                                                    }
+                                                }).start();
+                                        }
+                                    }, 0.01);
+
+                                    animation.scheduleOnce(function () {
+                                        animation.stop();
+                                        effectNode.destroy();
+                                    }, skillInfo.durationTime);
+                                }
+                            }
+
+                            continue; // 假如技能正在執行中就禁止再次觸發技能
                         }
 
                         let count = getRandomInt(skillInfo.min, skillInfo.max) - 1; // 有幾隻魚要被技能攻擊(包和被普通攻擊的魚)
@@ -327,6 +460,7 @@ export class Game extends cc.Component {
                             let targetFishNode = targetFishArr[i];
                             targetFishNode.getComponent(Fish).attacked(
                                 SettingManager.attack(skillInfo.probability2),
+                                false,
                                 skillInfo.durationTime,
                                 skillInfo.pauseMoveTime,
                                 skillInfo.pauseSelfActionTime);// 技能攻擊是否擊殺成功
@@ -420,7 +554,7 @@ export class Game extends cc.Component {
                                     // 解決方法1: 設定一個 schedule不斷修改 node長寬
                                     // 解決方法2: 用程式將每一張圖產生一個 node並且設定長寬, 然後用 tween輪播
                                     // 解決方法3: 類似方法2, prefab事先將每一張圖獨立一個 node, 當要撥放之前再用程式控制每一個 node長寬
-                                    var animation = effectNode.getComponent(cc.Animation);
+                                    let animation = effectNode.getComponent(cc.Animation);
                                     animation.schedule(function () {
                                         effectNode.setPosition(currentNode.getPosition());
                                         effectNode.rotation = self.calculatorRotation(targetNode.getPosition(), currentNode.getPosition()).rotation;
@@ -451,7 +585,7 @@ export class Game extends cc.Component {
 
                                     currentNode.addChild(effectNode);
 
-                                    var animation = effectNode.getComponent(cc.Animation);
+                                    let animation = effectNode.getComponent(cc.Animation);
                                     animation.scheduleOnce(function () {
                                         animation.stop();
                                         effectNode.destroy();
@@ -464,9 +598,10 @@ export class Game extends cc.Component {
                     if (!fish.isLockState()) { // 還沒被技能打死就要判斷普通攻擊
                         fish.attacked(
                             SettingManager.attack(fishInfo.probability),
-                            null,
-                            null,
-                            null);
+                            false,
+                            0,
+                            0,
+                            0);
                     }
                 }
             }, 0.05);
@@ -910,15 +1045,15 @@ export class Game extends cc.Component {
     }
 
     private getAngle(A: cc.Vec2, B: cc.Vec2, C: cc.Vec2) {
-        var AB = Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2));
-        var AC = Math.sqrt(Math.pow(A.x - C.x, 2) + Math.pow(A.y - C.y, 2));
-        var BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
-        var cosA = (
+        let AB = Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2));
+        let AC = Math.sqrt(Math.pow(A.x - C.x, 2) + Math.pow(A.y - C.y, 2));
+        let BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
+        let cosA = (
             Math.pow(AB, 2) + Math.pow(AC, 2) - Math.pow(BC, 2)
         ) / (
                 2 * AB * AC
             );
-        var angleA = Math.round(Math.acos(cosA) * 180 / Math.PI);
+        let angleA = Math.round(Math.acos(cosA) * 180 / Math.PI);
         return angleA;
     }
 

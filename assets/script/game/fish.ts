@@ -173,6 +173,7 @@ export class Fish extends cc.Component {
 
     /**
      * @param dead 是否被擊殺
+     * @param rotation 是否要旋轉, dead=true時候才有效
      * @param durationTime 技能動畫持續時間(技能攻擊的動畫結束才能讓魚被擊殺)
      * @param pauseMoveTime 花費多少時間停止位移
      * @param pauseSelfActionTime 花費多少時間停止擺動尾巴
@@ -180,6 +181,7 @@ export class Fish extends cc.Component {
      */
     public attacked(
         dead: boolean,
+        rotation: boolean,
         durationTime: number,
         pauseMoveTime: number,
         pauseSelfActionTime: number
@@ -194,11 +196,11 @@ export class Fish extends cc.Component {
             this.pause = true;
         }
 
-        if (pauseMoveTime && pauseMoveTime > this.pauseMoveTime) {
+        if (pauseMoveTime > this.pauseMoveTime) {
             this.pauseMoveTime = pauseMoveTime;
         }
 
-        if (pauseSelfActionTime && pauseSelfActionTime > this.pauseSelfActionTime) {
+        if (pauseSelfActionTime > this.pauseSelfActionTime) {
             this.pauseSelfActionTime = pauseSelfActionTime;
         }
 
@@ -225,13 +227,29 @@ export class Fish extends cc.Component {
             return;
         }
 
+        if (rotation) { // XXX 動畫時間要搭配 durationTime
+            let srcScale = this.node.scale - 0.3;
+            let targetScale = this.node.scale + 0.3;
+
+            cc.tween(this.node)
+                .by(0.4, { rotation: 360 })
+                .repeatForever()
+                .start();
+
+            cc.tween(this.node)
+                .to(2, { scale: targetScale })
+                .delay(0.5)
+                .to(0.5, { scale: srcScale })
+                .start();
+        }
+
         // TODO 播放子魚被打死的音效
         { // 控制魚多久後被擊殺 
             let self = this;
 
             let tween = cc.tween(this.node);
 
-            if (durationTime && durationTime > 0) {
+            if (durationTime > 0) {
                 tween.then(
                     cc.tween().delay(durationTime)
                 );

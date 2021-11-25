@@ -138,6 +138,8 @@ export class SettingManager {
 
     public static collisionArr: Collision[] = [];
 
+    private static activeSkill0402: boolean = false; // 目前是否正在執行最高級的技能
+
     // 控制測試功能開啟/關閉的參數
     public static showPathOfFish = true; // 開啟魚的行徑路線顯示
     public static addFish = true; // 手動產生各種魚
@@ -170,6 +172,20 @@ export class SettingManager {
         }
 
         return true; // success
+    }
+
+    public static lockSkill0402(ms: number): boolean {
+        if (SettingManager.activeSkill0402) {
+            return false;
+        }
+
+        SettingManager.activeSkill0402 = true;
+
+        setTimeout(() => {
+            SettingManager.activeSkill0402 = false;
+        }, ms);
+
+        return true;
     }
 
     public static getRoomLevel(): number[] {
@@ -503,15 +519,15 @@ export class SettingManager {
     }
 
     public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
-        probability: number, // 中獎擊殺機率
+        probability: number, // 擊殺機率
         win: number, // 反獎倍率
         size: number, // 0:小, 1:中 2:大
     } {
         switch (name) {
             case "fish_1":
-                return { probability: -1, win: 2, size: 0 };
+                return { probability: 0.4, win: 2, size: 0 };
             case "fish_2":
-                return { probability: -1, win: 2, size: 0 };
+                return { probability: 0.4, win: 2, size: 0 };
         }
 
         cc.log("error undefined, name:" + name);
@@ -529,13 +545,13 @@ export class SettingManager {
     } {
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
+                return { probability: 0.5, probability2: 0.5, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
             case ESkill.Level_3:// 閃電連鎖
-                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.5, probability2: 0.5, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 1, probability2: -1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.5, probability2: 0.5, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: -1, probability2: -1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 0 };
+                return { probability: 0.5, probability2: 0.5, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
         }
 
         cc.log("error undefined, ESkill:" + skill);
