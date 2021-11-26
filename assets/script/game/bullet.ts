@@ -1,6 +1,5 @@
 import { ESkill, Tower } from "../common/setting";
 
-// FIXME 子彈水平發射會造成子彈碰撞到牆壁後轉向錯誤, 垂直發射也要確認看看
 // FIXME 子彈prefab最上層因為沒有設定長寬, 所以無法設定錨點, 導致子彈碰撞牆壁的時候會超過牆壁
 
 export class Bullet extends cc.Component {
@@ -163,12 +162,10 @@ export class Bullet extends cc.Component {
             let pointB = { X: this.x + this.dx, Y: this.y + this.dy }; // 下一個子彈位置
             let pointC = { X: this.x, Y: this.y + this.dy }; // 基準點
 
-            if (this.rotate % 180 == 0) {
-                if (pointA.Y > pointB.Y) {
-                    angle = 180;
-                } else if (pointA.Y < pointB.Y) {
-                    angle = 0;
-                }
+            if (pointA.X == pointC.X && pointA.Y == pointC.Y) {// 水平翻轉
+                angle = this.rotate + 180;
+            } else if (pointB.X == pointC.X && pointB.Y == pointC.Y) { // 垂直翻轉
+                angle = this.rotate + 180;
             } else {
                 angle = this.getAngle(pointA, pointB, pointC);
                 if (this.x + this.dx < this.x) {
@@ -204,7 +201,6 @@ export class Bullet extends cc.Component {
                 2 * AB * AC
             );
         var angleA = Math.round(Math.acos(cosA) * 180 / Math.PI);
-        // console.log(angleA)
         return angleA;
     }
 }
