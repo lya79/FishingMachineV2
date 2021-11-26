@@ -1,7 +1,5 @@
 import { ESkill, Tower } from "../common/setting";
 
-// FIXME 子彈prefab最上層因為沒有設定長寬, 所以無法設定錨點, 導致子彈碰撞牆壁的時候會超過牆壁
-
 export class Bullet extends cc.Component {
     private bulletNode: cc.Node;
     private netNode: cc.Node;
@@ -48,7 +46,7 @@ export class Bullet extends cc.Component {
         this.running = false;
         this.bgWidth = 472;
         this.bgHeight = 840;
-        this.speed = 5;
+        this.speed = 10;
         this.fpsOfXY = 1;
         this.fpsOfCanvas = 1;
         this.timerOfFps = 0;

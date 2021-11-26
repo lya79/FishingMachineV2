@@ -5,7 +5,6 @@ import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { ResourcesManager } from "../common/resource";
 
 // XXX 魚的動畫缺少陰影
-// FIXME 魚水平移動會造成轉向錯誤, 垂直移動也要確認看看
 
 export class Fish extends cc.Component {
     private fishPath: FishPath;

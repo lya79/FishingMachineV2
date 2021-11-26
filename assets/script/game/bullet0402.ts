@@ -1,6 +1,11 @@
 
 export class Bullet0402 extends cc.Component {
+    private bet: number = 0;
 
+    public init(bet: number) {
+        this.bet = bet;
+    }
+    
     // public onCollisionEnter(fishCollider: cc.Collider, bullethCollider: cc.Collider) {
     // tmpCollisionFishArr.push(fishCollider.node);
     // }
@@ -12,4 +17,8 @@ export class Bullet0402 extends cc.Component {
     // public onCollisionExit(fishCollider: cc.Collider, bullethCollider: cc.Collider) {
     //     cc.log("onCollisionExit fish: " + fishCollider.node.name);
     // }
+
+    public getBet(): number {
+        return this.bet;
+    }
 }

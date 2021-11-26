@@ -119,46 +119,18 @@ export class LoadingComponent extends cc.Component {
         let self = this;
 
         let run = async function (): Promise<void> {
-            {  // 子彈
+            { // prefab
                 self.totalOfRes += 1;
-                let ok = await self.loadBulletPrefab();
+                let ok = await self.loadPrefab();
                 if (!ok) {
-                    self.error = new Error(`error: loadBulletPrefab fail`);
+                    self.error = new Error(`error: loadPrefab fail`);
                     return;
                 }
                 self.numOfRes += 1;
             }
 
-            {  // 魚的種類
-                self.totalOfRes += 2;
-                let max = 2;
-                for (let i = 1; i <= max; i++) {
-                    let ok = await self.loadFishPrefab(i.toString());
-                    if (!ok) {
-                        self.error = new Error(`error: loadFishPrefab fail name: fish_` + i.toString());
-                        return;
-                    }
-                    self.numOfRes += 1;
-                }
-            }
-
-            {  // 魚的種類
-                // XXX 改成加載整個目錄
-                let skillArr: string[] = ["skill_2_freeze", "skill_3_line", "skill_3_src_point", "skill_3_target_point", "skill_4_line", "skill_4_src_point", "skill_4_target_point", "skill_4_2", "bullet_skill_4_2"];
-                self.totalOfRes += skillArr.length;
-                for (let i = 0; i < skillArr.length; i++) {
-                    let name = skillArr[i];
-                    let ok = await self.loadSkillPrefab(name);
-                    if (!ok) {
-                        self.error = new Error(`error: loadFreezePrefab fail name: ` + name);
-                        return;
-                    }
-                    self.numOfRes += 1;
-                }
-            }
-
             {  // 其他資源載入
-                let arr: string[] = ["01", "02", "03", "06", "08", "09"];
+                let arr: string[] = ["01", "02", "03", "04", "05", "06", "07", "08", "09"];
                 self.totalOfRes += arr.length;
                 let max = arr.length;
                 for (let i = 0; i < max; i++) {
@@ -184,57 +156,6 @@ export class LoadingComponent extends cc.Component {
         }
 
         run();
-    }
-
-    private async loadFishPrefab(value: string): Promise<boolean> {
-        let name = `fish_` + value;
-        let path = 'prefab/' + name;
-        let type = cc.Prefab;
-        let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));
-        if (result instanceof Error) {
-            cc.log('err Loader.Resources, err:' + result);
-            return false;
-        }
-
-        let level1Bullet: cc.Prefab = <cc.Prefab>result;
-
-        ResourcesManager.prefabMap.set(name, level1Bullet);
-
-        return true;
-    }
-
-    private async loadSkillPrefab(name: string): Promise<boolean> {
-        let path = 'prefab/' + name;
-        let type = cc.Prefab;
-        let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));
-        if (result instanceof Error) {
-            cc.log('err Loader.Resources, err:' + result);
-            return false;
-        }
-
-        let level1Bullet: cc.Prefab = <cc.Prefab>result;
-
-        ResourcesManager.prefabMap.set(name, level1Bullet);
-
-        return true;
-    }
-
-
-    private async loadBulletPrefab(): Promise<boolean> {
-        let name = `bullet`;
-        let path = 'prefab/' + name;
-        let type = cc.Prefab;
-        let result = await Loader.Resources(EAction.loadRes, new ResourcesArgs(path, type));
-        if (result instanceof Error) {
-            cc.log('err Loader.Resources, err:' + result);
-            return false;
-        }
-
-        let level1Bullet: cc.Prefab = <cc.Prefab>result;
-
-        ResourcesManager.prefabMap.set(name, level1Bullet);
-
-        return true;
     }
 
     private async loadPlsit(value: string): Promise<boolean> {
@@ -265,6 +186,23 @@ export class LoadingComponent extends cc.Component {
         let audioClipArr: cc.AudioClip[] = <cc.AudioClip[]>result;
         for (let i = 0; i < audioClipArr.length; i++) {
             AudioManager.addAudio(audioClipArr[i].name, audioClipArr[i]);
+        }
+
+        return true;
+    }
+
+    private async loadPrefab(): Promise<boolean> {
+        let path = 'prefab';
+        let type = cc.Prefab;
+        let result = await Loader.Resources(EAction.loadResDir, new ResourcesArgs(path, type));
+        if (result instanceof Error) {
+            cc.log('err Loader.Resources, err:' + result);
+            return false;
+        }
+
+        let prefabArr: cc.Prefab[] = <cc.Prefab[]>result;
+        for (let i = 0; i < prefabArr.length; i++) {
+            ResourcesManager.prefabMap.set(prefabArr[i].name, prefabArr[i]);
         }
 
         return true;

@@ -17,7 +17,7 @@ const { ccclass, property } = cc._decorator;
 export class Game extends cc.Component {
     private lobbyHandler: Function;
 
-    private lobbyNode: cc.Node;
+    private lobbyNode: cc.Node; // FIXME 切換關卡觸發後再按下回大廳會出錯
 
     private muteOnNode: cc.Node;
     private muteOffNode: cc.Node;
@@ -43,8 +43,6 @@ export class Game extends cc.Component {
     private crosshairFocusNode: cc.Node;
 
     private collisionNode: cc.Node;
-
-    private effectNode: cc.Node;
 
     private bgNode: cc.Node;
 
@@ -116,12 +114,6 @@ export class Game extends cc.Component {
         this.collisionNode = this.node.getChildByName("collision");
         if (!this.collisionNode) {
             cc.log('error: collisionNode is null');
-            return;
-        }
-
-        this.effectNode = this.node.getChildByName("effect");
-        if (!this.effectNode) {
-            cc.log('error: effectNode is null');
             return;
         }
 
@@ -437,7 +429,15 @@ export class Game extends cc.Component {
     /**
      * 更新錢包餘額
      */
-    private updateWalletValue() {
+    private updateWalletValue(value?: number) {
+        if (value && value > 0) {
+            let result = User.operatorWallet(EWallet.Deposit, value.toString());
+            if (result.result != EWalletResultAction.Success) {
+                cc.log('error: 返獎到玩家錢包失敗, result:' + result.result.toString());
+                return false;
+            }
+        }
+
         let result = User.operatorWallet(EWallet.Query, null);
         if (result.result != EWalletResultAction.Success) {
             cc.log('error: 玩家錢包初始化失敗, result:' + result.result.toString());
@@ -474,6 +474,15 @@ export class Game extends cc.Component {
         this.lobbyNode.off(cc.Node.EventType.TOUCH_START, this.backLobby, this);
 
         this.unscheduleAllCallbacks();
+
+        let length = this.collisionNode.children.length;
+        for (let i = 0; i < length; i++) {
+            let node: cc.Node = this.collisionNode.children[i];
+            node.cleanup();
+            node.destroy();
+        }
+
+        // FIXME 離開之前要先把已經被擊殺的魚金額寫入錢包
     }
 
     private backLobby(event) {
@@ -555,9 +564,10 @@ export class Game extends cc.Component {
         this.updateTower(event.getLocation(), event.getType(), true);
     }
 
-    public updateTower(location: cc.Vec2, eventType: string, showAutoNode: boolean) { // FIXME 瞄準功能開啟時候, 如果點擊畫面則需要停止瞄準
+    public updateTower(location: cc.Vec2, eventType: string, showAutoNode: boolean) {
         let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
 
+        // FIXME 瞄準功能需要重寫, 瞄準魚的時候子彈會略過其他魚不攻擊, 點擊畫面任一位置則可以取消瞄準, 被瞄準的魚如果被擊殺獲釋離開場面則取消瞄準
         if (!this.isCrosshairArea(locationOfTouch)) {
             if (!User.isAuto()) {
                 this.stopAutoFire();
@@ -770,6 +780,10 @@ export class Game extends cc.Component {
                         continue;
                     }
 
+                    if (!cc.isValid(fishNode)) {
+                        continue;
+                    }
+
                     let dead = SettingManager.attack(skillInfo.probability2);
                     fish.attacked(
                         dead,
@@ -778,6 +792,12 @@ export class Game extends cc.Component {
                         skillInfo.pauseMoveTime,
                         skillInfo.pauseSelfActionTime
                     );
+
+                    if (dead) {
+                        let fishInfo = SettingManager.getFishInfo(fish.getFishName());
+                        let win = fishInfo.win * bullet0402.getBet();
+                        this.updateWalletValue(win);
+                    }
                 }
 
                 continue;
@@ -835,6 +855,8 @@ export class Game extends cc.Component {
                     self.collisionNode.addChild(effectNode);
 
                     {
+                        // FIXME 鎖押注按鈕
+
                         let fireFlag = false;
                         let animation = effectNode.getComponent(cc.Animation);
                         animation.schedule(function () {
@@ -857,6 +879,8 @@ export class Game extends cc.Component {
                             if (fire && !fireFlag) { // 發射技能
                                 fireFlag = true;
 
+                                // FIXME 鎖砲塔轉向
+
                                 let bulletName = "bullet_skill_4_2";
                                 let bulletPrefab = ResourcesManager.prefabMap.get(bulletName);
                                 if (!bulletPrefab) {
@@ -868,13 +892,18 @@ export class Game extends cc.Component {
                                 bulletEffectNode.name = bulletName;
                                 bulletEffectNode.rotation = rotation;
                                 bulletEffectNode.setPosition(startX, startY);
-                                bulletEffectNode.addComponent(Bullet0402);
+
+                                let component = bulletEffectNode.addComponent(Bullet0402);
+                                component.init(tower.getBet() * tower.getBase());
+
                                 self.collisionNode.addChild(bulletEffectNode);
 
                                 // XXX 砲擊持續時間大約 1秒, 判斷碰撞使用 0.8即可,  0.8s內砲塔轉向攻擊到的魚都算有碰撞到需要判斷是否有擊殺
                                 cc.tween(bulletEffectNode)
                                     .delay(0.8)
                                     .call(() => {
+                                        // FIXME 解鎖押注按鈕
+                                        // FIXME 解鎖砲塔轉向
                                         bulletEffectNode.destroy();
                                     }).start();
                             }
@@ -914,21 +943,25 @@ export class Game extends cc.Component {
                     }
                 }
 
-                // 使用技能去攻擊魚
-                for (let i = 0; i < targetFishArr.length; i++) {
-                    let targetFishNode = targetFishArr[i];
-                    targetFishNode.getComponent(Fish).attacked(
-                        SettingManager.attack(skillInfo.probability2),
-                        false,
-                        skillInfo.durationTime,
-                        skillInfo.pauseMoveTime,
-                        skillInfo.pauseSelfActionTime);// 技能攻擊是否擊殺成功
-                }
-
                 // 播放技能動畫
                 if (skill == ESkill.Level_2) { // TODO 播放技能音效
                     for (let k = 0; k < targetFishArr.length; k++) {
                         let currentNode = targetFishArr[k];
+
+                        { // 使用技能去攻擊魚
+                            let dead = SettingManager.attack(skillInfo.probability2)
+                            currentNode.getComponent(Fish).attacked(
+                                dead,
+                                false,
+                                skillInfo.durationTime,
+                                skillInfo.pauseMoveTime,
+                                skillInfo.pauseSelfActionTime);// 技能攻擊是否擊殺成功
+                            if (dead) {
+                                let fishInfo = SettingManager.getFishInfo(fish.getFishName());
+                                let win = fishInfo.win * tower.getBet() * tower.getBase();
+                                this.updateWalletValue(win);
+                            }
+                        }
 
                         let name = "skill_2_freeze";
                         let prefab = ResourcesManager.prefabMap.get(name);
@@ -983,12 +1016,27 @@ export class Game extends cc.Component {
                         pointName2 = "skill_4_target_point";
                     }
 
-                    for (let k = 0; k < targetFishArr.length; k++) {
+                    for (let k = 0; k < targetFishArr.length; k++) { // FIXME 連鎖技能偶爾會出現連鎖到最後的位置是正中央, 懷疑是連鎖到已經被銷毀的node
                         let currentNode = targetFishArr[k];
 
                         let targetNode: cc.Node;
                         if (k + 1 < targetFishArr.length) {
                             targetNode = targetFishArr[k + 1];
+                        }
+
+                        { // 使用技能去攻擊魚
+                            let dead = SettingManager.attack(skillInfo.probability2)
+                            currentNode.getComponent(Fish).attacked(
+                                dead,
+                                false,
+                                skillInfo.durationTime,
+                                skillInfo.pauseMoveTime,
+                                skillInfo.pauseSelfActionTime);// 技能攻擊是否擊殺成功
+                            if (dead) {
+                                let fishInfo = SettingManager.getFishInfo(fish.getFishName());
+                                let win = fishInfo.win * tower.getBet() * tower.getBase();
+                                this.updateWalletValue(win);
+                            }
                         }
 
                         if (targetNode) {
@@ -1055,12 +1103,18 @@ export class Game extends cc.Component {
             }
 
             if (!fish.isLockState()) { // 還沒被技能打死就要判斷普通攻擊
+                let dead = SettingManager.attack(fishInfo.probability);
                 fish.attacked(
-                    SettingManager.attack(fishInfo.probability),
+                    dead,
                     false,
                     0,
                     0,
                     0);
+                if (dead) {
+                    let fishInfo = SettingManager.getFishInfo(fish.getFishName());
+                    let win = fishInfo.win * tower.getBet() * tower.getBase();
+                    this.updateWalletValue(win);
+                }
             }
         }
     }
