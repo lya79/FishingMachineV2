@@ -227,19 +227,21 @@ export class Fish extends cc.Component {
             return;
         }
 
-        if (rotation) { // XXX 動畫時間要搭配 durationTime
-            let srcScale = this.node.scale - 0.3;
-            let targetScale = this.node.scale + 0.3;
+        if (durationTime > 0 && rotation) {
+            let srcScale = this.node.scale - 0.2;
+            let targetScale = this.node.scale + 0.2;
 
             cc.tween(this.node)
-                .by(0.4, { rotation: 360 })
+                .by(0.5, { rotation: 360 })
                 .repeatForever()
                 .start();
 
+            let time = durationTime * 0.8;
+            let time2 = (durationTime - time) / 2;
             cc.tween(this.node)
-                .to(2, { scale: targetScale })
-                .delay(0.5)
-                .to(0.5, { scale: srcScale })
+                .to(time, { scale: targetScale })
+                .delay(time2)
+                .to(time2, { scale: srcScale })
                 .start();
         }
 

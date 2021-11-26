@@ -525,9 +525,9 @@ export class SettingManager {
     } {
         switch (name) {
             case "fish_1":
-                return { probability: 0.4, win: 2, size: 0 };
+                return { probability: -1, win: 2, size: 0 };
             case "fish_2":
-                return { probability: 0.4, win: 2, size: 0 };
+                return { probability: -1, win: 2, size: 0 };
         }
 
         cc.log("error undefined, name:" + name);
@@ -549,9 +549,9 @@ export class SettingManager {
             case ESkill.Level_3:// 閃電連鎖
                 return { probability: 0.5, probability2: 0.5, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 0.5, probability2: 0.5, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: 0.5, probability2: 0.5, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
+                return { probability: 0.5, probability2: 0.7, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
         }
 
         cc.log("error undefined, ESkill:" + skill);
