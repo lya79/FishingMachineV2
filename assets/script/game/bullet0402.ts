@@ -5,7 +5,7 @@ export class Bullet0402 extends cc.Component {
     public init(bet: number) {
         this.bet = bet;
     }
-    
+
     // public onCollisionEnter(fishCollider: cc.Collider, bullethCollider: cc.Collider) {
     // tmpCollisionFishArr.push(fishCollider.node);
     // }

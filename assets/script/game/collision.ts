@@ -36,6 +36,10 @@ export class Collision extends cc.Component {
         let length = this.node.children.length;
         for (let i = 0; i < length; i++) {
             let node = this.node.children[i];
+            if (!cc.isValid(node)) {
+                continue;
+            }
+
             let fish = node.getComponent(Fish);
             if (!fish) {
                 continue;
@@ -46,10 +50,6 @@ export class Collision extends cc.Component {
             }
 
             if (!fish.isInCanvas()) {
-                continue;
-            }
-
-            if (!cc.isValid(node)) {
                 continue;
             }
 

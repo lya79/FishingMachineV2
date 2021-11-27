@@ -1,5 +1,6 @@
 import { ESkill, Tower } from "../common/setting";
 
+// TODO 播放子彈碰撞的音效
 export class Bullet extends cc.Component {
     private bulletNode: cc.Node;
     private netNode: cc.Node;
@@ -25,7 +26,7 @@ export class Bullet extends cc.Component {
     private bgHeight: number;
 
     // 開始更新子彈位置
-    private running: boolean;
+    private lock: boolean;
 
     private fpsOfXY: number; // 每幾偵偏移一次子彈座標
     private fpsOfCanvas: number;// 每幾偵偏更新一次子彈的node座標
@@ -43,7 +44,7 @@ export class Bullet extends cc.Component {
         this.location = location;
         this.rotate = rotataion;
 
-        this.running = false;
+        this.lock = false;
         this.bgWidth = 472;
         this.bgHeight = 840;
         this.speed = 10;
@@ -82,25 +83,29 @@ export class Bullet extends cc.Component {
 
         this.node.setPosition(startX, startY);
         this.node.rotation = this.rotate;
-
-        this.running = true;
     }
 
-    public attack() { // TODO 播放子彈碰撞的音效
-        if (!this.running) {
+    public isLock(): boolean {
+        return this.lock;
+    }
+
+    public attack(delay: number) {
+        if (this.lock) {
             return;
         }
 
-        this.running = false;
+        this.lock = true;
 
         this.bulletNode.active = false;
         this.netNode.active = true;
 
         let self = this;
         cc.tween(this.netNode)
-            .to(0.8, { scale: 1.1 }, { easing: 'bounceOut' })
-            .call(() => { self.netNode.active = false; })
-            .call(() => { self.node.destroy(); })
+            .to(delay, { scale: 1.1 }, { easing: 'bounceOut' })
+            .call(() => {
+                self.netNode.active = false;
+                self.node.destroy();
+            })
             .start();
     }
 
@@ -109,7 +114,7 @@ export class Bullet extends cc.Component {
     }
 
     public update(dt) {
-        if (!this.running) {
+        if (this.lock) {
             return;
         }
 

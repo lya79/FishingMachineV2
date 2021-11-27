@@ -757,176 +757,125 @@ export class Game extends cc.Component {
 
         let self = this;
 
+        class Attacked {
+            fishNode: cc.Node;
+
+            normal: boolean;
+            skillArr: ESkill[];
+
+            durationTime: number;
+            pauseMoveTime: number;
+            pauseSelfActionTime: number;
+
+            constructor() {
+                this.normal = false;
+                this.skillArr = [];
+                this.durationTime = 0;
+                this.pauseMoveTime = 0;
+                this.pauseSelfActionTime = 0;
+            }
+        }
+
         for (let i = 0; i < collisionArrlength; i++) {
             let collision = SettingManager.collisionArr.shift();
 
-            // 被子彈碰撞的魚
-            let fishNode = collision.fishCollider.node;
-            let fish = fishNode.getComponent(Fish);
-
-            // 子彈
-            let bulletNode = collision.bulletCollider.node.parent;
-            let bullet = bulletNode.getComponent(Bullet); // 普通攻擊的子彈
-            if (!bullet) {
-                let bullet0402 = collision.bulletCollider.node.getComponent(Bullet0402); // 最高級技能
-                if (bullet0402) {
-                    let skillInfo = SettingManager.getSkillInfo(fish.getFishName(), ESkill.Level_4_2);
-
-                    if (fish.isLockState()) {
-                        continue;
-                    }
-
-                    if (!fish.isInCanvas()) {
-                        continue;
-                    }
-
-                    if (!cc.isValid(fishNode)) {
-                        continue;
-                    }
-
-                    let dead = SettingManager.attack(skillInfo.probability2);
-                    fish.attacked(
-                        dead,
-                        dead,
-                        3, // XXX 要花 3秒旋轉離場
-                        skillInfo.pauseMoveTime,
-                        skillInfo.pauseSelfActionTime
-                    );
-
-                    if (dead) {
-                        let fishInfo = SettingManager.getFishInfo(fish.getFishName());
-                        let win = fishInfo.win * bullet0402.getBet();
-                        this.updateWalletValue(win);
-                    }
-                }
-
-                continue;
-            }
-
-            bullet.attack(); // 產生子彈碰撞魚的效果(子彈消失、顯示漁網)
-
-            // 指定魚種的資訊
-            let fishInfo = SettingManager.getFishInfo(fish.getFishName());
-
-            // 處理子彈附帶的技能
-            let tower = bullet.getTower();
-            for (let i = 0; i < tower.getSkillArr().length; i++) {
-                let skill = tower.getSkillArr()[i];
-                let skillInfo = SettingManager.getSkillInfo(fish.getFishName(), skill);
-                if (!SettingManager.isActiveSkill(skillInfo.probability)) {// 是否發動技能
+            { // 檢查魚是否已經失效
+                let fishNode = collision.fishCollider.node;
+                if (!cc.isValid(fishNode)) {
                     continue;
                 }
 
-                if (skill == ESkill.Level_4_2) { // 最高級技能需要特殊處理
-                    let sleep = skillInfo.durationTime * 1000;
-                    let success = SettingManager.lockSkill0402(sleep);
-                    if (!success) {
+                let fish = fishNode.getComponent(Fish);
+                if (!fish) {
+                    continue;
+                }
+
+                if (fish.isLockState()) {
+                    continue;
+                }
+
+                if (!fish.isInCanvas()) {
+                    continue;
+                }
+            }
+
+            let bet: number; // 押注
+            {
+                let bulletNode = collision.bulletCollider.node;
+                let bullet0402 = bulletNode.getComponent(Bullet0402);
+                if (bullet0402) {
+                    bet = bullet0402.getBet();
+                } else {
+                    let bulletNode = collision.bulletCollider.node.parent;
+                    let bullet = bulletNode.getComponent(Bullet);
+
+                    if (!cc.isValid((bulletNode) || bullet.isLock())) {
+                        continue;// 子彈已經碰撞過避免多次碰撞
+                    }
+
+                    bet = bullet.getTower().getBet() * bullet.getTower().getBase();
+
+                    bullet.attack(0.8); // 播放子彈碰撞的動畫
+                }
+            }
+
+
+            let attackedArr: Attacked[] = [];// 需要被技能攻擊的魚
+
+            let fishNode = collision.fishCollider.node;
+            let fish = fishNode.getComponent(Fish);
+
+            let normalBullet = true;
+            {
+                let bulletNode = collision.bulletCollider.node;
+                let bullet0402 = bulletNode.getComponent(Bullet0402);
+                if (bullet0402) {
+                    normalBullet = false;
+
+                    let attacked = new Attacked();
+                    attackedArr.push(attacked);
+                    attacked.fishNode = fishNode;
+                    attacked.normal = false;
+                    attacked.skillArr.push(ESkill.Level_4_2);
+                    attacked.durationTime = 3;
+                    attacked.pauseMoveTime = 0;
+                    attacked.pauseSelfActionTime = 0;
+                }
+            }
+
+            if (normalBullet) { // 播放動畫
+                let bulletNode = collision.bulletCollider.node.parent;
+                let bullet = bulletNode.getComponent(Bullet);
+                let tower = bullet.getTower();
+
+                {
+                    let attacked = new Attacked();
+                    attackedArr.push(attacked);
+                    attacked.fishNode = fishNode;
+                    attacked.normal = true;
+                }
+
+                for (let i = 0; i < tower.getSkillArr().length; i++) {
+                    let skill = tower.getSkillArr()[i];
+                    let skillInfo = SettingManager.getSkillInfo(fish.getFishName(), skill);
+                    if (!SettingManager.isActiveSkill(skillInfo.probability)) {// 是否發動技能
                         continue;
                     }
 
-                    let name = "skill_4_2";
-                    let prefab = ResourcesManager.prefabMap.get(name);
-                    if (!prefab) {
-                        cc.log("error: prefab not found name:" + name);
-                        return;
-                    }
+                    if (skill == ESkill.Level_4_2) {
+                        let sleep = skillInfo.durationTime * 1000;
+                        let success = SettingManager.lockSkill0402(sleep);
+                        if (!success) {
+                            continue;
+                        }
 
-                    let effectNode = cc.instantiate(prefab);
-                    effectNode.name = name;
-
-                    {
-                        let originLocationOfTower = self.originLocationOfTower; // 使用砲塔原始位置作為基準點
-                        let rotation = self.towerNode.rotation; // 砲塔目前旋轉角度
-
-                        effectNode.rotation = rotation;
-
-                        const offsetOfStartPos = 70;
-
-                        let dx = Math.sin((rotation * Math.PI) / 180) * offsetOfStartPos;
-                        let dy = Math.cos((rotation * Math.PI) / 180) * offsetOfStartPos;
-
-                        let startX = originLocationOfTower.x + dx;
-                        let startY = originLocationOfTower.y + dy;
-
-                        effectNode.setPosition(startX, startY);
+                        this.activeSkill03And0402(bet, skillInfo.durationTime);
+                        continue;
                     }
 
 
-                    self.collisionNode.addChild(effectNode);
-
-                    {
-                        // FIXME 鎖押注按鈕
-
-                        let fireFlag = false;
-                        let animation = effectNode.getComponent(cc.Animation);
-                        animation.schedule(function () {
-                            let originLocationOfTower = self.originLocationOfTower; // 使用砲塔原始位置作為基準點
-                            let rotation = self.towerNode.rotation; // 砲塔目前旋轉角度
-
-                            effectNode.rotation = rotation;
-
-                            const offsetOfStartPos = 70;
-
-                            let dx = Math.sin((rotation * Math.PI) / 180) * offsetOfStartPos;
-                            let dy = Math.cos((rotation * Math.PI) / 180) * offsetOfStartPos;
-
-                            let startX = originLocationOfTower.x + dx;
-                            let startY = originLocationOfTower.y + dy;
-
-                            effectNode.setPosition(startX, startY);
-
-                            let fire = effectNode.getChildByName("fire").opacity > 0;
-                            if (fire && !fireFlag) { // 發射技能
-                                fireFlag = true;
-
-                                // FIXME 鎖砲塔轉向
-
-                                let bulletName = "bullet_skill_4_2";
-                                let bulletPrefab = ResourcesManager.prefabMap.get(bulletName);
-                                if (!bulletPrefab) {
-                                    cc.log("error: prefab not found name:" + bulletName);
-                                    return;
-                                }
-
-                                let bulletEffectNode = cc.instantiate(bulletPrefab);
-                                bulletEffectNode.name = bulletName;
-                                bulletEffectNode.rotation = rotation;
-                                bulletEffectNode.setPosition(startX, startY);
-
-                                let component = bulletEffectNode.addComponent(Bullet0402);
-                                component.init(tower.getBet() * tower.getBase());
-
-                                self.collisionNode.addChild(bulletEffectNode);
-
-                                // XXX 砲擊持續時間大約 1秒, 判斷碰撞使用 0.8即可,  0.8s內砲塔轉向攻擊到的魚都算有碰撞到需要判斷是否有擊殺
-                                cc.tween(bulletEffectNode)
-                                    .delay(0.8)
-                                    .call(() => {
-                                        // FIXME 解鎖押注按鈕
-                                        // FIXME 解鎖砲塔轉向
-                                        bulletEffectNode.destroy();
-                                    }).start();
-                            }
-                        }, 0.01);
-
-                        animation.scheduleOnce(function () {
-                            animation.stop();
-                            effectNode.destroy();
-                        }, skillInfo.durationTime);
-                    }
-
-                    continue; // 假如技能正在執行中就禁止再次觸發技能
-                }
-
-                let count = getRandomInt(skillInfo.min, skillInfo.max) - 1; // 有幾隻魚要被技能攻擊(包和被普通攻擊的魚)
-
-                // 暫存需要被技能攻擊的魚
-                let targetFishArr: cc.Node[] = [];
-                {
-                    targetFishArr.push(fishNode);
-
-                    // 目前還活著而且顯示在畫面上的全部魚
-                    let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode();
+                    let count = 1;//getRandomInt(skillInfo.min, skillInfo.max); // 技能攻擊的數量(不包含被普通攻擊的魚)
+                    let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode();// 目前還活著而且顯示在畫面上的全部魚
                     for (let i = 0; i < allFishNodeArr.length; i++) {
                         let targetFishNode = allFishNodeArr[i];
                         if (targetFishNode.uuid == fishNode.uuid) {
@@ -939,183 +888,335 @@ export class Game extends cc.Component {
 
                         count -= 1;
 
-                        targetFishArr.push(targetFishNode); // TODO 被技能攻擊的對象要要特定的邏輯去選擇
+                        let attacked = new Attacked();
+                        attackedArr.push(attacked);
+                        attacked.fishNode = targetFishNode;
+                        attacked.normal = false;
                     }
-                }
 
-                // 播放技能動畫
-                if (skill == ESkill.Level_2) { // TODO 播放技能音效
-                    for (let k = 0; k < targetFishArr.length; k++) {
-                        let currentNode = targetFishArr[k];
+                    if (skill == ESkill.Level_2) {
+                        for (let k = 0; k < attackedArr.length; k++) {
+                            let attacked = attackedArr[k];
+                            self.activeSkill02(attacked.fishNode, skillInfo.durationTime);
 
-                        { // 使用技能去攻擊魚
-                            let dead = SettingManager.attack(skillInfo.probability2)
-                            currentNode.getComponent(Fish).attacked(
-                                dead,
-                                false,
+                            let exist = false;
+                            for (let j = 0; j < attacked.skillArr.length; j++) {
+                                if (attacked.skillArr[j] == skill) {
+                                    exist = true;
+                                    break;
+                                }
+                            }
+                            if (!exist) {
+                                attacked.skillArr.push(skill);
+                            }
+
+                            if (skillInfo.durationTime > attacked.durationTime) {
+                                attacked.durationTime = skillInfo.durationTime;
+                            }
+
+                            if (skillInfo.pauseMoveTime > attacked.pauseMoveTime) {
+                                attacked.pauseMoveTime = skillInfo.pauseMoveTime;
+                            }
+
+                            if (skillInfo.pauseSelfActionTime > attacked.pauseSelfActionTime) {
+                                attacked.pauseSelfActionTime = skillInfo.pauseSelfActionTime;
+                            }
+                        }
+                    } else if (skill == ESkill.Level_3 || skill == ESkill.Level_4_1) {
+                        for (let k = 0; k < attackedArr.length; k++) {
+                            let attacked = attackedArr[k];
+                            let first = k == 0;
+                            let prevFishNode: cc.Node = attacked.fishNode;
+                            let nextFishNode: cc.Node = null;
+                            if (k + 1 < attackedArr.length) {
+                                nextFishNode = attackedArr[k + 1].fishNode;
+                            }
+
+                            self.activeSkill03And0401(
+                                skill,
+                                first,
+                                prevFishNode,
+                                nextFishNode,
                                 skillInfo.durationTime,
-                                skillInfo.pauseMoveTime,
-                                skillInfo.pauseSelfActionTime);// 技能攻擊是否擊殺成功
-                            if (dead) {
-                                let fishInfo = SettingManager.getFishInfo(fish.getFishName());
-                                let win = fishInfo.win * tower.getBet() * tower.getBase();
-                                this.updateWalletValue(win);
+                            );
+
+                            let exist = false;
+                            for (let j = 0; j < attacked.skillArr.length; j++) {
+                                if (attacked.skillArr[j] == skill) {
+                                    exist = true;
+                                    break;
+                                }
                             }
-                        }
-
-                        let name = "skill_2_freeze";
-                        let prefab = ResourcesManager.prefabMap.get(name);
-                        if (!prefab) {
-                            cc.log("error: prefab not found name:" + name);
-                            return;
-                        }
-
-                        { // 如果重複冰凍要先把舊的冰塊移除
-                            let effectNode = currentNode.getChildByName(name);
-                            if (effectNode) {
-                                effectNode.destroy();
-                            }
-                        }
-
-                        let effectNode = cc.instantiate(prefab);
-                        effectNode.name = name;
-                        effectNode.rotation = getRandomInt(0, 360);
-                        effectNode.setPosition(0, 0);
-
-                        effectNode.getChildByName("ice_s").active = false;
-                        effectNode.getChildByName("ice_m").active = false;
-                        effectNode.getChildByName("ice_l").active = false;
-                        switch (SettingManager.getFishInfo(currentNode.getComponent(Fish).getFishName()).size) {
-                            case 0:
-                                effectNode.getChildByName("ice_s").active = true;
-                                break;
-                            case 1:
-                                effectNode.getChildByName("ice_m").active = true;
-                                break;
-                            case 2:
-                                effectNode.getChildByName("ice_l").active = true;
-                                break;
-                        }
-
-                        currentNode.addChild(effectNode);
-
-                        cc.tween(effectNode)
-                            .delay(skillInfo.durationTime)
-                            .to(0.2, { opacity: 0 })
-                            .call(() => { effectNode.destroy(); })
-                            .start();
-                    }
-                } else if (skill == ESkill.Level_3 || skill == ESkill.Level_4_1) { // TODO 播放技能音效
-                    let lineName = 'skill_3_line';
-                    let pointName1 = "skill_3_src_point";
-                    let pointName2 = "skill_3_target_point";
-
-                    if (skill == ESkill.Level_4_1) {
-                        lineName = 'skill_4_line';
-                        pointName1 = "skill_4_src_point";
-                        pointName2 = "skill_4_target_point";
-                    }
-
-                    for (let k = 0; k < targetFishArr.length; k++) { // FIXME 連鎖技能偶爾會出現連鎖到最後的位置是正中央, 懷疑是連鎖到已經被銷毀的node
-                        let currentNode = targetFishArr[k];
-
-                        let targetNode: cc.Node;
-                        if (k + 1 < targetFishArr.length) {
-                            targetNode = targetFishArr[k + 1];
-                        }
-
-                        { // 使用技能去攻擊魚
-                            let dead = SettingManager.attack(skillInfo.probability2)
-                            currentNode.getComponent(Fish).attacked(
-                                dead,
-                                false,
-                                skillInfo.durationTime,
-                                skillInfo.pauseMoveTime,
-                                skillInfo.pauseSelfActionTime);// 技能攻擊是否擊殺成功
-                            if (dead) {
-                                let fishInfo = SettingManager.getFishInfo(fish.getFishName());
-                                let win = fishInfo.win * tower.getBet() * tower.getBase();
-                                this.updateWalletValue(win);
-                            }
-                        }
-
-                        if (targetNode) {
-                            let name = lineName;
-                            let prefab = ResourcesManager.prefabMap.get(name);
-                            if (!prefab) {
-                                cc.log("error: prefab not found name:" + name);
-                                return;
+                            if (!exist) {
+                                attacked.skillArr.push(skill);
                             }
 
-                            let effectNode = cc.instantiate(prefab);
-                            effectNode.name = name;
-
-                            effectNode.setPosition(currentNode.getPosition());
-                            effectNode.rotation = self.calculatorRotation(targetNode.getPosition(), currentNode.getPosition()).rotation;
-                            effectNode.width = 40;
-                            effectNode.height = self.getDistance(currentNode.getPosition(), targetNode.getPosition());
-
-                            currentNode.parent.addChild(effectNode);
-
-                            // XXX spriteFrame替換的時候大小會被重置, 因此需要不斷修改大小
-                            // 解決方法1: 設定一個 schedule不斷修改 node長寬
-                            // 解決方法2: 用程式將每一張圖產生一個 node並且設定長寬, 然後用 tween輪播
-                            // 解決方法3: 類似方法2, prefab事先將每一張圖獨立一個 node, 當要撥放之前再用程式控制每一個 node長寬
-                            let animation = effectNode.getComponent(cc.Animation);
-                            animation.schedule(function () {
-                                effectNode.setPosition(currentNode.getPosition());
-                                effectNode.rotation = self.calculatorRotation(targetNode.getPosition(), currentNode.getPosition()).rotation;
-                                effectNode.width = 40;
-                                effectNode.height = self.getDistance(currentNode.getPosition(), targetNode.getPosition());
-                            }, 0.01);
-
-                            animation.scheduleOnce(function () {
-                                animation.stop();
-                                effectNode.destroy();
-                            }, skillInfo.durationTime);
-                        }
-
-                        {
-                            let name = (k == 0 ? pointName1 : pointName2);
-                            let prefab = ResourcesManager.prefabMap.get(name);
-                            if (!prefab) {
-                                cc.log("error: prefab not found name:" + name);
-                                return;
+                            if (skillInfo.durationTime > attacked.durationTime) {
+                                attacked.durationTime = skillInfo.durationTime;
                             }
 
-                            let effectNode = cc.instantiate(prefab);
-                            effectNode.name = name;
-                            effectNode.setPosition(0, 0);
+                            if (skillInfo.pauseMoveTime > attacked.pauseMoveTime) {
+                                attacked.pauseMoveTime = skillInfo.pauseMoveTime;
+                            }
 
-                            let scale = (skill == ESkill.Level_4_1 ? 0.2 : 0.3);
-                            effectNode.setScale(scale); // XXX 不同的魚種要設定不同大小
-
-                            currentNode.addChild(effectNode);
-
-                            let animation = effectNode.getComponent(cc.Animation);
-                            animation.scheduleOnce(function () {
-                                animation.stop();
-                                effectNode.destroy();
-                            }, skillInfo.durationTime);
+                            if (skillInfo.pauseSelfActionTime > attacked.pauseSelfActionTime) {
+                                attacked.pauseSelfActionTime = skillInfo.pauseSelfActionTime;
+                            }
                         }
                     }
                 }
             }
 
-            if (!fish.isLockState()) { // 還沒被技能打死就要判斷普通攻擊
-                let dead = SettingManager.attack(fishInfo.probability);
-                fish.attacked(
-                    dead,
-                    false,
-                    0,
-                    0,
-                    0);
-                if (dead) {
-                    let fishInfo = SettingManager.getFishInfo(fish.getFishName());
-                    let win = fishInfo.win * tower.getBet() * tower.getBase();
-                    this.updateWalletValue(win);
+            for (let i = 0; i < attackedArr.length; i++) {// 對魚進行技能攻擊和普通子彈攻擊
+                let attacked = attackedArr[i];
+                let fishNode = attacked.fishNode;
+                let normal = attacked.normal;
+                let skillArr = attacked.skillArr;
+                let durationTime = attacked.durationTime;
+                let pauseMoveTime = attacked.pauseMoveTime;
+                let pauseSelfActionTime = attacked.pauseSelfActionTime;
+                let fishInfo = SettingManager.getFishInfo(fishNode.getComponent(Fish).getFishName());
+
+                let dead: boolean = false;
+                let rotataion: boolean = false;
+
+                for (let i = 0; i < skillArr.length; i++) {
+                    let skill = skillArr[i];
+                    let skillInfo = SettingManager.getSkillInfo(fishNode.getComponent(Fish).getFishName(), skill);
+
+                    dead = SettingManager.attack(skillInfo.probability2);// 技能擊殺是否成功
+
+                    if (dead) {
+                        rotataion = (skill == ESkill.Level_4_2); // 特殊規則: 最高級技能擊殺魚的情況下, 魚要旋轉離場.
+                        break;
+                    }
+                }
+
+                if (!dead && normal) {
+                    dead = SettingManager.attack(fishInfo.probability); // 普通攻擊擊殺是否成功
+                }
+
+
+                fishNode.getComponent(Fish).attacked(dead, rotataion, durationTime, pauseMoveTime, pauseSelfActionTime);
+
+                if (dead) { // 擊殺成功獲得獎勵
+                    let win = fishInfo.win * bet;
+                    self.updateWalletValue(win);
                 }
             }
         }
+    }
+
+    private activeSkill03And0402(bet: number, durationTime: number) {
+        let name = "skill_4_2";
+        let prefab = ResourcesManager.prefabMap.get(name);
+        if (!prefab) {
+            cc.log("error: prefab not found name:" + name);
+            return;
+        }
+
+        let effectNode = cc.instantiate(prefab);
+        effectNode.name = name;
+
+        {
+            let originLocationOfTower = this.originLocationOfTower; // 使用砲塔原始位置作為基準點
+            let rotation = this.towerNode.rotation; // 砲塔目前旋轉角度
+
+            effectNode.rotation = rotation;
+
+            const offsetOfStartPos = 70;
+
+            let dx = Math.sin((rotation * Math.PI) / 180) * offsetOfStartPos;
+            let dy = Math.cos((rotation * Math.PI) / 180) * offsetOfStartPos;
+
+            let startX = originLocationOfTower.x + dx;
+            let startY = originLocationOfTower.y + dy;
+
+            effectNode.setPosition(startX, startY);
+        }
+
+
+        this.collisionNode.addChild(effectNode);
+
+        {
+            // FIXME 鎖押注按鈕
+            let self = this;
+            let fireFlag = false;
+            let animation = effectNode.getComponent(cc.Animation);
+            animation.schedule(function () {
+                let originLocationOfTower = self.originLocationOfTower; // 使用砲塔原始位置作為基準點
+                let rotation = self.towerNode.rotation; // 砲塔目前旋轉角度
+
+                effectNode.rotation = rotation;
+
+                const offsetOfStartPos = 70;
+
+                let dx = Math.sin((rotation * Math.PI) / 180) * offsetOfStartPos;
+                let dy = Math.cos((rotation * Math.PI) / 180) * offsetOfStartPos;
+
+                let startX = originLocationOfTower.x + dx;
+                let startY = originLocationOfTower.y + dy;
+
+                effectNode.setPosition(startX, startY);
+
+                let fire = effectNode.getChildByName("fire").opacity > 0;
+                if (fire && !fireFlag) { // 發射技能
+                    fireFlag = true;
+
+                    // FIXME 鎖砲塔轉向
+
+                    let bulletName = "bullet_skill_4_2";
+                    let bulletPrefab = ResourcesManager.prefabMap.get(bulletName);
+                    if (!bulletPrefab) {
+                        cc.log("error: prefab not found name:" + bulletName);
+                        return;
+                    }
+
+                    let bulletEffectNode = cc.instantiate(bulletPrefab);
+                    bulletEffectNode.name = bulletName;
+                    bulletEffectNode.rotation = rotation;
+                    bulletEffectNode.setPosition(startX, startY);
+
+                    let component = bulletEffectNode.addComponent(Bullet0402);
+                    component.init(bet);
+
+                    self.collisionNode.addChild(bulletEffectNode);
+
+                    // XXX 砲擊持續時間大約 1秒, 判斷碰撞使用 0.8即可,  0.8s內砲塔轉向攻擊到的魚都算有碰撞到需要判斷是否有擊殺
+                    cc.tween(bulletEffectNode)
+                        .delay(0.8)
+                        .call(() => {
+                            // FIXME 解鎖押注按鈕
+                            // FIXME 解鎖砲塔轉向
+                            bulletEffectNode.destroy();
+                        }).start();
+                }
+            }, 0.01);
+
+            animation.scheduleOnce(function () {
+                animation.stop();
+                effectNode.destroy();
+            }, durationTime);
+        }
+    }
+
+    private activeSkill03And0401(skill: ESkill, fisrt: boolean, prevFishNode: cc.Node, nextFishNode: cc.Node, durationTime: number) {
+        let lineName = 'skill_3_line';
+        let pointName1 = "skill_3_src_point";
+        let pointName2 = "skill_3_target_point";
+
+        if (skill == ESkill.Level_4_1) {
+            lineName = 'skill_4_line';
+            pointName1 = "skill_4_src_point";
+            pointName2 = "skill_4_target_point";
+        }
+
+        if (nextFishNode) {
+            let name = lineName;
+            let prefab = ResourcesManager.prefabMap.get(name);
+            if (!prefab) {
+                cc.log("error: prefab not found name:" + name);
+                return;
+            }
+
+            let effectNode = cc.instantiate(prefab);
+            effectNode.name = name;
+
+            let self = this;
+            let updateNode = function () {
+                let prevFishNodePos = prevFishNode.getPosition();
+                let nextFishNodePos = nextFishNode.getPosition();
+
+                effectNode.setPosition(prevFishNodePos);
+                effectNode.rotation = self.calculatorRotation(nextFishNodePos, prevFishNodePos).rotation;
+                effectNode.width = 40;
+                effectNode.height = self.getDistance(prevFishNodePos, nextFishNodePos);
+
+                if ((prevFishNodePos.x == 0 && prevFishNodePos.y == 0) || (nextFishNodePos.x == 0 && nextFishNodePos.y == 0)) {
+                    // FIXME 目前發現動畫多的時候會發生, 如果降低 durationTime時間也可以減少機會發生, 還不確認原因
+                    cc.log("error 錯誤 不應該出現 " + fisrt + ", " + prevFishNodePos.toString() + " -> " + nextFishNodePos.toString());
+                }
+            }
+
+            updateNode();
+
+            prevFishNode.parent.addChild(effectNode);
+
+            let animation = effectNode.getComponent(cc.Animation);
+            animation.schedule(function () {
+                updateNode();
+            }, 0.01);
+
+            animation.scheduleOnce(function () {
+                effectNode.destroy();
+            }, durationTime);
+        }
+
+        {
+            let name = (fisrt ? pointName1 : pointName2);
+            let prefab = ResourcesManager.prefabMap.get(name);
+            if (!prefab) {
+                cc.log("error: prefab not found name:" + name);
+                return;
+            }
+
+            let effectNode = cc.instantiate(prefab);
+            effectNode.name = name;
+            effectNode.setPosition(0, 0);
+
+            let scale = (skill == ESkill.Level_4_1 ? 0.3 : 0.4);// XXX 不同的魚種要設定不同大小
+            effectNode.setScale(scale);
+
+            prevFishNode.addChild(effectNode);
+
+            let animation = effectNode.getComponent(cc.Animation);
+            animation.scheduleOnce(function () {
+                effectNode.destroy();
+            }, durationTime);
+        }
+    }
+
+    private activeSkill02(fishNode: cc.Node, durationTime: number) {
+        let name = "skill_2_freeze";
+        let prefab = ResourcesManager.prefabMap.get(name);
+        if (!prefab) {
+            cc.log("error: prefab not found name:" + name);
+            return;
+        }
+
+        { // 如果重複冰凍要先把舊的冰塊移除
+            let effectNode = fishNode.getChildByName(name);
+            if (effectNode) {
+                effectNode.destroy();
+            }
+        }
+
+        let effectNode = cc.instantiate(prefab);
+        effectNode.name = name;
+        effectNode.rotation = getRandomInt(0, 360);
+        effectNode.setPosition(0, 0);
+
+        effectNode.getChildByName("ice_s").active = false;
+        effectNode.getChildByName("ice_m").active = false;
+        effectNode.getChildByName("ice_l").active = false;
+        switch (SettingManager.getFishInfo(fishNode.getComponent(Fish).getFishName()).size) {
+            case 0:
+                effectNode.getChildByName("ice_s").active = true;
+                break;
+            case 1:
+                effectNode.getChildByName("ice_m").active = true;
+                break;
+            case 2:
+                effectNode.getChildByName("ice_l").active = true;
+                break;
+        }
+
+        fishNode.addChild(effectNode);
+
+        cc.tween(effectNode)
+            .delay(durationTime)
+            .to(0.2, { opacity: 0 })
+            .call(() => { effectNode.destroy(); })
+            .start();
     }
 }

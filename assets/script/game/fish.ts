@@ -137,20 +137,12 @@ export class Fish extends cc.Component {
         }, interval);
     }
 
-    public onDisable() {
-        this.node.off(cc.Node.EventType.TOUCH_START, this.touchHandler, this);
-
-        this.lockState = true;
-
-        this.node.cleanup();
-
+    public onDestroy() {
         if (this.pointNodeArr) {
             for (let i = 0; i < this.pointNodeArr.length; i++) {
                 this.pointNodeArr[i].destroy();
             }
         }
-
-        this.node.destroy();
     }
 
     public update(dt) {
@@ -203,8 +195,7 @@ export class Fish extends cc.Component {
             this.pauseSelfActionTime = pauseSelfActionTime;
         }
 
-        // TODO 播放魚碰撞子彈的音效 
-        { // 播放魚被攻擊的動畫 
+        if (!dead) {
             let tween = cc.tween(this.node);
 
             tween.then(cc.tween() // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
@@ -213,16 +204,14 @@ export class Fish extends cc.Component {
                 .call(() => { this.node.color = new cc.Color(255, 255, 255); })
             )
 
-            if (durationTime && durationTime > 0) {
+            if (durationTime > 0) {
                 tween.then(
                     cc.tween().delay(durationTime)
                 );
             }
 
             tween.start();
-        }
 
-        if (!dead) {
             return;
         }
 
@@ -250,6 +239,12 @@ export class Fish extends cc.Component {
 
             let tween = cc.tween(this.node);
 
+            tween.then(cc.tween() // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
+                .call(() => { this.node.color = new cc.Color(255, 0, 0); })
+                .delay(0.5)
+                .call(() => { this.node.color = new cc.Color(255, 255, 255); })
+            )
+
             if (durationTime > 0) {
                 tween.then(
                     cc.tween().delay(durationTime)
@@ -257,11 +252,9 @@ export class Fish extends cc.Component {
             }
 
             tween.then(
-                cc.tween()
-                    .call(() => {
-                        self.lockState = true;
-                        self.node.destroy();
-                    })
+                cc.tween().call(() => {
+                    self.node.destroy();
+                })
             );
 
             tween.start();
@@ -281,7 +274,7 @@ export class Fish extends cc.Component {
     }
 
     public isInCanvas(): boolean {
-        let width = this.node.parent.width / 2;
+        let width = this.node.parent.width / 2; // -50是預留一些空間避免判斷碰撞時魚已經跑出畫布外
         let height = this.node.parent.height / 2;
 
         if (this.node.x >= -width && this.node.y >= -height
