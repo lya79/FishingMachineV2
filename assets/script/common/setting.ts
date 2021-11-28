@@ -521,7 +521,7 @@ export class SettingManager {
     public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
         win: number, // 反獎倍率
         showHp: boolean,// 顯示血條
-        hp: number, // 血條, 1:被攻擊成功一次就擊殺(>1則依此類推)
+        hp: number, // 血條, 攻擊成功時 hp會減 1, 並且獲得返獎, 如果 hp<=0則魚會死亡
         size: number, // 0:小, 1:中 2:大
     } {
         switch (name) {

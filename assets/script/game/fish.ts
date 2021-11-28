@@ -34,8 +34,8 @@ export class Fish extends cc.Component {
     private pauseSelfActionTime: number;
 
     // 血條
-    private showHp: boolean; // 血條ui是否開啟
-    private defaultHp: number;
+    private showHP: boolean; // 血條ui是否開啟
+    private defaultHP: number;
     private hp: number
     private hpNode: cc.Node;
     private hpProgresBar: cc.ProgressBar;
@@ -56,9 +56,9 @@ export class Fish extends cc.Component {
         this.speedXY = 1;
         this.pauseMoveTime = 0;
         this.pauseSelfActionTime = 0;
-        this.defaultHp = SettingManager.getFishInfo(fishName).hp;
-        this.hp = this.defaultHp;
-        this.showHp = SettingManager.getFishInfo(fishName).showHp;
+        this.defaultHP = SettingManager.getFishInfo(fishName).hp;
+        this.hp = this.defaultHP;
+        this.showHP = SettingManager.getFishInfo(fishName).showHp;
     }
 
     public getFishName(): string {
@@ -129,7 +129,7 @@ export class Fish extends cc.Component {
         this.y = fistPos.y;
         this.node.setPosition(fistPos.x, fistPos.y); // 起點位置
 
-        if (this.showHp) {
+        if (this.showHP) {
             let name = "hp";
             let prefab = ResourcesManager.prefabMap.get(name);
             if (!prefab) {
@@ -148,7 +148,7 @@ export class Fish extends cc.Component {
             this.node.addChild(this.hpNode);
 
             let y = (fishNode.height / 2) + 10;
-            this.hpNode.setPosition(0, y)
+            this.hpNode.setPosition(0, y);
 
             let scale = 0;
             switch (SettingManager.getFishInfo(this.fishName).size) {
@@ -222,12 +222,26 @@ export class Fish extends cc.Component {
         this.updateNodeXY(dt);
     }
 
-    private updateHP(dt?: number) {
-        if (!this.showHp) {
+    private updateHP(dt) {
+        if (!this.showHP) {
             return;
         }
 
-        let value = this.hp / this.defaultHp;
+        { // 用來控制血條顯示的位置
+            let fishHeight = this.node.getChildByName(this.fishName).height / 2;
+
+            let top = true;
+            if (this.node.y + fishHeight + 10 >= (this.node.parent.height / 2)) {
+                top = false;
+            }
+
+            let y: number = fishHeight + 10;
+            y = (top ? y : -y);
+
+            this.hpNode.setPosition(0, y);
+        }
+
+        let value = this.hp / this.defaultHP;
 
         if (value > 1) {
             value = 1;
@@ -235,8 +249,11 @@ export class Fish extends cc.Component {
             value = 0;
         }
 
+        this.hpProgresBar.progress = value;
+
         let changeSpriteNanme: string;
         let spriteFrameName = this.hpSprite.spriteFrame.name;
+
         if (value > 0.6) {
             let targetName = "img_bosslifebar_green";
             if (spriteFrameName != targetName) {
@@ -257,8 +274,6 @@ export class Fish extends cc.Component {
         if (changeSpriteNanme) {
             this.hpSprite.spriteFrame = (ResourcesManager.spriteAtlasMap.get('SS_Symbol_Atlas_03')).getSpriteFrame(changeSpriteNanme);
         }
-
-        this.hpProgresBar.progress = value;
     }
 
     /**
@@ -381,7 +396,7 @@ export class Fish extends cc.Component {
     }
 
     public isInCanvas(): boolean {
-        let width = this.node.parent.width / 2; // -50是預留一些空間避免判斷碰撞時魚已經跑出畫布外
+        let width = this.node.parent.width / 2;
         let height = this.node.parent.height / 2;
 
         if (this.node.x >= -width && this.node.y >= -height
