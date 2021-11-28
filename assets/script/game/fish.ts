@@ -4,7 +4,8 @@ import { Bullet } from "./bullet";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { ResourcesManager } from "../common/resource";
 
-// XXX 魚的動畫缺少陰影
+// TODO 魚的動畫缺少陰影
+// TODO 魚被攻擊的音效
 
 export class Fish extends cc.Component {
     private fishPath: FishPath;
@@ -77,7 +78,7 @@ export class Fish extends cc.Component {
 
         {
             class TmpCollision extends cc.Component {
-                public onCollisionEnter(bulletCollider: cc.Collider, fishCollider: cc.Collider) { // FIXME
+                public onCollisionEnter(bulletCollider: cc.Collider, fishCollider: cc.Collider) {
                     if (self.lockState) {
                         return;
                     }
@@ -355,7 +356,6 @@ export class Fish extends cc.Component {
                 .start();
         }
 
-        // TODO 播放子魚被打死的音效
         { // 控制魚多久後被擊殺 
             let self = this;
 
@@ -380,10 +380,6 @@ export class Fish extends cc.Component {
             );
 
             tween.start();
-        }
-
-        {// TODO 錢幣動畫、音效、錢包餘額增加
-
         }
     }
 
@@ -535,7 +531,7 @@ export class Fish extends cc.Component {
             let distance = this.getDistance(targetPos, currentPos);
 
             // 目前位置和目標位置的距離小於等於移動距離時候, 就代表要前往下一個位置
-            if (distance <= (this.speedXY * 1.2)) { // XXX 在思考有沒有更好的方式做判斷
+            if (distance <= (this.speedXY * 1.2)) {
                 this.targetPosIndex += 1;
             }
 

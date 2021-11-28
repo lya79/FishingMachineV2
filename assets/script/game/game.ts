@@ -996,13 +996,68 @@ export class Game extends cc.Component {
                     dead = SettingManager.attack(normalAttack.probability); // 普通攻擊擊殺是否成功
                 }
 
-
-                fishNode.getComponent(Fish).attacked(dead, rotataion, durationTime, pauseMoveTime, pauseSelfActionTime);
-
-                if (dead) { // 擊殺成功獲得獎勵
+                if (dead) { // 攻擊成功獲得獎勵
+                    // 錢包增加金額
                     let win = fishInfo.win * bet;
                     self.updateWalletValue(win);
+
+                    let fishPosX = fishNode.getPosition().x;
+                    let fishPosY = fishNode.getPosition().y;
+
+                    { // 錢幣跑到砲塔動畫
+                        let name = "coin";
+                        let prefab = ResourcesManager.prefabMap.get(name);
+                        if (!prefab) {
+                            cc.log("error: prefab not found name:" + name);
+                            return;
+                        }
+
+                        let fishWidth = fishNode.getChildByName(fishNode.name).width / 2;
+                        let fishHeight = fishNode.getChildByName(fishNode.name).height / 2;
+                        let rand = (fishHeight > fishWidth ? fishHeight : fishWidth);
+
+                        let count = fishInfo.win;// 獲得幾倍就產生幾顆錢幣
+
+                        for (let i = 0; i < count; i++) {
+                            // 錢幣的顯示範圍會落在魚的身上
+                            let coinPosX = getRandomInt(fishPosX - rand, fishPosX + rand);
+                            let coinPosY = getRandomInt(fishPosY - rand, fishPosY + rand);
+
+                            let effectNode = cc.instantiate(prefab);
+                            effectNode.name = name;
+                            effectNode.setPosition(coinPosX, coinPosY);
+                            effectNode.scale = 2.2;
+                            fishNode.parent.addChild(effectNode);
+
+                            let jump = coinPosY + 60;
+                            cc.tween(effectNode)
+                                .to(0.1, { position: new cc.Vec2(coinPosX, jump) })
+                                .delay(0.5)
+                                .to(0.8, { position: new cc.Vec2(140, -370) }) // 直接固定就好省下運算
+                                .call(() => { effectNode.destroy(); })
+                                .start();
+                        }
+                    }
+
+                    { // 錢幣金額動畫
+                        let name = "score";
+                        let prefab = ResourcesManager.prefabMap.get(name);
+                        if (!prefab) {
+                            cc.log("error: prefab not found name:" + name);
+                            return;
+                        }
+
+                        let effectNode = cc.instantiate(prefab);
+                        effectNode.name = name;
+                        effectNode.scale = 1.6;
+                        effectNode.getChildByName("score").getComponent(cc.Label).string = win.toString();
+                        effectNode.setPosition(fishPosX, fishPosY);
+                        fishNode.parent.addChild(effectNode);
+                        cc.tween(effectNode).delay(2).call(() => { effectNode.destroy(); }).start();
+                    }
                 }
+
+                fishNode.getComponent(Fish).attacked(dead, rotataion, durationTime, pauseMoveTime, pauseSelfActionTime);
             }
         }
     }

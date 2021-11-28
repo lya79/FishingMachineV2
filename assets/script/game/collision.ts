@@ -17,7 +17,7 @@ export class Collision extends cc.Component {
     }
 
     public onEnable() {
-        // let self = this;
+        // let self = this; // TODO 用來確認是否有 node沒釋放, 導致 node無限增長
         // this.schedule(function () {
         //     cc.log("count: " + self.getAllFishNode().length);
         // }, 0.01);
