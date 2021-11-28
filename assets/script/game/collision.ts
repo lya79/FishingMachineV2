@@ -113,9 +113,8 @@ export class Collision extends cc.Component {
 
         let node = cc.instantiate(prefab);
         node.name = name;
-        node.scale = scale;
         let fish = node.addComponent(Fish);
-        fish.init(fishPath, name);
+        fish.init(fishPath, name, scale);
 
         this.node.addChild(node);
     }

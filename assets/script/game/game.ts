@@ -780,7 +780,7 @@ export class Game extends cc.Component {
             let collision = SettingManager.collisionArr.shift();
 
             { // 檢查魚是否已經失效
-                let fishNode = collision.fishCollider.node;
+                let fishNode = collision.fishCollider.parent;
                 if (!cc.isValid(fishNode)) {
                     continue;
                 }
@@ -801,12 +801,12 @@ export class Game extends cc.Component {
 
             let bet: number; // 押注
             {
-                let bulletNode = collision.bulletCollider.node;
+                let bulletNode = collision.bulletCollider;
                 let bullet0402 = bulletNode.getComponent(Bullet0402);
                 if (bullet0402) {
                     bet = bullet0402.getBet();
                 } else {
-                    let bulletNode = collision.bulletCollider.node.parent;
+                    let bulletNode = collision.bulletCollider.parent;
                     let bullet = bulletNode.getComponent(Bullet);
 
                     if (!cc.isValid((bulletNode) || bullet.isLock())) {
@@ -819,15 +819,14 @@ export class Game extends cc.Component {
                 }
             }
 
-
             let attackedArr: Attacked[] = [];// 需要被技能攻擊的魚
 
-            let fishNode = collision.fishCollider.node;
+            let fishNode = collision.fishCollider.parent;
             let fish = fishNode.getComponent(Fish);
 
             let normalBullet = true;
             {
-                let bulletNode = collision.bulletCollider.node;
+                let bulletNode = collision.bulletCollider;
                 let bullet0402 = bulletNode.getComponent(Bullet0402);
                 if (bullet0402) {
                     normalBullet = false;
@@ -844,7 +843,7 @@ export class Game extends cc.Component {
             }
 
             if (normalBullet) { // 播放動畫
-                let bulletNode = collision.bulletCollider.node.parent;
+                let bulletNode = collision.bulletCollider.parent;
                 let bullet = bulletNode.getComponent(Bullet);
                 let tower = bullet.getTower();
 
@@ -857,7 +856,7 @@ export class Game extends cc.Component {
 
                 for (let i = 0; i < tower.getSkillArr().length; i++) {
                     let skill = tower.getSkillArr()[i];
-                    let skillInfo = SettingManager.getSkillInfo(fish.getFishName(), skill);
+                    let skillInfo = SettingManager.getSkillAttackInfo(fish.getFishName(), skill);
                     if (!SettingManager.isActiveSkill(skillInfo.probability)) {// 是否發動技能
                         continue;
                     }
@@ -982,7 +981,7 @@ export class Game extends cc.Component {
 
                 for (let i = 0; i < skillArr.length; i++) {
                     let skill = skillArr[i];
-                    let skillInfo = SettingManager.getSkillInfo(fishNode.getComponent(Fish).getFishName(), skill);
+                    let skillInfo = SettingManager.getSkillAttackInfo(fishNode.getComponent(Fish).getFishName(), skill);
 
                     dead = SettingManager.attack(skillInfo.probability2);// 技能擊殺是否成功
 
@@ -993,7 +992,8 @@ export class Game extends cc.Component {
                 }
 
                 if (!dead && normal) {
-                    dead = SettingManager.attack(fishInfo.probability); // 普通攻擊擊殺是否成功
+                    let normalAttack = SettingManager.getNormalAttackInfo(fishNode.getComponent(Fish).getFishName());
+                    dead = SettingManager.attack(normalAttack.probability); // 普通攻擊擊殺是否成功
                 }
 
 

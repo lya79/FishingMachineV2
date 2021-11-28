@@ -2,8 +2,8 @@ import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { ResourcesManager } from "../common/resource";
 
 export class Collision {
-    bulletCollider: cc.Collider;
-    fishCollider: cc.Collider;
+    bulletCollider: cc.Node;
+    fishCollider: cc.Node;
 }
 
 /**
@@ -519,22 +519,37 @@ export class SettingManager {
     }
 
     public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
-        probability: number, // 擊殺機率
         win: number, // 反獎倍率
+        showHp: boolean,// 顯示血條
+        hp: number, // 血條, 1:被攻擊成功一次就擊殺(>1則依此類推)
         size: number, // 0:小, 1:中 2:大
     } {
         switch (name) {
             case "fish_1":
-                return { probability: 0.5, win: 2, size: 0 };
+                return { win: 2, showHp: false, hp: 1, size: 0 };
             case "fish_2":
-                return { probability: 0.5, win: 2, size: 0 };
+                return { win: 2, showHp: false, hp: 1, size: 0 };
         }
 
         cc.log("error undefined, name:" + name);
-        return { probability: 0.0, win: 0, size: 0 };
+        return { win: 0, showHp: false, hp: 0, size: 0 };
     }
 
-    public static getSkillInfo(name: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): {
+    public static getNormalAttackInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
+        probability: number, // 擊殺機率
+    } {
+        switch (name) {
+            case "fish_1":
+                return { probability: 0.5 };
+            case "fish_2":
+                return { probability: 0.5 };
+        }
+
+        cc.log("error undefined, name:" + name);
+        return { probability: 0.0 };
+    }
+
+    public static getSkillAttackInfo(name: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): {
         probability: number, // 發動機率
         probability2: number, // 技能擊殺機率
         min: number, // 技能發動時至少攻擊幾隻
@@ -571,7 +586,7 @@ export class SettingManager {
     /**
      * 用來判斷技能是否發動
      * 
-     * @param probability 發動機綠
+     * @param probability 發動機率
      * @returns 
      */
     public static isActiveSkill(probability: number): boolean {
