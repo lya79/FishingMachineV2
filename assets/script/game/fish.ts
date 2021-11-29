@@ -4,8 +4,7 @@ import { Bullet } from "./bullet";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { ResourcesManager } from "../common/resource";
 
-// TODO 魚的動畫缺少陰影
-// TODO 魚被攻擊的音效
+// XXX 魚的動畫缺少陰影
 
 export class Fish extends cc.Component {
     private fishPath: FishPath;
@@ -41,6 +40,10 @@ export class Fish extends cc.Component {
     private hpNode: cc.Node;
     private hpProgresBar: cc.ProgressBar;
     private hpSprite: cc.Sprite;
+
+    // TODO 魚在判斷往下一個點位移時候轉向一次就好, 不要一直計算轉向, 不然會造成魚會不斷晃動
+    // TODO 血條在紅色時候要有紅色外框閃爍
+    // TODO 部分魚種被擊殺後要有特定音效
 
     public init(fishPath: FishPath, fishName: string, scale: number) {
         this.fishPath = fishPath;
@@ -178,19 +181,26 @@ export class Fish extends cc.Component {
                 self.pauseMoveTime = 0;
             }
 
+            let fishAnimation = fishNode.getComponent(cc.Animation);
+
             if (self.pauseSelfActionTime > 0) {
                 self.pauseSelfActionTime -= dt;
 
-                let animationState = fishNode.getComponent(cc.Animation).getAnimationState(self.fishName);
-                if (!animationState.isPaused) {
-                    animationState.pause();
+                if (fishAnimation) {
+                    let animationState = fishAnimation.getAnimationState(self.fishName);
+                    if (!animationState.isPaused) {
+                        animationState.pause();
+                    }
                 }
+
             } else if (self.pauseSelfActionTime < 0) {
                 self.pauseSelfActionTime = 0;
 
-                let animationState = fishNode.getComponent(cc.Animation).getAnimationState(self.fishName);
-                if (animationState.isPaused) {
-                    animationState.play();
+                if (fishAnimation) {
+                    let animationState = fishAnimation.getAnimationState(self.fishName);
+                    if (animationState.isPaused) {
+                        animationState.play();
+                    }
                 }
             }
         }, interval);
@@ -431,11 +441,13 @@ export class Fish extends cc.Component {
 
             // 調整魚的旋轉角度
             let obj = self.calculatorRotation(lastPosition, currentPosition);
-            fishNode.rotation = obj.rotation + 180;
+            this.updateRotation(obj.rotation + 180);
 
             // 調整魚的擺動速度
             var anim = fishNode.getComponent(cc.Animation);
-            anim.getAnimationState(fishNode.name).speed *= speed;
+            if (anim) {
+                anim.getAnimationState(fishNode.name).speed *= speed;
+            }
         }));
         tween.then(cc.tween().to(delay, { position: lastPosition })); // 1.5s離開畫面
         tween.then(cc.tween().delay(2)); // 稍微停止一下確保東西都處理完
@@ -504,10 +516,22 @@ export class Fish extends cc.Component {
         // 擺動尾巴速度
         let fishNode = this.node.getChildByName(this.fishName);
         var anim = fishNode.getComponent(cc.Animation);
-        anim.getAnimationState(fishNode.name).speed = this.speedFIsh;
+        if (anim) {
+            anim.getAnimationState(fishNode.name).speed = this.speedFIsh;
+        }
 
         // 旋轉角度
-        fishNode.rotation = this.rotationFish - 180;
+        this.updateRotation(this.rotationFish - 180);
+    }
+
+    private updateRotation(rotation: number) {
+        if (this.fishName == "fish_20") { // XXX 特殊處理: fish_20的 spine的錨點設置在左下角關係
+            this.node.rotation = rotation;
+            return;
+        }
+
+        let fishNode = this.node.getChildByName(this.fishName);
+        fishNode.rotation = rotation;
     }
 
     private updateXY(dt) {// 更新魚的 x、y座標

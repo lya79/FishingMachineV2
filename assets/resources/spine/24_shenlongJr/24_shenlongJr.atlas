@@ -1,0 +1,1266 @@
+
+24_shenlongJr.png
+size: 955,955
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Back_hair_00
+  rotate: false
+  xy: 805, 565
+  size: 96, 34
+  orig: 96, 34
+  offset: 0, 0
+  index: -1
+Back_hair_01
+  rotate: false
+  xy: 474, 395
+  size: 94, 62
+  orig: 94, 62
+  offset: 0, 0
+  index: -1
+Back_hair_02
+  rotate: true
+  xy: 305, 265
+  size: 41, 62
+  orig: 41, 62
+  offset: 0, 0
+  index: -1
+Back_hair_03
+  rotate: true
+  xy: 396, 876
+  size: 77, 116
+  orig: 77, 116
+  offset: 0, 0
+  index: -1
+Back_hair_04
+  rotate: false
+  xy: 184, 813
+  size: 89, 140
+  orig: 89, 140
+  offset: 0, 0
+  index: -1
+Back_hair_05
+  rotate: false
+  xy: 754, 281
+  size: 68, 66
+  orig: 68, 66
+  offset: 0, 0
+  index: -1
+Chest_hair_00
+  rotate: false
+  xy: 2, 545
+  size: 135, 56
+  orig: 135, 56
+  offset: 0, 0
+  index: -1
+Chest_hair_01
+  rotate: true
+  xy: 282, 553
+  size: 93, 85
+  orig: 93, 85
+  offset: 0, 0
+  index: -1
+Chest_hair_02
+  rotate: true
+  xy: 570, 374
+  size: 77, 93
+  orig: 77, 93
+  offset: 0, 0
+  index: -1
+Chest_hair_03
+  rotate: true
+  xy: 665, 361
+  size: 90, 92
+  orig: 90, 92
+  offset: 0, 0
+  index: -1
+Chest_hair_04
+  rotate: false
+  xy: 759, 349
+  size: 77, 72
+  orig: 77, 72
+  offset: 0, 0
+  index: -1
+Dragon_body_00
+  rotate: false
+  xy: 2, 603
+  size: 166, 112
+  orig: 166, 112
+  offset: 0, 0
+  index: -1
+Dragon_body_01
+  rotate: true
+  xy: 376, 301
+  size: 90, 95
+  orig: 90, 95
+  offset: 0, 0
+  index: -1
+Dragon_body_02
+  rotate: false
+  xy: 514, 871
+  size: 112, 82
+  orig: 112, 82
+  offset: 0, 0
+  index: -1
+Dragon_body_03
+  rotate: false
+  xy: 275, 847
+  size: 119, 106
+  orig: 119, 106
+  offset: 0, 0
+  index: -1
+Dragon_body_04
+  rotate: false
+  xy: 2, 437
+  size: 117, 106
+  orig: 117, 106
+  offset: 0, 0
+  index: -1
+Dragon_tail_00
+  rotate: true
+  xy: 838, 394
+  size: 27, 77
+  orig: 27, 77
+  offset: 0, 0
+  index: -1
+Dragon_tail_01
+  rotate: true
+  xy: 711, 289
+  size: 70, 41
+  orig: 70, 41
+  offset: 0, 0
+  index: -1
+Dragon_tail_02
+  rotate: true
+  xy: 309, 407
+  size: 75, 60
+  orig: 75, 60
+  offset: 0, 0
+  index: -1
+Dragon_tail_03
+  rotate: false
+  xy: 805, 601
+  size: 106, 82
+  orig: 106, 82
+  offset: 0, 0
+  index: -1
+Eyeball_02
+  rotate: false
+  xy: 384, 834
+  size: 10, 11
+  orig: 10, 11
+  offset: 0, 0
+  index: -1
+Front _ower_arm
+  rotate: false
+  xy: 889, 283
+  size: 53, 57
+  orig: 53, 57
+  offset: 0, 0
+  index: -1
+Front_paw_00
+  rotate: true
+  xy: 111, 3
+  size: 41, 46
+  orig: 41, 46
+  offset: 0, 0
+  index: -1
+Front_paw_01
+  rotate: false
+  xy: 753, 231
+  size: 61, 48
+  orig: 61, 48
+  offset: 0, 0
+  index: -1
+Front_paw_02
+  rotate: true
+  xy: 824, 246
+  size: 42, 57
+  orig: 42, 57
+  offset: 0, 0
+  index: -1
+Front_paw_03
+  rotate: true
+  xy: 395, 193
+  size: 27, 57
+  orig: 27, 57
+  offset: 0, 0
+  index: -1
+Front_upper_arm
+  rotate: true
+  xy: 170, 575
+  size: 37, 102
+  orig: 37, 102
+  offset: 0, 0
+  index: -1
+Hind_claw_00
+  rotate: false
+  xy: 709, 181
+  size: 44, 42
+  orig: 44, 42
+  offset: 0, 0
+  index: -1
+Hind_claw_01
+  rotate: false
+  xy: 670, 111
+  size: 42, 39
+  orig: 42, 39
+  offset: 0, 0
+  index: -1
+Hind_claw_02
+  rotate: true
+  xy: 588, 172
+  size: 44, 34
+  orig: 44, 34
+  offset: 0, 0
+  index: -1
+Hind_claw_03
+  rotate: false
+  xy: 499, 227
+  size: 45, 35
+  orig: 45, 35
+  offset: 0, 0
+  index: -1
+Left_ear
+  rotate: false
+  xy: 934, 345
+  size: 19, 31
+  orig: 19, 31
+  offset: 0, 0
+  index: -1
+Rear_lower_arm
+  rotate: true
+  xy: 883, 239
+  size: 42, 55
+  orig: 42, 55
+  offset: 0, 0
+  index: -1
+Rear_upper_arm
+  rotate: true
+  xy: 866, 423
+  size: 42, 87
+  orig: 42, 87
+  offset: 0, 0
+  index: -1
+Right_ear
+  rotate: false
+  xy: 509, 143
+  size: 20, 21
+  orig: 20, 21
+  offset: 0, 0
+  index: -1
+Shenlongjiao_00
+  rotate: false
+  xy: 2, 211
+  size: 53, 108
+  orig: 53, 108
+  offset: 0, 0
+  index: -1
+Shenlongjiao_01
+  rotate: false
+  xy: 62, 328
+  size: 53, 107
+  orig: 53, 107
+  offset: 0, 0
+  index: -1
+Squat
+  rotate: true
+  xy: 824, 290
+  size: 50, 63
+  orig: 50, 63
+  offset: 0, 0
+  index: -1
+Tail
+  rotate: false
+  xy: 2, 321
+  size: 58, 114
+  orig: 58, 114
+  offset: 0, 0
+  index: -1
+aa1
+  rotate: false
+  xy: 2, 717
+  size: 180, 236
+  orig: 180, 236
+  offset: 0, 0
+  index: -1
+eyeball_00
+  rotate: false
+  xy: 170, 704
+  size: 11, 11
+  orig: 11, 11
+  offset: 0, 0
+  index: -1
+eyeball_A1
+  rotate: true
+  xy: 937, 546
+  size: 18, 16
+  orig: 18, 16
+  offset: 0, 0
+  index: -1
+eyeball_B1
+  rotate: true
+  xy: 937, 526
+  size: 18, 16
+  orig: 18, 16
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A1
+  rotate: false
+  xy: 628, 865
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A26
+  rotate: false
+  xy: 628, 865
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A10
+  rotate: false
+  xy: 396, 786
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A11
+  rotate: false
+  xy: 505, 781
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A12
+  rotate: false
+  xy: 614, 775
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A13
+  rotate: false
+  xy: 723, 775
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A14
+  rotate: false
+  xy: 832, 775
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A15
+  rotate: true
+  xy: 121, 436
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A16
+  rotate: true
+  xy: 117, 327
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A17
+  rotate: false
+  xy: 384, 696
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A18
+  rotate: false
+  xy: 493, 691
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A19
+  rotate: false
+  xy: 602, 685
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A2
+  rotate: false
+  xy: 737, 865
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A20
+  rotate: false
+  xy: 711, 685
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A21
+  rotate: false
+  xy: 820, 685
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A22
+  rotate: false
+  xy: 369, 606
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A23
+  rotate: false
+  xy: 478, 601
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A24
+  rotate: false
+  xy: 587, 595
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A25
+  rotate: false
+  xy: 696, 595
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A3
+  rotate: false
+  xy: 846, 865
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A4
+  rotate: true
+  xy: 184, 704
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A5
+  rotate: false
+  xy: 170, 614
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A6
+  rotate: true
+  xy: 2, 102
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A7
+  rotate: false
+  xy: 2, 12
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A8
+  rotate: false
+  xy: 275, 757
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_1/hair_1_animation_A9
+  rotate: true
+  xy: 279, 648
+  size: 107, 88
+  orig: 107, 88
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A1
+  rotate: true
+  xy: 473, 301
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A26
+  rotate: true
+  xy: 473, 301
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A10
+  rotate: true
+  xy: 734, 110
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A11
+  rotate: false
+  xy: 712, 90
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A12
+  rotate: false
+  xy: 754, 137
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A13
+  rotate: false
+  xy: 754, 117
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A14
+  rotate: false
+  xy: 754, 97
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A15
+  rotate: false
+  xy: 754, 77
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A16
+  rotate: true
+  xy: 578, 34
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A17
+  rotate: false
+  xy: 598, 53
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A18
+  rotate: false
+  xy: 598, 33
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A19
+  rotate: true
+  xy: 640, 31
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A2
+  rotate: false
+  xy: 531, 67
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A20
+  rotate: true
+  xy: 796, 115
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A21
+  rotate: false
+  xy: 816, 139
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A22
+  rotate: false
+  xy: 816, 119
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A23
+  rotate: true
+  xy: 796, 73
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A24
+  rotate: false
+  xy: 816, 99
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A25
+  rotate: false
+  xy: 858, 107
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A3
+  rotate: true
+  xy: 714, 110
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A4
+  rotate: false
+  xy: 168, 555
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A5
+  rotate: true
+  xy: 932, 152
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A6
+  rotate: true
+  xy: 929, 733
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A7
+  rotate: true
+  xy: 929, 691
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A8
+  rotate: true
+  xy: 558, 25
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_2/hair_2_animation_A9
+  rotate: false
+  xy: 670, 91
+  size: 40, 18
+  orig: 40, 18
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A1
+  rotate: false
+  xy: 139, 558
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A26
+  rotate: false
+  xy: 139, 558
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A10
+  rotate: true
+  xy: 903, 566
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A11
+  rotate: true
+  xy: 698, 152
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A12
+  rotate: true
+  xy: 816, 217
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A13
+  rotate: true
+  xy: 813, 188
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A14
+  rotate: true
+  xy: 755, 157
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A15
+  rotate: false
+  xy: 583, 121
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A16
+  rotate: false
+  xy: 583, 76
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A17
+  rotate: false
+  xy: 612, 102
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A18
+  rotate: false
+  xy: 641, 102
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A19
+  rotate: true
+  xy: 612, 73
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A2
+  rotate: false
+  xy: 917, 378
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A20
+  rotate: true
+  xy: 813, 159
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A21
+  rotate: false
+  xy: 858, 172
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A22
+  rotate: false
+  xy: 887, 194
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A23
+  rotate: false
+  xy: 916, 194
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A24
+  rotate: true
+  xy: 887, 165
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A25
+  rotate: false
+  xy: 858, 127
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A3
+  rotate: false
+  xy: 755, 186
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A4
+  rotate: false
+  xy: 784, 186
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A5
+  rotate: true
+  xy: 624, 176
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A6
+  rotate: false
+  xy: 913, 640
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A7
+  rotate: false
+  xy: 913, 595
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A8
+  rotate: false
+  xy: 669, 160
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_3/hair_3_animation_A9
+  rotate: true
+  xy: 624, 147
+  size: 27, 43
+  orig: 27, 43
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A1
+  rotate: false
+  xy: 838, 342
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A26
+  rotate: false
+  xy: 838, 342
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A10
+  rotate: false
+  xy: 400, 18
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A11
+  rotate: true
+  xy: 395, 222
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A12
+  rotate: true
+  xy: 447, 222
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A13
+  rotate: true
+  xy: 457, 143
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A14
+  rotate: true
+  xy: 479, 64
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A15
+  rotate: false
+  xy: 479, 12
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A16
+  rotate: false
+  xy: 474, 343
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A17
+  rotate: false
+  xy: 553, 322
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A18
+  rotate: true
+  xy: 499, 264
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A19
+  rotate: false
+  xy: 551, 270
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A2
+  rotate: true
+  xy: 111, 46
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A20
+  rotate: false
+  xy: 632, 309
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A21
+  rotate: false
+  xy: 630, 257
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A22
+  rotate: false
+  xy: 551, 218
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A23
+  rotate: false
+  xy: 630, 205
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A24
+  rotate: false
+  xy: 509, 166
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A25
+  rotate: true
+  xy: 531, 87
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A3
+  rotate: false
+  xy: 163, 70
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A4
+  rotate: false
+  xy: 242, 70
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A5
+  rotate: false
+  xy: 321, 70
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A6
+  rotate: false
+  xy: 400, 70
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A7
+  rotate: false
+  xy: 163, 18
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A8
+  rotate: false
+  xy: 242, 18
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_4/hair_4_animation_A9
+  rotate: false
+  xy: 321, 18
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A1
+  rotate: true
+  xy: 211, 477
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A26
+  rotate: true
+  xy: 211, 477
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A10
+  rotate: false
+  xy: 261, 122
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A11
+  rotate: false
+  xy: 297, 193
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A12
+  rotate: false
+  xy: 359, 122
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A13
+  rotate: true
+  xy: 305, 308
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A14
+  rotate: false
+  xy: 376, 535
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A15
+  rotate: false
+  xy: 474, 530
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A16
+  rotate: false
+  xy: 572, 524
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A17
+  rotate: false
+  xy: 670, 524
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A18
+  rotate: false
+  xy: 376, 464
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A19
+  rotate: false
+  xy: 474, 459
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A2
+  rotate: false
+  xy: 211, 406
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A20
+  rotate: false
+  xy: 572, 453
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A21
+  rotate: false
+  xy: 670, 453
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A22
+  rotate: false
+  xy: 768, 494
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A23
+  rotate: false
+  xy: 768, 423
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A24
+  rotate: true
+  xy: 866, 467
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A25
+  rotate: false
+  xy: 376, 393
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A3
+  rotate: false
+  xy: 207, 335
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A4
+  rotate: false
+  xy: 207, 264
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A5
+  rotate: true
+  xy: 57, 223
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A6
+  rotate: true
+  xy: 128, 229
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A7
+  rotate: false
+  xy: 199, 193
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A8
+  rotate: true
+  xy: 92, 125
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+hair_5/hair_5_animation_A9
+  rotate: false
+  xy: 163, 122
+  size: 96, 69
+  orig: 96, 69
+  offset: 0, 0
+  index: -1
+head
+  rotate: true
+  xy: 282, 484
+  size: 67, 86
+  orig: 67, 86
+  offset: 0, 0
+  index: -1
+palm_00
+  rotate: false
+  xy: 887, 127
+  size: 43, 36
+  orig: 43, 36
+  offset: 0, 0
+  index: -1
+palm_01
+  rotate: false
+  xy: 709, 225
+  size: 42, 62
+  orig: 42, 62
+  offset: 0, 0
+  index: -1
+tooth_00
+  rotate: false
+  xy: 768, 566
+  size: 31, 27
+  orig: 31, 27
+  offset: 0, 0
+  index: -1
+tooth_01
+  rotate: true
+  xy: 917, 342
+  size: 34, 15
+  orig: 34, 15
+  offset: 0, 0
+  index: -1
+vision_00
+  rotate: true
+  xy: 698, 193
+  size: 10, 9
+  orig: 10, 9
+  offset: 0, 0
+  index: -1
+vision_01
+  rotate: true
+  xy: 698, 181
+  size: 10, 9
+  orig: 10, 9
+  offset: 0, 0
+  index: -1

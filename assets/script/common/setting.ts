@@ -236,16 +236,16 @@ export class SettingManager {
     /**
      * 每一關卡停留多少秒
      */
-    public static getGameDelayByGameStage(gameStage: number): number {// TODO 暫時將每一關卡的停留時間設定成 60000
+    public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 60000;
+                return 60;
             case 2:
-                return 60000;
+                return 60;
             case 3:
-                return 60000;
+                return 60;
         }
-        return 30;
+        return 60;
     }
 
     private static getFishPathByGameStage1(): FishPath[] {// TODO 需要增加更多種類的魚 
@@ -523,25 +523,101 @@ export class SettingManager {
         showHp: boolean,// 顯示血條
         hp: number, // 血條, 攻擊成功時 hp會減 1, 並且獲得返獎, 如果 hp<=0則魚會死亡
         size: number, // 0:小, 1:中 2:大
+        bonusKind: number, // 獎勵類型, 0:低, 1:高, 
     } {
         switch (name) {
             case "fish_1":
-                return { win: 2, showHp: false, hp: 1, size: 0 };
+                return { win: 2, showHp: false, hp: 1, size: 0, bonusKind: 0 };
             case "fish_2":
-                return { win: 2, showHp: false, hp: 1, size: 0 };
+                return { win: 2, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_3":
+                return { win: 3, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_4":
+                return { win: 4, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_5":
+                return { win: 5, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_6":
+                return { win: 6, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_7":
+                return { win: 7, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_8":
+                return { win: 8, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_9":
+                return { win: 9, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_10":
+                return { win: 10, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_11":
+                return { win: 12, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_12":
+                return { win: 15, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+            case "fish_13":
+                return { win: 18, showHp: false, hp: 1, size: 1, bonusKind: 0 };
+            case "fish_14":
+                return { win: 20, showHp: false, hp: 1, size: 1, bonusKind: 0 };
+            case "fish_15":
+                return { win: 25, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+            case "fish_16":
+                return { win: 30, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+            case "fish_17":
+                return { win: 40, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+            case "fish_18":
+                return { win: 50, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+            case "fish_19":
+                return { win: 80, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+            case "fish_20":
+                return { win: 100, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+
         }
 
         cc.log("error undefined, name:" + name);
-        return { win: 0, showHp: false, hp: 0, size: 0 };
+        return { win: 0, showHp: false, hp: 0, size: 0, bonusKind: 0 };
     }
 
     public static getNormalAttackInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
         probability: number, // 擊殺機率
     } {
+        return { probability: 0.5 };
+
         switch (name) {
             case "fish_1":
                 return { probability: 0.5 };
             case "fish_2":
+                return { probability: 0.5 };
+            case "fish_3":
+                return { probability: 0.5 };
+            case "fish_4":
+                return { probability: 0.5 };
+            case "fish_5":
+                return { probability: 0.5 };
+            case "fish_6":
+                return { probability: 0.5 };
+            case "fish_7":
+                return { probability: 0.5 };
+            case "fish_8":
+                return { probability: 0.5 };
+            case "fish_9":
+                return { probability: 0.5 };
+            case "fish_10":
+                return { probability: 0.5 };
+            case "fish_11":
+                return { probability: 0.5 };
+            case "fish_12":
+                return { probability: 0.5 };
+            case "fish_13":
+                return { probability: 0.5 };
+            case "fish_14":
+                return { probability: 0.5 };
+            case "fish_15":
+                return { probability: 0.5 };
+            case "fish_16":
+                return { probability: 0.5 };
+            case "fish_17":
+                return { probability: 0.5 };
+            case "fish_18":
+                return { probability: 0.5 };
+            case "fish_19":
+                return { probability: 0.5 };
+            case "fish_20":
                 return { probability: 0.5 };
         }
 

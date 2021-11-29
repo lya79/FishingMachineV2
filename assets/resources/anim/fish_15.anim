@@ -1,6 +1,6 @@
 {
   "__type__": "cc.AnimationClip",
-  "_name": "fish_2",
+  "_name": "fish_15",
   "_objFlags": 0,
   "_native": "",
   "_duration": 1.2,
@@ -14,49 +14,49 @@
           {
             "frame": 0,
             "value": {
-              "__uuid__": "0c8d0d45-a586-422d-be2a-6a4771a9dad2"
+              "__uuid__": "79c61311-29b4-4a28-a760-caed15db48a9"
             }
           },
           {
             "frame": 0.16666666666666666,
             "value": {
-              "__uuid__": "bdfafb8f-2a8c-4826-8356-0a17f47776c4"
+              "__uuid__": "0d96d5e8-a14c-4877-9194-5e6725fd7599"
             }
           },
           {
             "frame": 0.3333333333333333,
             "value": {
-              "__uuid__": "61f8d112-2eaf-4748-9cf9-2244f40018ec"
+              "__uuid__": "bc3f2640-237a-445f-8000-232bd83aa6ad"
             }
           },
           {
             "frame": 0.5,
             "value": {
-              "__uuid__": "ecb61307-a4f1-4eef-8bc7-3f3e0ff424d1"
+              "__uuid__": "80e5a3ff-4fdd-4cca-b118-cc59df092760"
             }
           },
           {
             "frame": 0.6666666666666666,
             "value": {
-              "__uuid__": "7356e2ff-d0c6-489a-87da-36f483a87813"
+              "__uuid__": "4d8f25a1-9888-4e78-a55e-8c34ea60d406"
             }
           },
           {
             "frame": 0.8333333333333334,
             "value": {
-              "__uuid__": "68b7f39f-7830-4b05-9941-fc9700aef771"
+              "__uuid__": "1ffa7b7d-19cd-4972-ae63-17ffd6fabb13"
             }
           },
           {
             "frame": 1,
             "value": {
-              "__uuid__": "8b44cfec-145d-46c2-ab0a-8f91cc96a87b"
+              "__uuid__": "38354ad3-390a-4e68-b347-b5768cf593ef"
             }
           },
           {
             "frame": 1.1666666666666667,
             "value": {
-              "__uuid__": "47a52f32-e5dd-4b70-be84-87f6a2350055"
+              "__uuid__": "38354ad3-390a-4e68-b347-b5768cf593ef"
             }
           }
         ]

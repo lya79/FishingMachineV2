@@ -203,6 +203,7 @@ export class LoadingComponent extends cc.Component {
         let prefabArr: cc.Prefab[] = <cc.Prefab[]>result;
         for (let i = 0; i < prefabArr.length; i++) {
             ResourcesManager.prefabMap.set(prefabArr[i].name, prefabArr[i]);
+            // cc.log("load prefab: " + prefabArr[i].name);
         }
 
         return true;

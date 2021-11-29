@@ -1,0 +1,104 @@
+
+toad.png
+size: 222,222
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+L_hand
+  rotate: true
+  xy: 112, 71
+  size: 32, 26
+  orig: 32, 26
+  offset: 0, 0
+  index: -1
+L_leg
+  rotate: false
+  xy: 99, 15
+  size: 29, 35
+  orig: 29, 38
+  offset: 0, 3
+  index: -1
+R_hand
+  rotate: false
+  xy: 140, 78
+  size: 32, 26
+  orig: 32, 26
+  offset: 0, 0
+  index: -1
+R_leg
+  rotate: true
+  xy: 174, 72
+  size: 28, 32
+  orig: 28, 32
+  offset: 0, 0
+  index: -1
+circle01
+  rotate: false
+  xy: 2, 105
+  size: 115, 115
+  orig: 115, 115
+  offset: 0, 0
+  index: -1
+circle02
+  rotate: false
+  xy: 2, 9
+  size: 95, 94
+  orig: 95, 94
+  offset: 0, 0
+  index: -1
+coin_old
+  rotate: false
+  xy: 174, 102
+  size: 42, 47
+  orig: 42, 47
+  offset: 0, 0
+  index: -1
+eyeball_left
+  rotate: false
+  xy: 197, 214
+  size: 8, 6
+  orig: 8, 6
+  offset: 0, 0
+  index: -1
+eyeball_right
+  rotate: false
+  xy: 2, 2
+  size: 7, 5
+  orig: 7, 5
+  offset: 0, 0
+  index: -1
+eyelid_left
+  rotate: true
+  xy: 99, 2
+  size: 11, 9
+  orig: 11, 9
+  offset: 0, 0
+  index: -1
+eyelid_right
+  rotate: true
+  xy: 110, 2
+  size: 11, 8
+  orig: 11, 8
+  offset: 0, 0
+  index: -1
+eyewhite
+  rotate: false
+  xy: 99, 52
+  size: 11, 51
+  orig: 11, 51
+  offset: 0, 0
+  index: -1
+frog
+  rotate: false
+  xy: 119, 151
+  size: 76, 69
+  orig: 76, 69
+  offset: 0, 0
+  index: -1
+head
+  rotate: true
+  xy: 119, 106
+  size: 43, 53
+  orig: 43, 53
+  offset: 0, 0
+  index: -1

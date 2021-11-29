@@ -1,0 +1,31 @@
+{
+  "ver": "2.2.0",
+  "uuid": "7afd3cca-d61c-4bfd-a379-fd4f074382c0",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "subMetas": {
+    "24_shenlongJr": {
+      "ver": "1.0.3",
+      "uuid": "e1fe3bd1-09df-4195-b02b-e0a93d109f0b",
+      "rawTextureUuid": "7afd3cca-d61c-4bfd-a379-fd4f074382c0",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": -0.5,
+      "trimX": 2,
+      "trimY": 3,
+      "width": 951,
+      "height": 950,
+      "rawWidth": 955,
+      "rawHeight": 955,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

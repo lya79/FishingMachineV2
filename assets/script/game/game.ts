@@ -894,6 +894,7 @@ export class Game extends cc.Component {
                     }
 
                     if (skill == ESkill.Level_2) {
+                        AudioManager.play(`UI_Skin_Freezing`, true, false);
                         for (let k = 0; k < attackedArr.length; k++) {
                             let attacked = attackedArr[k];
                             self.activeSkill02(attacked.fishNode, skillInfo.durationTime);
@@ -922,6 +923,9 @@ export class Game extends cc.Component {
                             }
                         }
                     } else if (skill == ESkill.Level_3 || skill == ESkill.Level_4_1) {
+                        if (skill == ESkill.Level_3) {
+                            AudioManager.play(`UI_Skin_Lightning`, true, false);
+                        }
                         for (let k = 0; k < attackedArr.length; k++) {
                             let attacked = attackedArr[k];
                             let first = k == 0;
@@ -997,12 +1001,101 @@ export class Game extends cc.Component {
                 }
 
                 if (dead) { // 攻擊成功獲得獎勵
+                    AudioManager.play(`UI_CoinGet`, true, false);
+
                     // 錢包增加金額
                     let win = fishInfo.win * bet;
                     self.updateWalletValue(win);
 
                     let fishPosX = fishNode.getPosition().x;
                     let fishPosY = fishNode.getPosition().y;
+                    let fishWidth = fishNode.getChildByName(fishNode.name).width / 2;
+                    let fishHeight = fishNode.getChildByName(fishNode.name).height / 2;
+
+                    if ("fish_20" == fishNode.getComponent(Fish).getFishName()) { // XXX 特殊處理: fish_20的 spine的錨點設置在左下角關係
+                        let centerNode = fishNode.getChildByName("center");
+                        let worldPos = centerNode.parent.convertToWorldSpaceAR(centerNode.getPosition());
+                        let pos = fishNode.parent.convertToNodeSpaceAR(worldPos);
+                        fishPosX = pos.x;
+                        fishPosY = pos.y;
+                    }
+
+                    if (fishInfo.bonusKind >= 1) { // 高倍數返獎才觸發
+                        {
+                            let name = "coin_2";
+                            let prefab = ResourcesManager.prefabMap.get(name);
+                            if (!prefab) {
+                                cc.log("error: prefab not found name:" + name);
+                                return;
+                            }
+
+                            let effectNode = cc.instantiate(prefab);
+                            effectNode.name = name;
+                            effectNode.scale = 1.8;
+                            effectNode.setPosition(fishPosX, fishPosY);
+
+                            fishNode.parent.addChild(effectNode);
+
+                            cc.tween(effectNode).delay(2).call(() => { effectNode.destroy(); }).start();
+                        }
+
+                        { // 畫面左下角顯示獎勵
+                            let name = "bonus_notice";
+                            let prefab = ResourcesManager.prefabMap.get(name);
+                            if (!prefab) {
+                                cc.log("error: prefab not found name:" + name);
+                                return;
+                            }
+
+                            let oldNode = fishNode.parent.getChildByName(name); // 舊的刪除掉
+                            if (oldNode) {
+                                oldNode.destroy();
+                            }
+
+                            let effectNode = cc.instantiate(prefab);
+                            effectNode.name = name;
+                            effectNode.setPosition(-147, -330); // 固定就可以了節省計算
+
+                            effectNode.getChildByName("score").getComponent(cc.Label).string = win.toString();
+
+                            { // 處理顯示的魚
+                                let tmpFishName = fishNode.getComponent(Fish).getFishName();
+                                let tmpFishPrefab = ResourcesManager.prefabMap.get(tmpFishName);
+                                if (!tmpFishPrefab) {
+                                    cc.log("error: prefab not found name:" + tmpFishName);
+                                    return;
+                                }
+
+                                let tmpFishEffectNode = cc.instantiate(tmpFishPrefab);
+                                tmpFishEffectNode.name = name;
+                                tmpFishEffectNode.rotation = 90;
+
+                                // 寬度固定, 高度則依據寬度動態調整
+                                let targetWidth: number;
+                                let targetScale: number;
+
+                                if (fishNode.getComponent(Fish).getFishName() == "fish_20") {// XXX 特殊處理: fish_20的 spine的錨點設置在左下角關係
+                                    targetWidth = 80;
+                                    targetScale = (targetWidth / tmpFishEffectNode.getChildByName(fishNode.getComponent(Fish).getFishName()).width);
+                                    let offsetX = -((tmpFishEffectNode.width * targetScale) / 2) - 14.5;
+                                    let offsetY = ((tmpFishEffectNode.height * targetScale) / 2);
+                                    tmpFishEffectNode.setPosition(offsetX, offsetY);
+                                } else {
+                                    targetWidth = 100;
+                                    targetScale = (targetWidth / tmpFishEffectNode.getChildByName(fishNode.getComponent(Fish).getFishName()).width);
+                                    tmpFishEffectNode.setPosition(0, 0);
+                                }
+
+                                tmpFishEffectNode.scale = targetScale;
+
+                                effectNode.getChildByName("fish").addChild(tmpFishEffectNode);
+                            }
+
+                            fishNode.parent.addChild(effectNode);
+
+                            cc.tween(effectNode).delay(2).call(() => { effectNode.destroy(); }).start();
+                        }
+                    }
 
                     { // 錢幣跑到砲塔動畫
                         let name = "coin";
@@ -1012,26 +1105,30 @@ export class Game extends cc.Component {
                             return;
                         }
 
-                        let fishWidth = fishNode.getChildByName(fishNode.name).width / 2;
-                        let fishHeight = fishNode.getChildByName(fishNode.name).height / 2;
-                        let rand = (fishHeight > fishWidth ? fishHeight : fishWidth);
-
                         let count = fishInfo.win;// 獲得幾倍就產生幾顆錢幣
+                        if (count >= 6) { // 避免出現太多錢幣
+                            count = getRandomInt(6, 8);
+                        }
 
                         for (let i = 0; i < count; i++) {
                             // 錢幣的顯示範圍會落在魚的身上
-                            let coinPosX = getRandomInt(fishPosX - rand, fishPosX + rand);
-                            let coinPosY = getRandomInt(fishPosY - rand, fishPosY + rand);
+                            let coinPosX = getRandomInt(fishPosX, fishPosX);
+                            let coinPosY = getRandomInt(fishPosY, fishPosY);
 
                             let effectNode = cc.instantiate(prefab);
                             effectNode.name = name;
                             effectNode.setPosition(coinPosX, coinPosY);
-                            effectNode.scale = 2.2;
+                            effectNode.scale = 2;
                             fishNode.parent.addChild(effectNode);
 
-                            let jump = coinPosY + 60;
+                            let offsetX = getRandomInt(30, 60) * (getRandomInt(0, 1) == 0 ? 1 : -1);
+                            let offsetY = getRandomInt(30, 60) * (getRandomInt(0, 1) == 0 ? 1 : -1);
+
+                            offsetX += coinPosX;
+                            offsetY += coinPosY;
+
                             cc.tween(effectNode)
-                                .to(0.1, { position: new cc.Vec2(coinPosX, jump) })
+                                .to(0.1, { position: new cc.Vec2(offsetX, offsetY) })
                                 .delay(0.5)
                                 .to(0.8, { position: new cc.Vec2(140, -370) }) // 直接固定就好省下運算
                                 .call(() => { effectNode.destroy(); })
@@ -1049,7 +1146,7 @@ export class Game extends cc.Component {
 
                         let effectNode = cc.instantiate(prefab);
                         effectNode.name = name;
-                        effectNode.scale = 1.6;
+                        effectNode.scale = 1.5;
                         effectNode.getChildByName("score").getComponent(cc.Label).string = win.toString();
                         effectNode.setPosition(fishPosX, fishPosY);
                         fishNode.parent.addChild(effectNode);
@@ -1136,6 +1233,8 @@ export class Game extends cc.Component {
                     component.init(bet);
 
                     self.collisionNode.addChild(bulletEffectNode);
+
+                    AudioManager.play(`UI_Skin_Max`, true, false);
 
                     // XXX 砲擊持續時間大約 1秒, 判斷碰撞使用 0.8即可,  0.8s內砲塔轉向攻擊到的魚都算有碰撞到需要判斷是否有擊殺
                     cc.tween(bulletEffectNode)

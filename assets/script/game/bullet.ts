@@ -1,6 +1,5 @@
 import { ESkill, Tower } from "../common/setting";
 
-// TODO 播放子彈碰撞的音效
 export class Bullet extends cc.Component {
     private bulletNode: cc.Node;
     private netNode: cc.Node;
