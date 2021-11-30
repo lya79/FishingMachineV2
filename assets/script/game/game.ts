@@ -264,6 +264,10 @@ export class Game extends cc.Component {
             this.bgNode.getComponent(Background).init(startFishHandler, clearFishHandler);
             this.towerNode.getComponent(Tower).init();
             this.collisionNode.getComponent(Collision).init();
+
+            // this.schedule(function () {// XXX 用來確認是否有 node沒釋放, 導致 node無限增長
+            //     cc.log("count: " + self.collisionNode.childrenCount);
+            // }, 0.01);
         }
 
         {// 初始化關卡切換排程
@@ -941,6 +945,7 @@ export class Game extends cc.Component {
                                 prevFishNode,
                                 nextFishNode,
                                 skillInfo.durationTime,
+                                SettingManager.getFishInfo(fish.getFishName()).size,
                             );
 
                             let exist = false;
@@ -1003,22 +1008,38 @@ export class Game extends cc.Component {
                 if (dead) { // 攻擊成功獲得獎勵
                     AudioManager.play(`UI_CoinGet`, true, false);
 
+                    { // 機率觸發魚被擊殺的音效
+                        let audioName: string;
+                        if (fishInfo.win < 10) {
+                            if (getRandomInt(1, 10) <= 2) {
+                                let v = getRandomInt(1, 5);
+                                audioName = `Kill_LowFish_0${v}`;
+                            }
+                        } else if (fishInfo.win >= 10 && fishInfo.win < 50) {
+                            if (getRandomInt(1, 10) <= 3) {
+                                let v = getRandomInt(1, 4);
+                                audioName = `Kill_MediumFish_0${v}`;
+                            }
+                        } else {
+                            if (getRandomInt(1, 10) <= 4) {
+                                let v = getRandomInt(1, 4);
+                                audioName = `Kill_HighFish_0${v}`;
+                            }
+                        }
+
+                        if (audioName) {
+                            AudioManager.play(audioName, true, false);
+                        }
+                    }
+
                     // 錢包增加金額
                     let win = fishInfo.win * bet;
                     self.updateWalletValue(win);
 
                     let fishPosX = fishNode.getPosition().x;
                     let fishPosY = fishNode.getPosition().y;
-                    let fishWidth = fishNode.getChildByName(fishNode.name).width / 2;
-                    let fishHeight = fishNode.getChildByName(fishNode.name).height / 2;
-
-                    if ("fish_20" == fishNode.getComponent(Fish).getFishName()) { // XXX 特殊處理: fish_20的 spine的錨點設置在左下角關係
-                        let centerNode = fishNode.getChildByName("center");
-                        let worldPos = centerNode.parent.convertToWorldSpaceAR(centerNode.getPosition());
-                        let pos = fishNode.parent.convertToNodeSpaceAR(worldPos);
-                        fishPosX = pos.x;
-                        fishPosY = pos.y;
-                    }
+                    // let fishWidth = fishNode.getChildByName(fishNode.name).width / 2;
+                    // let fishHeight = fishNode.getChildByName(fishNode.name).height / 2;
 
                     if (fishInfo.bonusKind >= 1) { // 高倍數返獎才觸發
                         {
@@ -1074,17 +1095,9 @@ export class Game extends cc.Component {
                                 let targetWidth: number;
                                 let targetScale: number;
 
-                                if (fishNode.getComponent(Fish).getFishName() == "fish_20") {// XXX 特殊處理: fish_20的 spine的錨點設置在左下角關係
-                                    targetWidth = 80;
-                                    targetScale = (targetWidth / tmpFishEffectNode.getChildByName(fishNode.getComponent(Fish).getFishName()).width);
-                                    let offsetX = -((tmpFishEffectNode.width * targetScale) / 2) - 14.5;
-                                    let offsetY = ((tmpFishEffectNode.height * targetScale) / 2);
-                                    tmpFishEffectNode.setPosition(offsetX, offsetY);
-                                } else {
-                                    targetWidth = 100;
-                                    targetScale = (targetWidth / tmpFishEffectNode.getChildByName(fishNode.getComponent(Fish).getFishName()).width);
-                                    tmpFishEffectNode.setPosition(0, 0);
-                                }
+                                targetWidth = 100;
+                                targetScale = (targetWidth / tmpFishEffectNode.getChildByName(fishNode.getComponent(Fish).getFishName()).width);
+                                tmpFishEffectNode.setPosition(0, 0);
 
                                 tmpFishEffectNode.scale = targetScale;
 
@@ -1254,7 +1267,14 @@ export class Game extends cc.Component {
         }
     }
 
-    private activeSkill03And0401(skill: ESkill, fisrt: boolean, prevFishNode: cc.Node, nextFishNode: cc.Node, durationTime: number) {
+    private activeSkill03And0401(
+        skill: ESkill,
+        fisrt: boolean,
+        prevFishNode: cc.Node,
+        nextFishNode: cc.Node,
+        durationTime: number,
+        prevFishNodeSize: number,
+    ) {
         let lineName = 'skill_3_line';
         let pointName1 = "skill_3_src_point";
         let pointName2 = "skill_3_target_point";
@@ -1288,7 +1308,7 @@ export class Game extends cc.Component {
 
                 if ((prevFishNodePos.x == 0 && prevFishNodePos.y == 0) || (nextFishNodePos.x == 0 && nextFishNodePos.y == 0)) {
                     // FIXME 目前發現動畫多的時候會發生, 如果降低 durationTime時間也可以減少機會發生, 還不確認原因
-                    cc.log("error 錯誤 不應該出現 " + fisrt + ", " + prevFishNodePos.toString() + " -> " + nextFishNodePos.toString());
+                    // cc.log("error 錯誤 不應該出現 " + fisrt + ", " + prevFishNodePos.toString() + " -> " + nextFishNodePos.toString());
                 }
             }
 
@@ -1318,7 +1338,22 @@ export class Game extends cc.Component {
             effectNode.name = name;
             effectNode.setPosition(0, 0);
 
-            let scale = (skill == ESkill.Level_4_1 ? 0.3 : 0.4);// XXX 不同的魚種要設定不同大小
+            let scale = 1;
+            switch (prevFishNodeSize) {
+                case 0:
+                    scale = 0.4;
+                    break;
+                case 1:
+                    scale = 0.6;
+                    break;
+                case 2:
+                    scale = 0.8;
+                    break;
+                case 2:
+                    scale = 1;
+                    break;
+            }
+
             effectNode.setScale(scale);
 
             prevFishNode.addChild(effectNode);
@@ -1361,6 +1396,7 @@ export class Game extends cc.Component {
                 effectNode.getChildByName("ice_m").active = true;
                 break;
             case 2:
+            case 3:
                 effectNode.getChildByName("ice_l").active = true;
                 break;
         }

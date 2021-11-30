@@ -50,8 +50,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 1.051683161889532,
-      "y": 1.051683161889532,
+      "x": 0.540625,
+      "y": 0.540625,
       "z": 1
     },
     "_quat": {
@@ -8082,7 +8082,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "21_dragonturtle",
+    "_name": "23_shenlong",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -8106,8 +8106,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 382.72,
-      "height": 407.07
+      "width": 501.18,
+      "height": 775.68
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8138,7 +8138,7 @@
     "_skewX": 0,
     "_skewY": 0,
     "groupIndex": 0,
-    "_id": "65kKm3eNdIzbHQmR9cuWdz"
+    "_id": "f6ZKX0ZOJH/LRHSscqMLaN"
   },
   {
     "__type__": "sp.Skeleton",
@@ -8167,14 +8167,14 @@
     "_playTimes": 0,
     "_isAniComplete": true,
     "_N$skeletonData": {
-      "__uuid__": "56fec912-65d8-466d-909b-0b1b09875b5b"
+      "__uuid__": "9cf424e8-ccec-4262-9713-4c432c64d413"
     },
     "_N$_defaultCacheMode": 0,
     "_N$debugSlots": false,
     "_N$debugBones": false,
     "_N$useTint": false,
     "_N$enableBatch": false,
-    "_id": "27au+hbZFMg53mZzSgVVvJ"
+    "_id": "3enR+TVPZNbY73rjUKTOqx"
   },
   {
     "__type__": "cc.Node",
@@ -8274,7 +8274,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "23_shenlong",
+    "_name": "21_dragonturtle",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -8298,8 +8298,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 501.18,
-      "height": 775.68
+      "width": 382.72,
+      "height": 407.07
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8330,7 +8330,7 @@
     "_skewX": 0,
     "_skewY": 0,
     "groupIndex": 0,
-    "_id": "f6ZKX0ZOJH/LRHSscqMLaN"
+    "_id": "65kKm3eNdIzbHQmR9cuWdz"
   },
   {
     "__type__": "sp.Skeleton",
@@ -8342,7 +8342,7 @@
     "_enabled": true,
     "paused": false,
     "defaultSkin": "",
-    "defaultAnimation": "",
+    "defaultAnimation": "animation",
     "_preCacheMode": 0,
     "_cacheMode": 0,
     "loop": true,
@@ -8353,19 +8353,29 @@
     "_frameCache": null,
     "_curFrame": null,
     "_skeletonCache": null,
-    "_animationName": null,
+    "_animationName": {
+      "0": "a",
+      "1": "n",
+      "2": "i",
+      "3": "m",
+      "4": "a",
+      "5": "t",
+      "6": "i",
+      "7": "o",
+      "8": "n"
+    },
     "_animationQueue": [],
     "_headAniInfo": null,
     "_playTimes": 0,
     "_isAniComplete": true,
     "_N$skeletonData": {
-      "__uuid__": "9cf424e8-ccec-4262-9713-4c432c64d413"
+      "__uuid__": "56fec912-65d8-466d-909b-0b1b09875b5b"
     },
     "_N$_defaultCacheMode": 0,
     "_N$debugSlots": false,
     "_N$debugBones": false,
     "_N$useTint": false,
     "_N$enableBatch": false,
-    "_id": "3enR+TVPZNbY73rjUKTOqx"
+    "_id": "27au+hbZFMg53mZzSgVVvJ"
   }
 ]

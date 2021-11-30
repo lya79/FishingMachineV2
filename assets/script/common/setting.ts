@@ -239,11 +239,11 @@ export class SettingManager {
     public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 60;
+                return 9000// 60; // TODO 暫時休改換關卡秒數　
             case 2:
-                return 60;
+                return 9000// 60;
             case 3:
-                return 60;
+                return 9000// 60;
         }
         return 60;
     }
@@ -302,7 +302,7 @@ export class SettingManager {
         speedOfPoint: number[], // 點與點之間的位移速度
         speedOfObj: number[], // 魚擺動尾巴的速度
     } {
-        const countOfPath = 10; // 路線總共有幾個點, 點的間距要大於魚每一禎的位移距離, 不然會造成轉向問題
+        const countOfPath = 5; // 路線總共有幾個點, 點的間距要大於魚每一禎的位移距離, 不然會造成轉向問題
 
         // 畫面大小
         const width = 472;
@@ -522,7 +522,7 @@ export class SettingManager {
         win: number, // 反獎倍率
         showHp: boolean,// 顯示血條
         hp: number, // 血條, 攻擊成功時 hp會減 1, 並且獲得返獎, 如果 hp<=0則魚會死亡
-        size: number, // 0:小, 1:中 2:大
+        size: number, // 0:小, 1:中 2:大 3:特大
         bonusKind: number, // 獎勵類型, 0:低, 1:高, 
     } {
         switch (name) {
@@ -561,11 +561,11 @@ export class SettingManager {
             case "fish_17":
                 return { win: 40, showHp: false, hp: 1, size: 1, bonusKind: 1 };
             case "fish_18":
-                return { win: 50, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+                return { win: 50, showHp: false, hp: 1, size: 2, bonusKind: 1 };
             case "fish_19":
-                return { win: 80, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+                return { win: 80, showHp: false, hp: 1, size: 2, bonusKind: 1 };
             case "fish_20":
-                return { win: 100, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+                return { win: 100, showHp: false, hp: 1, size: 2, bonusKind: 1 };
 
         }
 
@@ -634,6 +634,13 @@ export class SettingManager {
         pauseSelfActionTime: number, //  花費多少時間停止擺動尾巴
         durationTime: number, // 技能動畫持續時間
     } {
+        if (name == "fish_20" || name == "fish_21" || name == "fish_22" || name == "fish_23") { // 冰凍免疫
+            switch (skill) {
+                case ESkill.Level_2:// 冰凍技能 // FIXME 雖然特殊魚免疫冰凍技能, 但是還是需要能發動技能, 目前設定會造成攻擊特殊魚不能發動冰凍技能
+                    return { probability: -1, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
+            }
+        }
+
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
                 return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
