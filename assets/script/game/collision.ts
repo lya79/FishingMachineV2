@@ -35,10 +35,6 @@ export class Collision extends cc.Component {
                 continue;
             }
 
-            if (!fish.isInCanvas()) {
-                continue;
-            }
-
             arr.push(node);
         }
         return arr;

@@ -239,61 +239,144 @@ export class SettingManager {
     public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 9000// 60; // TODO 暫時休改換關卡秒數　
+                return 60;
             case 2:
-                return 9000// 60;
+                return 60 * 2;
             case 3:
-                return 9000// 60;
+                return 60 * 3;
         }
-        return 60;
+        return 60 * 2;
     }
 
-    private static getFishPathByGameStage1(): FishPath[] {// TODO 需要增加更多種類的魚 
+    private static getFishPathByGameStage1(): FishPath[] {
         let arr: FishPath[] = [];
 
-        // {
-        //     let name = "fish_1";
-        //     let max = getRandomInt(5, 10); // 魚的數量
-        //     for (let i = 0; i < max; i++) {
-        //         let obj = SettingManager.getRandomPath();
-        //         let fishPath = new FishPath(
-        //             name,
-        //             getRandomFloat(1, 5), // 關卡開始後幾秒開始
-        //             getRandomFloat(1, 1.5), // 魚的大小
-        //             obj.pathArr, // 魚的路徑
-        //             obj.speedOfPoint, // 點與點之間的移動速度
-        //             obj.speedOfObj); // 魚擺動尾巴的速度
-        //         arr.push(fishPath);
-        //     }
-        // }
+        let fishNameArr: string[] = [];
+        for (let i = 1; i <= 20; i++) {
+            let name = `fish_${i}`;
+            fishNameArr.push(name);
+        }
 
-        // {
-        //     let name = "fish_2";
-        //     let max = getRandomInt(5, 10); // 魚的數量
-        //     for (let i = 0; i < max; i++) {
-        //         let obj = SettingManager.getRandomPath();
-        //         let fishPath = new FishPath(
-        //             name,
-        //             getRandomFloat(1, 5), // 關卡開始後幾秒開始
-        //             getRandomFloat(1, 1.5), // 魚的大小
-        //             obj.pathArr, // 魚的路徑
-        //             obj.speedOfPoint, // 點與點之間的移動速度
-        //             obj.speedOfObj); // 魚擺動尾巴的速度
-        //         arr.push(fishPath);
-        //     }
-        // }
+        for (let i = 0; i < fishNameArr.length; i++) {
+            let name = fishNameArr[i];
 
+            let max = getRandomInt(25 - i, 30 - i); // 魚的數量, 越高級的魚數量越少
+            for (let i = 0; i < max; i++) {
+                let scale = (name == "fish_20" ? 1 : getRandomFloat(1, 1.2)); // 魚的大小
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(
+                    name,
+                    getRandomFloat(1, SettingManager.getGameDelayByGameStage(1)), // 關卡開始後幾秒開始
+                    scale,
+                    obj.pathArr, // 魚的路徑
+                    obj.speedOfPoint, // 點與點之間的移動速度
+                    obj.speedOfObj); // 魚擺動尾巴的速度
+                arr.push(fishPath);
+            }
+        }
 
         return arr;
     }
 
-    private static getFishPathByGameStage2(): FishPath[] {// TODO 需要增加更多種類的魚 
+    private static getFishPathByGameStage2(): FishPath[] {
         let arr: FishPath[] = [];
+
+        let fishNameArr: string[] = [];
+        for (let i = 1; i <= 22; i++) {
+            let name = `fish_${i}`;
+            if (i == 21 || i == 22) {
+                fishNameArr.push(name + "_1");
+                fishNameArr.push(name + "_2");
+                continue;
+            }
+            fishNameArr.push(name);
+        }
+
+        for (let i = 0; i < fishNameArr.length; i++) {
+            let name = fishNameArr[i];
+
+            let max = getRandomInt(25 - i, 30 - i); // 魚的數量, 越高級的魚數量越少
+            if (name == "fish_21_1"
+                || name == "fish_21_2"
+                || name == "fish_22_1"
+                || name == "fish_22_2") {
+                max = 1
+            }
+
+            for (let i = 0; i < max; i++) {
+                let scale = getRandomFloat(1, 1.2); // 魚的大小
+                if (name == "fish_20"
+                    || name == "fish_21_1"
+                    || name == "fish_21_2"
+                    || name == "fish_22_1"
+                    || name == "fish_22_2") {
+                    scale = 1;
+                }
+
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(
+                    name,
+                    getRandomFloat(1, SettingManager.getGameDelayByGameStage(2)), // 關卡開始後幾秒開始
+                    scale,
+                    obj.pathArr, // 魚的路徑
+                    obj.speedOfPoint, // 點與點之間的移動速度
+                    obj.speedOfObj); // 魚擺動尾巴的速度
+                arr.push(fishPath);
+            }
+        }
+
         return arr;
     }
 
-    private static getFishPathByGameStage3(): FishPath[] {// TODO 需要增加更多種類的魚 
+    private static getFishPathByGameStage3(): FishPath[] {
         let arr: FishPath[] = [];
+
+        let fishNameArr: string[] = [];
+        for (let i = 1; i <= 23; i++) {
+            let name = `fish_${i}`;
+            if (i == 21 || i == 22) {
+                fishNameArr.push(name + "_1");
+                fishNameArr.push(name + "_2");
+                continue;
+            }
+            fishNameArr.push(name);
+        }
+
+        for (let i = 0; i < fishNameArr.length; i++) {
+            let name = fishNameArr[i];
+
+            let max = getRandomInt(25 - i, 30 - i);
+            if (name == "fish_21_1"
+                || name == "fish_21_2"
+                || name == "fish_22_1"
+                || name == "fish_22_2"
+                || name == "fish_23") {
+                max = 1
+            }
+
+            for (let i = 0; i < max; i++) {
+                let scale = getRandomFloat(1, 1.2); // 魚的大小
+                if (name == "fish_20"
+                    || name == "fish_21_1"
+                    || name == "fish_21_2"
+                    || name == "fish_22_1"
+                    || name == "fish_22_2"
+                    || name == "fish_23") {
+                    scale = 1;
+                }
+
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(
+                    name,
+                    getRandomFloat(1, SettingManager.getGameDelayByGameStage(3)), // 關卡開始後幾秒開始
+                    scale,
+                    obj.pathArr, // 魚的路徑
+                    obj.speedOfPoint, // 點與點之間的移動速度
+                    obj.speedOfObj); // 魚擺動尾巴的速度
+                arr.push(fishPath);
+            }
+        }
+
         return arr;
     }
 
@@ -519,64 +602,75 @@ export class SettingManager {
     }
 
     public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
-        win: number, // 反獎倍率
+        winMin: number, // 反獎倍率最小值
+        winMax: number, // 反獎倍率最大值(要大於最小值)
         showHp: boolean,// 顯示血條
-        hp: number, // 血條, 攻擊成功時 hp會減 1, 並且獲得返獎, 如果 hp<=0則魚會死亡
+        hp: number, // 血條, 攻擊成功時 hp會減 1, 並且獲得返獎, 如果 hp=0則魚會死亡, -1則不死
         size: number, // 0:小, 1:中 2:大 3:特大
         bonusKind: number, // 獎勵類型, 0:低, 1:高, 
+        probability: number, // 播放音效機率
+        rotation: boolean, // 魚是否要往目標位置旋轉
     } {
         switch (name) {
             case "fish_1":
-                return { win: 2, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 2, winMax: 2, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_2":
-                return { win: 2, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 2, winMax: 2, showHp: true, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_3":
-                return { win: 3, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 3, winMax: 3, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_4":
-                return { win: 4, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 4, winMax: 4, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_5":
-                return { win: 5, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 5, winMax: 5, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_6":
-                return { win: 6, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 6, winMax: 6, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_7":
-                return { win: 7, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 7, winMax: 7, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_8":
-                return { win: 8, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 8, winMax: 8, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_9":
-                return { win: 9, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 9, winMax: 9, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_10":
-                return { win: 10, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 10, winMax: 10, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.3, rotation: true };
             case "fish_11":
-                return { win: 12, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 12, winMax: 12, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.3, rotation: true };
             case "fish_12":
-                return { win: 15, showHp: false, hp: 1, size: 0, bonusKind: 0 };
+                return { winMin: 15, winMax: 15, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.3, rotation: true };
             case "fish_13":
-                return { win: 18, showHp: false, hp: 1, size: 1, bonusKind: 0 };
+                return { winMin: 18, winMax: 18, showHp: false, hp: 1, size: 1, bonusKind: 0, probability: 0.3, rotation: true };
             case "fish_14":
-                return { win: 20, showHp: false, hp: 1, size: 1, bonusKind: 0 };
+                return { winMin: 20, winMax: 20, showHp: false, hp: 1, size: 1, bonusKind: 0, probability: 0.3, rotation: true };
             case "fish_15":
-                return { win: 25, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+                return { winMin: 25, winMax: 25, showHp: false, hp: 1, size: 1, bonusKind: 1, probability: 0.3, rotation: true };
             case "fish_16":
-                return { win: 30, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+                return { winMin: 30, winMax: 30, showHp: false, hp: 1, size: 1, bonusKind: 1, probability: 0.3, rotation: true };
             case "fish_17":
-                return { win: 40, showHp: false, hp: 1, size: 1, bonusKind: 1 };
+                return { winMin: 40, winMax: 40, showHp: false, hp: 1, size: 1, bonusKind: 1, probability: 0.3, rotation: true };
             case "fish_18":
-                return { win: 50, showHp: false, hp: 1, size: 2, bonusKind: 1 };
+                return { winMin: 50, winMax: 50, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 0.3, rotation: true };
             case "fish_19":
-                return { win: 80, showHp: false, hp: 1, size: 2, bonusKind: 1 };
+                return { winMin: 80, winMax: 80, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 0.4, rotation: true };
             case "fish_20":
-                return { win: 100, showHp: false, hp: 1, size: 2, bonusKind: 1 };
+                return { winMin: 100, winMax: 100, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 0.4, rotation: true };
+            case "fish_21_1":
+            case "fish_21_2":
+                return { winMin: 25, winMax: 75, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 1, rotation: false };
+            case "fish_22_1":
+            case "fish_22_2":
+                return { winMin: 100, winMax: 300, showHp: false, hp: -1, size: 2, bonusKind: 1, probability: 1, rotation: false };
+            case "fish_23":
+                return { winMin: 50, winMax: 500, showHp: true, hp: 20, size: 2, bonusKind: 1, probability: 1, rotation: false };
 
         }
 
         cc.log("error undefined, name:" + name);
-        return { win: 0, showHp: false, hp: 0, size: 0, bonusKind: 0 };
+        return { winMin: 0, winMax: 0, showHp: false, hp: 0, size: 0, bonusKind: 0, probability: 0.0, rotation: true };
     }
 
     public static getNormalAttackInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
         probability: number, // 擊殺機率
     } {
-        return { probability: 0.5 };
+        return { probability: 0.3 };
 
         switch (name) {
             case "fish_1":
@@ -618,6 +712,14 @@ export class SettingManager {
             case "fish_19":
                 return { probability: 0.5 };
             case "fish_20":
+                return { probability: 0.5 };
+            case "fish_21_1":
+            case "fish_21_2":
+                return { probability: 0.5 };
+            case "fish_22_1":
+            case "fish_22_2":
+                return { probability: 0.5 };
+            case "fish_23":
                 return { probability: 0.5 };
         }
 
@@ -634,45 +736,22 @@ export class SettingManager {
         pauseSelfActionTime: number, //  花費多少時間停止擺動尾巴
         durationTime: number, // 技能動畫持續時間
     } {
-        if (name == "fish_20" || name == "fish_21" || name == "fish_22" || name == "fish_23") { // 冰凍免疫
-            switch (skill) {
-                case ESkill.Level_2:// 冰凍技能 // FIXME 雖然特殊魚免疫冰凍技能, 但是還是需要能發動技能, 目前設定會造成攻擊特殊魚不能發動冰凍技能
-                    return { probability: -1, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
-            }
-        }
-
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.5, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
+                return { probability: 0.1, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
             case ESkill.Level_3:// 閃電連鎖
-                return { probability: 0.5, probability2: 0.1, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.1, probability2: 0.1, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 0.5, probability2: 0.1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.1, probability2: 0.1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: 0.5, probability2: 0.8, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
+                return { probability: 0.1, probability2: 0.4, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
         }
 
         cc.log("error undefined, ESkill:" + skill);
         return { probability: 0, probability2: 0.5, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 0 };
     }
 
-    /**
-     * 用來判斷是否成功擊殺
-     * 
-     * @param probability 擊殺機率
-     * @returns 
-     */
-    public static attack(probability: number): boolean {
-        return getRandomFloat(0, 1) <= probability;
-    }
-
-    /**
-     * 用來判斷技能是否發動
-     * 
-     * @param probability 發動機率
-     * @returns 
-     */
-    public static isActiveSkill(probability: number): boolean {
+    public static isActive(probability: number): boolean {
         return getRandomFloat(0, 1) <= probability;
     }
 }

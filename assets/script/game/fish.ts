@@ -147,8 +147,8 @@ export class Fish extends cc.Component {
 
             this.node.addChild(this.hpNode);
 
-            let y = (fishNode.height / 2) + 10;
-            this.hpNode.setPosition(0, y);
+            // let y = (fishNode.height / 2) + 10;
+            // this.hpNode.setPosition(0, y);
 
             let scale = 0;
             switch (SettingManager.getFishInfo(this.fishName).size) {
@@ -156,12 +156,23 @@ export class Fish extends cc.Component {
                     scale = 0.2;
                     break;
                 case 1:
-                    scale = 0.5;
+                    scale = 0.7;
                     break;
                 case 2:
-                    scale = 0.8;
+                    scale = 1;
                     break;
             }
+
+            // XXX 特殊處理: spine類型的魚位置比較特別
+            if (this.fishName == "fish_20"
+                || this.fishName == "fish_21_1"
+                || this.fishName == "fish_21_2"
+                || this.fishName == "fish_22_1"
+                || this.fishName == "fish_22_2"
+                || this.fishName == "fish_23") {
+                scale += this.node.scale;
+            }
+
             this.hpNode.scale = scale;
         }
 
@@ -249,11 +260,11 @@ export class Fish extends cc.Component {
             return;
         }
 
-        if (attack) {
+        if (attack && this.hp > 0) {
             this.hp -= 1;
         }
 
-        let dead = this.hp <= 0;
+        let dead = this.hp == 0; // hp=-1則代表不會死掉, 例如:財神
 
         if (dead) {
             this.lockState = true;
@@ -343,18 +354,6 @@ export class Fish extends cc.Component {
         return this.lockState;
     }
 
-    public isInCanvas(): boolean {
-        let width = this.node.parent.width / 2;
-        let height = this.node.parent.height / 2;
-
-        if (this.node.x >= -width && this.node.y >= -height
-            && this.node.x <= width && this.node.y <= height) {
-            return true;
-        }
-
-        return false;
-    }
-
     /** 加速離開畫面 */
     public clearFish() {
         if (this.lockState) {
@@ -383,7 +382,7 @@ export class Fish extends cc.Component {
 
             // 調整魚的旋轉角度
             let obj = self.calculatorRotation(lastPosition, currentPosition);
-            this.updateRotation(obj.rotation + 180);
+            this.updateRotation(obj.rotation);
 
             // 調整魚的擺動速度
             var anim = fishNode.getComponent(cc.Animation);
@@ -448,18 +447,36 @@ export class Fish extends cc.Component {
         }
 
         { // 用來控制血條顯示的位置
-            let fishHeight = this.node.getChildByName(this.fishName).height / 2;
+            let center = this.node.getChildByName(this.fishName).getChildByName("center");
+            if (center) {// XXX 特殊處理: spine類型的魚由於位置並不是在 node中央, 因此需要額外判斷中心點.(目前影響的魚:fish_20)
+                let fishHeight = this.node.getChildByName(this.fishName).height / 2;
+                let tmpWorldPos = center.parent.convertToWorldSpaceAR(center.getPosition());
+                let tmpNodePos = this.node.parent.convertToNodeSpaceAR(tmpWorldPos);
 
-            let top = true;
-            if (this.node.y + fishHeight + 10 >= (this.node.parent.height / 2)) {
-                top = false;
+                let top = true;
+                if (tmpNodePos.y + fishHeight + 10 >= (this.node.parent.height / 2)) {
+                    top = false;
+                }
+
+                let y = fishHeight + 10;
+                y = (top ? y : -y);
+
+                this.hpNode.setPosition(center.x, center.y + y);
+            } else {
+                let fishHeight = this.node.getChildByName(this.fishName).height / 2;
+
+                let top = true;
+                if (this.node.y + fishHeight + 10 >= (this.node.parent.height / 2)) {
+                    top = false;
+                }
+
+                let y = fishHeight + 10;
+                y = (top ? y : -y);
+
+                this.hpNode.setPosition(0, y);
             }
-
-            let y: number = fishHeight + 10;
-            y = (top ? y : -y);
-
-            this.hpNode.setPosition(0, y);
         }
+
 
         let value = this.hp / this.defaultHP;
 
@@ -521,7 +538,8 @@ export class Fish extends cc.Component {
             }
         }
 
-        let changeRotataion = false;// 判斷是否要更新目標位置
+        // XXX 先設定成一邊位移一邊計算角度(changeRotataion=true), 之後要改成替換目標位置時計算一次角度, 然後使用 tween去執行轉向(轉向的時間要考慮到兩點距離預計的位移時間)
+        let changeRotataion = true; // 判斷是否要更新目標位置 
         {
             let targetPos = this.fishPath.getPath()[this.currentPosIndex + 1];
             let currentPos = new cc.Vec2(this.x, this.y);
@@ -598,19 +616,17 @@ export class Fish extends cc.Component {
         }
 
         // 旋轉角度
-        let targetRoatation = this.rotationFish + 180;
+        let targetRoatation = this.rotationFish;
         this.updateRotation(targetRoatation);
     }
 
-    private updateRotation(newRotation: number) { // FIXME 如果設計成每換一個目標點就轉一次, 那就要考慮到兩點之間花費時間, 才能去設定動畫要花多少時間轉向, 這樣子可以避免一直更新 updateRotation
-        let fishNode = this.node.getChildByName(this.fishName);
-        let oldRotation = fishNode.rotation;
-
-        if (oldRotation % 360 == newRotation % 360) {
+    private updateRotation(newRotation: number) {
+        if (!SettingManager.getFishInfo(this.fishName).rotation) {
             return;
         }
 
-        fishNode.rotation = newRotation;
+        let fishNode = this.node.getChildByName(this.fishName);
+        fishNode.rotation = newRotation + 180; // 魚頭朝下, 但是計算過程是以魚頭朝上計算, 因此需要轉向 180
     }
 
     private getDistance(a: cc.Vec2, b: cc.Vec2): number {
