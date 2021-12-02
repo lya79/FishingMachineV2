@@ -1,4 +1,5 @@
 # 捕魚機
 
-cq9 音效資源
-https://fiweb.cqgame.games/GameRecord/client/AT01/res/cq9/sound/
+## 使用工具
+* chrome擴充工具: [Save All Resources](https://chrome.google.com/webstore/detail/save-all-resources/abpdnfjocnmdomablahdcfnoggeeiedb)
+* cocos 2.0.9

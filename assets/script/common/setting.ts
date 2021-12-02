@@ -141,9 +141,9 @@ export class SettingManager {
     private static activeSkill0402: boolean = false;
 
     // 控制測試功能開啟/關閉的參數
-    public static showPathOfFish = true; // 開啟魚的行徑路線顯示
-    public static addFish = true; // 手動產生各種魚
-    public static changeGameStage = true; // 手動關卡切換
+    public static readonly showPathOfFish = true; // 開啟魚的行徑路線顯示
+    public static readonly addFish = true; // 手動產生各種魚
+    public static readonly changeGameStage = true; // 手動關卡切換
 
     /** 載入設定檔案 */
     public static load(): boolean {
@@ -239,11 +239,11 @@ export class SettingManager {
     public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 60;
-            case 2:
                 return 60 * 2;
+            case 2:
+                return 60 * 4;
             case 3:
-                return 60 * 3;
+                return 60 * 6;
         }
         return 60 * 2;
     }
@@ -251,29 +251,38 @@ export class SettingManager {
     private static getFishPathByGameStage1(): FishPath[] {
         let arr: FishPath[] = [];
 
-        let fishNameArr: string[] = [];
-        for (let i = 1; i <= 20; i++) {
-            let name = `fish_${i}`;
-            fishNameArr.push(name);
-        }
+        // let totalTime = SettingManager.getGameDelayByGameStage(1);
 
-        for (let i = 0; i < fishNameArr.length; i++) {
-            let name = fishNameArr[i];
+        // for (let i = 1; i < 20; i++) {
+        //     let name = `fish_${i}`;
+        //     let max = getRandomInt(1, 3);
+        //     for (let i = 0; i < max; i++) {
+        //         let scale = getRandomFloat(1, 1.2); // 魚的大小
+        //         let obj = SettingManager.getRandomPath();
+        //         let fishPath = new FishPath(
+        //             name,
+        //             getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
+        //             scale,
+        //             obj.pathArr, // 魚的路徑
+        //             obj.speedOfPoint, // 點與點之間的移動速度
+        //             obj.speedOfObj); // 魚擺動尾巴的速度
+        //         arr.push(fishPath);
+        //     }
+        // }
 
-            let max = getRandomInt(25 - i, 30 - i); // 魚的數量, 越高級的魚數量越少
-            for (let i = 0; i < max; i++) {
-                let scale = (name == "fish_20" ? 1 : getRandomFloat(1, 1.2)); // 魚的大小
-                let obj = SettingManager.getRandomPath();
-                let fishPath = new FishPath(
-                    name,
-                    getRandomFloat(1, SettingManager.getGameDelayByGameStage(1)), // 關卡開始後幾秒開始
-                    scale,
-                    obj.pathArr, // 魚的路徑
-                    obj.speedOfPoint, // 點與點之間的移動速度
-                    obj.speedOfObj); // 魚擺動尾巴的速度
-                arr.push(fishPath);
-            }
-        }
+        // {
+        //     let name = "fish_20";
+        //     let scale = 1;
+        //     let obj = SettingManager.getRandomPath();
+        //     let fishPath = new FishPath(
+        //         name,
+        //         totalTime * 0.6,
+        //         scale,
+        //         obj.pathArr, // 魚的路徑
+        //         obj.speedOfPoint, // 點與點之間的移動速度
+        //         obj.speedOfObj); // 魚擺動尾巴的速度
+        //     arr.push(fishPath);
+        // }
 
         return arr;
     }
@@ -281,48 +290,65 @@ export class SettingManager {
     private static getFishPathByGameStage2(): FishPath[] {
         let arr: FishPath[] = [];
 
-        let fishNameArr: string[] = [];
-        for (let i = 1; i <= 22; i++) {
+        let totalTime = SettingManager.getGameDelayByGameStage(2);
+
+        for (let i = 1; i < 20; i++) {
             let name = `fish_${i}`;
-            if (i == 21 || i == 22) {
-                fishNameArr.push(name + "_1");
-                fishNameArr.push(name + "_2");
-                continue;
-            }
-            fishNameArr.push(name);
-        }
-
-        for (let i = 0; i < fishNameArr.length; i++) {
-            let name = fishNameArr[i];
-
-            let max = getRandomInt(25 - i, 30 - i); // 魚的數量, 越高級的魚數量越少
-            if (name == "fish_21_1"
-                || name == "fish_21_2"
-                || name == "fish_22_1"
-                || name == "fish_22_2") {
-                max = 1
-            }
-
+            let max = getRandomInt(1, 3);
             for (let i = 0; i < max; i++) {
                 let scale = getRandomFloat(1, 1.2); // 魚的大小
-                if (name == "fish_20"
-                    || name == "fish_21_1"
-                    || name == "fish_21_2"
-                    || name == "fish_22_1"
-                    || name == "fish_22_2") {
-                    scale = 1;
-                }
-
                 let obj = SettingManager.getRandomPath();
                 let fishPath = new FishPath(
                     name,
-                    getRandomFloat(1, SettingManager.getGameDelayByGameStage(2)), // 關卡開始後幾秒開始
+                    getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
                     scale,
                     obj.pathArr, // 魚的路徑
                     obj.speedOfPoint, // 點與點之間的移動速度
                     obj.speedOfObj); // 魚擺動尾巴的速度
                 arr.push(fishPath);
             }
+        }
+
+        {
+            let name = "fish_20";
+            let scale = 1;
+            let obj = SettingManager.getRandomPath();
+            let fishPath = new FishPath(
+                name,
+                totalTime * 0.4,
+                scale,
+                obj.pathArr, // 魚的路徑
+                obj.speedOfPoint, // 點與點之間的移動速度
+                obj.speedOfObj); // 魚擺動尾巴的速度
+            arr.push(fishPath);
+        }
+
+        {
+            let name = (getRandomInt(0, 1) == 0 ? "fish_21_1" : "fish_21_2");
+            let scale = 1;
+            let obj = SettingManager.getRandomPath();
+            let fishPath = new FishPath(
+                name,
+                totalTime * 0.5,
+                scale,
+                obj.pathArr, // 魚的路徑
+                obj.speedOfPoint, // 點與點之間的移動速度
+                obj.speedOfObj); // 魚擺動尾巴的速度
+            arr.push(fishPath);
+        }
+
+        {
+            let name = (getRandomInt(0, 1) == 0 ? "fish_22_1" : "fish_22_2");
+            let scale = 1;
+            let obj = SettingManager.getRandomPath();
+            let fishPath = new FishPath(
+                name,
+                totalTime * 0.6,
+                scale,
+                obj.pathArr, // 魚的路徑
+                obj.speedOfPoint, // 點與點之間的移動速度
+                obj.speedOfObj); // 魚擺動尾巴的速度
+            arr.push(fishPath);
         }
 
         return arr;
@@ -331,50 +357,79 @@ export class SettingManager {
     private static getFishPathByGameStage3(): FishPath[] {
         let arr: FishPath[] = [];
 
-        let fishNameArr: string[] = [];
-        for (let i = 1; i <= 23; i++) {
+        let totalTime = SettingManager.getGameDelayByGameStage(3);
+
+        for (let i = 1; i < 20; i++) {
             let name = `fish_${i}`;
-            if (i == 21 || i == 22) {
-                fishNameArr.push(name + "_1");
-                fishNameArr.push(name + "_2");
-                continue;
-            }
-            fishNameArr.push(name);
-        }
-
-        for (let i = 0; i < fishNameArr.length; i++) {
-            let name = fishNameArr[i];
-
-            let max = getRandomInt(25 - i, 30 - i);
-            if (name == "fish_21_1"
-                || name == "fish_21_2"
-                || name == "fish_22_1"
-                || name == "fish_22_2"
-                || name == "fish_23") {
-                max = 1
-            }
-
+            let max = getRandomInt(1, 3);
             for (let i = 0; i < max; i++) {
                 let scale = getRandomFloat(1, 1.2); // 魚的大小
-                if (name == "fish_20"
-                    || name == "fish_21_1"
-                    || name == "fish_21_2"
-                    || name == "fish_22_1"
-                    || name == "fish_22_2"
-                    || name == "fish_23") {
-                    scale = 1;
-                }
-
                 let obj = SettingManager.getRandomPath();
                 let fishPath = new FishPath(
                     name,
-                    getRandomFloat(1, SettingManager.getGameDelayByGameStage(3)), // 關卡開始後幾秒開始
+                    getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
                     scale,
                     obj.pathArr, // 魚的路徑
                     obj.speedOfPoint, // 點與點之間的移動速度
                     obj.speedOfObj); // 魚擺動尾巴的速度
                 arr.push(fishPath);
             }
+        }
+
+        {
+            let name = "fish_20";
+            let scale = 1;
+            let obj = SettingManager.getRandomPath();
+            let fishPath = new FishPath(
+                name,
+                totalTime * 0.4,
+                scale,
+                obj.pathArr, // 魚的路徑
+                obj.speedOfPoint, // 點與點之間的移動速度
+                obj.speedOfObj); // 魚擺動尾巴的速度
+            arr.push(fishPath);
+        }
+
+        {
+            let name = (getRandomInt(0, 1) == 0 ? "fish_21_1" : "fish_21_2");
+            let scale = 1;
+            let obj = SettingManager.getRandomPath();
+            let fishPath = new FishPath(
+                name,
+                totalTime * 0.5,
+                scale,
+                obj.pathArr, // 魚的路徑
+                obj.speedOfPoint, // 點與點之間的移動速度
+                obj.speedOfObj); // 魚擺動尾巴的速度
+            arr.push(fishPath);
+        }
+
+        {
+            let name = (getRandomInt(0, 1) == 0 ? "fish_22_1" : "fish_22_2");
+            let scale = 1;
+            let obj = SettingManager.getRandomPath();
+            let fishPath = new FishPath(
+                name,
+                totalTime * 0.6,
+                scale,
+                obj.pathArr, // 魚的路徑
+                obj.speedOfPoint, // 點與點之間的移動速度
+                obj.speedOfObj); // 魚擺動尾巴的速度
+            arr.push(fishPath);
+        }
+
+        {
+            let name = "fish_23";
+            let scale = 1;
+            let obj = SettingManager.getRandomPath();
+            let fishPath = new FishPath(
+                name,
+                totalTime * 0.7,
+                scale,
+                obj.pathArr, // 魚的路徑
+                obj.speedOfPoint, // 點與點之間的移動速度
+                obj.speedOfObj); // 魚擺動尾巴的速度
+            arr.push(fishPath);
         }
 
         return arr;
@@ -601,7 +656,7 @@ export class SettingManager {
         return Math.sqrt(x * x + y * y);
     }
 
-    public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
+    public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
         winMin: number, // 反獎倍率最小值
         winMax: number, // 反獎倍率最大值(要大於最小值)
         showHp: boolean,// 顯示血條
@@ -615,7 +670,7 @@ export class SettingManager {
             case "fish_1":
                 return { winMin: 2, winMax: 2, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_2":
-                return { winMin: 2, winMax: 2, showHp: true, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
+                return { winMin: 2, winMax: 2, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_3":
                 return { winMin: 3, winMax: 3, showHp: false, hp: 1, size: 0, bonusKind: 0, probability: 0.2, rotation: true };
             case "fish_4":
@@ -667,10 +722,10 @@ export class SettingManager {
         return { winMin: 0, winMax: 0, showHp: false, hp: 0, size: 0, bonusKind: 0, probability: 0.0, rotation: true };
     }
 
-    public static getNormalAttackInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
+    public static getNormalAttackInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
         probability: number, // 擊殺機率
     } {
-        return { probability: 0.3 };
+        return { probability: -0.3 };
 
         switch (name) {
             case "fish_1":
@@ -727,7 +782,7 @@ export class SettingManager {
         return { probability: 0.0 };
     }
 
-    public static getSkillAttackInfo(name: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): {
+    public static getSkillAttackInfo(name: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
         probability: number, // 發動機率
         probability2: number, // 技能擊殺機率
         min: number, // 技能發動時至少攻擊幾隻

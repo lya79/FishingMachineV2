@@ -13,11 +13,14 @@ import { Bullet0402 } from "./bullet0402";
 
 const { ccclass, property } = cc._decorator;
 
+// FIXME 瞄準功能需要重寫
+// FIXME 自動發射功能需要重寫
+
 @ccclass
 export class Game extends cc.Component {
     private lobbyHandler: Function;
 
-    private lobbyNode: cc.Node; // FIXME 切換關卡觸發後再按下回大廳會出錯
+    private lobbyNode: cc.Node;
 
     private muteOnNode: cc.Node;
     private muteOffNode: cc.Node;
@@ -40,7 +43,6 @@ export class Game extends cc.Component {
     private distance = 15;// 砲塔發射子彈時預計要後退的距離
 
     private crosshairDefNode: cc.Node;
-    private crosshairFocusNode: cc.Node;
 
     private collisionNode: cc.Node;
 
@@ -127,12 +129,6 @@ export class Game extends cc.Component {
             this.crosshairDefNode = crosshairNode.getChildByName("default");
             if (!this.crosshairDefNode) {
                 cc.log('error: crosshairDefNode is null');
-                return;
-            }
-
-            this.crosshairFocusNode = crosshairNode.getChildByName("focus");
-            if (!this.crosshairFocusNode) {
-                cc.log('error: crosshairFocusNode is null');
                 return;
             }
         }
@@ -237,15 +233,13 @@ export class Game extends cc.Component {
     public onEnable() {
         User.setGameState(0); // 初始化遊戲關卡
         User.setTowerIndex(0); // 初始化砲塔為最小級
-        User.setAuto(false); // 初始化關閉自動射擊
-        User.setFocus(false); // 初始化關閉鎖定射擊
+        User.setTowerMode(0);
 
         this.updateWalletValue();
         this.updateBetValue();
         this.updateMuteBtn();
-        this.updateAutoBtn();
         this.initCrosshairNode();
-        this.updateFocusBtn();
+        this.updateTowerMode();
         this.setTowerLevel(SettingManager.getTowerByRoomLevel(User.getRoomLevel())[User.getTowerIndex()].getLevel());
         this.updateRotationOfTower(0, new cc.Vec2(this.originLocationOfTower.x, this.originLocationOfTower.y - this.distance));
 
@@ -255,9 +249,11 @@ export class Game extends cc.Component {
         {
             let self = this;
             let startFishHandler = function () {
+                self.lobbyNode.active = true;
                 self.collisionNode.getComponent(Collision).startFish();
             };
             let clearFishHandler = function () {
+                self.lobbyNode.active = false;
                 self.collisionNode.getComponent(Collision).clearFish();
             };
 
@@ -276,6 +272,7 @@ export class Game extends cc.Component {
 
             let tmp = 0; // 計時
             let self = this;
+            let tmpOldUUID: string;
             this.schedule(function (dt) {
                 { // 切換關卡
                     tmp += dt;
@@ -286,27 +283,92 @@ export class Game extends cc.Component {
                     }
                 }
 
+                // FIXME focus打魚過程中如果點旁邊沒有魚的地方, 就要讓 focus取消
+                // FIXME focus打魚過程中子彈要略過其他魚不碰撞
                 { // 判斷 focus
-                    let active = self.focusActive();
+                    let isFocus = function (uuid: string): boolean {
+                        if (User.getTowerMode() != 2) {
+                            return false;
+                        }
 
-                    let focusNode = self.node.getChildByName("crosshair").getChildByName("focus");
-                    focusNode.active = active;
+                        if (!uuid) {
+                            return false;
+                        }
 
-                    if (!active) {
-                        return;
+                        let fishNode = self.collisionNode.getChildByUuid(uuid);
+                        if (!fishNode || !cc.isValid(fishNode)) {
+                            return false;
+                        }
+
+                        let fish = fishNode.getComponent(Fish);
+                        if (!fish || fish.isLockState()) {
+                            return false;
+                        }
+
+                        return true;
                     }
 
-                    let node = self.collisionNode.getChildByUuid(User.getFocusUUID());
-                    let worldPosition = node.parent.convertToWorldSpaceAR(node.getPosition());
+                    if (tmpOldUUID) {
+                        let fishNode = self.collisionNode.getChildByUuid(tmpOldUUID);
+                        if (fishNode && cc.isValid(fishNode)) {
+                            let focus = fishNode.getChildByName("focus");
+                            if (focus) {
+                                focus.active = false;
+                            }
+                        }
+                    }
 
-                    // 在魚的身上顯示 focus圖示
-                    let nodePositon = focusNode.parent.convertToNodeSpaceAR(worldPosition);
-                    focusNode.setPosition(nodePositon);
 
-                    // 砲塔追著魚轉動
-                    self.updateTower(worldPosition, cc.Node.EventType.TOUCH_MOVE, false);
+                    let tmpNewUUID = User.getFocusUUID();
+
+                    let touchFish = false;
+                    if (tmpNewUUID != tmpOldUUID) {
+                        touchFish = true;
+                    }
+
+                    if (!isFocus(tmpNewUUID)) {
+                        if (User.getTowerMode() == 2) {
+                            self.stopAutoFire();
+                        }
+                    } else {
+                        if (tmpOldUUID) {
+                            let fishNode = self.collisionNode.getChildByUuid(tmpOldUUID);
+                            if (fishNode && cc.isValid(fishNode)) {
+                                let focus = fishNode.getChildByName("focus");
+                                if (focus) {
+                                    focus.active = false;
+                                }
+                            }
+                        }
+
+                        let fishNode = self.collisionNode.getChildByUuid(tmpNewUUID);
+                        let worldPosition = self.collisionNode.convertToWorldSpaceAR(fishNode.getPosition());
+
+                        let focusNode = fishNode.getChildByName("focus");// 在魚的身上顯示 focus圖示
+                        if (focusNode) {
+                            focusNode.active = true;
+                        } else {
+                            let name = 'focus';
+                            let prefab = ResourcesManager.prefabMap.get(name);
+                            if (!prefab) {
+                                cc.log("error: prefab not found name:" + name);
+                                return;
+                            }
+
+                            let node = cc.instantiate(prefab);
+                            node.name = name;
+                            node.setPosition(0, 0);
+
+                            fishNode.addChild(node);
+                        }
+
+                        // 砲塔追著魚轉動
+                        self.updateTower(worldPosition, (touchFish ? "TOUCH_FISH" : "MOVE_FISH"));
+                    }
+
+                    tmpOldUUID = tmpNewUUID;
                 }
-            }, 0.05); // XXX 效果看起來不太好, 準心位移會lag的感覺
+            }, 0.01);
         }
 
         this.lobbyNode.on(cc.Node.EventType.TOUCH_START, this.backLobby, this);
@@ -329,20 +391,25 @@ export class Game extends cc.Component {
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.updateMouseMove, this); // node外放開
     }
 
-    private focusActive = function (): boolean {
-        if (!User.isFocus()) {
-            return false;
-        }
+    public onDisable() {
+        this.node.off(cc.Node.EventType.TOUCH_MOVE, this.updateMouseMove, this);
+        this.node.off(cc.Node.EventType.TOUCH_START, this.updateMouseMove, this);
+        this.node.off(cc.Node.EventType.TOUCH_END, this.updateMouseMove, this);
+        this.node.off(cc.Node.EventType.TOUCH_CANCEL, this.updateMouseMove, this);
 
-        if (!User.getFocusUUID()) {
-            return false;
-        }
+        this.focusOnNode.off(cc.Node.EventType.TOUCH_START, this.changeFocus, this);
+        this.focusOffNode.off(cc.Node.EventType.TOUCH_START, this.changeFocus, this);
 
-        if (!this.collisionNode.getChildByUuid(User.getFocusUUID())) {
-            return false;
-        }
+        this.autoOnNode.off(cc.Node.EventType.TOUCH_START, this.changeAuto, this);
+        this.autoOffNode.off(cc.Node.EventType.TOUCH_START, this.changeAuto, this);
 
-        return true;
+        this.plusBetNode.off(cc.Node.EventType.TOUCH_START, this.plusBet, this);
+        this.minusBetNode.off(cc.Node.EventType.TOUCH_START, this.minusBet, this);
+
+        this.muteOnNode.off(cc.Node.EventType.TOUCH_START, this.changeMute, this);
+        this.muteOffNode.off(cc.Node.EventType.TOUCH_START, this.changeMute, this);
+
+        this.lobbyNode.off(cc.Node.EventType.TOUCH_START, this.backLobby, this);
     }
 
     private nextGameState() {
@@ -361,7 +428,6 @@ export class Game extends cc.Component {
 
     private initCrosshairNode() {
         this.crosshairDefNode.active = false;
-        this.crosshairFocusNode.active = false;
     }
 
     private plusBet(event) {
@@ -457,40 +523,32 @@ export class Game extends cc.Component {
         label.string = result.newValue;
     }
 
-    public onDisable() {
-        this.node.off(cc.Node.EventType.TOUCH_MOVE, this.updateMouseMove, this);
-        this.node.off(cc.Node.EventType.TOUCH_START, this.updateMouseMove, this);
-        this.node.off(cc.Node.EventType.TOUCH_END, this.updateMouseMove, this);
-        this.node.off(cc.Node.EventType.TOUCH_CANCEL, this.updateMouseMove, this);
-
-        this.focusOnNode.off(cc.Node.EventType.TOUCH_START, this.changeFocus, this);
-        this.focusOffNode.off(cc.Node.EventType.TOUCH_START, this.changeFocus, this);
-
-        this.autoOnNode.off(cc.Node.EventType.TOUCH_START, this.changeAuto, this);
-        this.autoOffNode.off(cc.Node.EventType.TOUCH_START, this.changeAuto, this);
-
-        this.plusBetNode.off(cc.Node.EventType.TOUCH_START, this.plusBet, this);
-        this.minusBetNode.off(cc.Node.EventType.TOUCH_START, this.minusBet, this);
-
-        this.muteOnNode.off(cc.Node.EventType.TOUCH_START, this.changeMute, this);
-        this.muteOffNode.off(cc.Node.EventType.TOUCH_START, this.changeMute, this);
-
-        this.lobbyNode.off(cc.Node.EventType.TOUCH_START, this.backLobby, this);
+    private backLobby(event) {
+        AudioManager.play(`UI_Menu_Click`, true, false);
 
         this.unscheduleAllCallbacks();
 
         let length = this.collisionNode.children.length;
         for (let i = 0; i < length; i++) {
             let node: cc.Node = this.collisionNode.children[i];
+
+            let bullet = node.getComponent(Bullet);
+            if (bullet) {
+                if (bullet.isLock()) {
+                    continue;
+                }
+
+                let tower = bullet.getTower();
+                let bet = Mul(tower.getBet().toString(), tower.getBase().toString());
+
+                User.operatorWallet(EWallet.Deposit, bet);
+                cc.log("返還押注:" + bet);
+            }
+
             node.cleanup();
             node.destroy();
         }
 
-        // FIXME 離開之前要先把已經被擊殺的魚金額寫入錢包
-    }
-
-    private backLobby(event) {
-        AudioManager.play(`UI_Menu_Click`, true, false);
         this.lobbyHandler();
     }
 
@@ -520,19 +578,6 @@ export class Game extends cc.Component {
         return AudioManager.isMute(true) && AudioManager.isMute(false);
     }
 
-    private changeAuto() {
-        AudioManager.play(`UI_Menu_Click`, true, false);
-
-        User.setAuto(!User.isAuto());
-
-        this.updateAutoBtn();
-
-        this.stopAutoFire();
-        if (User.isAuto()) {
-            this.startAutoFire();
-        }
-    }
-
     private startAutoFire() {
         this.schedule(this.fire, 0.2, cc.macro.REPEAT_FOREVER, 0.3); // 設定的時間要大於 fire func執行的時間
     }
@@ -541,76 +586,130 @@ export class Game extends cc.Component {
         this.unschedule(this.fire);
     }
 
+    private changeAuto() {
+        AudioManager.play(`UI_Menu_Click`, true, false);
+
+        this.stopAutoFire();
+
+        if (User.getTowerMode() == 1) {
+            User.setTowerMode(0);
+        } else if (User.getTowerMode() != 1) {
+            User.setTowerMode(1);
+        }
+
+        this.updateTowerMode();
+    }
+
     private changeFocus() {
         AudioManager.play(`UI_Menu_Click`, true, false);
 
+        this.stopAutoFire();
+
+        if (User.getTowerMode() == 2) {
+            User.setTowerMode(0);
+        } else if (User.getTowerMode() != 2) {
+            User.setTowerMode(2);
+        }
+
+        this.updateTowerMode();
+    }
+
+    private updateTowerMode() {
+        this.autoOffNode.active = false;
+        this.autoOnNode.active = false;
+
+        this.focusOffNode.active = false;
+        this.focusOnNode.active = false;
+
+        this.crosshairDefNode.active = false;
+
         User.setFocusUUID(null);
-        User.setFocus(!User.isFocus());
 
-        this.updateFocusBtn();
-    }
-
-    private updateAutoBtn() {
-        cc.log("自動射擊: " + User.isAuto());
-
-        this.autoOffNode.active = !User.isAuto();
-        this.autoOnNode.active = User.isAuto();
-    }
-
-    private updateFocusBtn() {
-        cc.log("鎖定射擊: " + User.isFocus());
-
-        this.focusOffNode.active = !User.isFocus();
-        this.focusOnNode.active = User.isFocus();
+        switch (User.getTowerMode()) {// 砲塔模式, 0:預設, 1:自動, 2:瞄準
+            case 0:
+                this.focusOffNode.active = true;
+                this.autoOffNode.active = true;
+                break;
+            case 1:
+                this.focusOffNode.active = true;
+                this.autoOnNode.active = true;
+                break;
+            case 2:
+                this.focusOnNode.active = true;
+                this.autoOffNode.active = true;
+                break;
+        }
     }
 
     public updateMouseMove(event: cc.Event.EventTouch) {
-        this.updateTower(event.getLocation(), event.getType(), true);
+        this.updateTower(event.getLocation(), event.getType());
     }
 
-    public updateTower(location: cc.Vec2, eventType: string, showAutoNode: boolean) {
+    public updateTower(location: cc.Vec2, eventType: string) {
         let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
 
-        // FIXME 瞄準功能需要重寫, 瞄準魚的時候子彈會略過其他魚不攻擊, 點擊畫面任一位置則可以取消瞄準, 被瞄準的魚如果被擊殺獲釋離開場面則取消瞄準
-        if (!this.isCrosshairArea(locationOfTouch)) {
-            if (!User.isAuto()) {
-                this.stopAutoFire();
-                this.crosshairDefNode.active = false;
-            }
+        if (eventType == cc.Node.EventType.TOUCH_START && !this.isCrosshairArea(locationOfTouch)) {
             return;
         }
 
-        let updateCrosshair = false;
+        if (User.getTowerMode() == 2) { // 瞄準射擊
+            if (eventType == "TOUCH_FISH") {
+                let obj = this.calculatorRotation(locationOfTouch, this.originLocationOfTower);
+                this.updateRotationOfTower(obj.rotation, obj.backLocation);
 
-        switch (eventType) {
-            case cc.Node.EventType.TOUCH_MOVE:
-            case cc.Node.EventType.TOUCH_START:
-                updateCrosshair = true;
-                break;
-            case cc.Node.EventType.TOUCH_END:// node內放開
-            case cc.Node.EventType.TOUCH_CANCEL:// node外放開
-                break;
-            default:
-                break;
+                this.stopAutoFire();
+                this.startAutoFire();
+            } else if (eventType == "MOVE_FISH") {
+                let obj = this.calculatorRotation(locationOfTouch, this.originLocationOfTower);
+                this.updateRotationOfTower(obj.rotation, obj.backLocation);
+            }
+
+            return;
         }
 
-        if (updateCrosshair) {
-            this.crosshairDefNode.setPosition(locationOfTouch);
-            this.crosshairDefNode.active = true && showAutoNode;
+        if (User.getTowerMode() == 1) { // 自動射擊
+            if (eventType == cc.Node.EventType.TOUCH_START) {
+                let obj = this.calculatorRotation(locationOfTouch, this.originLocationOfTower);
+                this.updateRotationOfTower(obj.rotation, obj.backLocation);
+
+                this.crosshairDefNode.setPosition(locationOfTouch);
+                this.crosshairDefNode.active = true;
+
+                this.stopAutoFire();
+                this.startAutoFire();
+            }
+
+            return;
+        }
+
+        if (User.getTowerMode() == 0) { // 手動射擊
+            switch (eventType) {
+                case cc.Node.EventType.TOUCH_MOVE:
+                case cc.Node.EventType.TOUCH_START:
+                    this.crosshairDefNode.active = true;
+                    break;
+                case cc.Node.EventType.TOUCH_END:// node內放開
+                case cc.Node.EventType.TOUCH_CANCEL:// node外放開
+                    this.crosshairDefNode.active = false;
+                    break;
+                default:
+                    break;
+            }
+
             let obj = this.calculatorRotation(locationOfTouch, this.originLocationOfTower);
             this.updateRotationOfTower(obj.rotation, obj.backLocation);
-        } else {
-            this.crosshairDefNode.active = false;
-        }
 
-        if (eventType == cc.Node.EventType.TOUCH_START && updateCrosshair) {
-            this.stopAutoFire();
-            this.fire();
-            this.startAutoFire();
-        } else if (!updateCrosshair) {
-            if (!User.isAuto()) {
+            this.crosshairDefNode.setPosition(locationOfTouch);
+
+            if (eventType == cc.Node.EventType.TOUCH_START) {
+                this.fire();
+                this.stopAutoFire();
+                this.startAutoFire();
+            } else if (eventType == cc.Node.EventType.TOUCH_END || eventType == cc.Node.EventType.TOUCH_CANCEL) {
                 this.stopAutoFire();
             }
+
+            return;
         }
     }
 
@@ -1346,7 +1445,7 @@ export class Game extends cc.Component {
                 let nextFishNodePos = nextFishNode.getPosition();
 
                 {// XXX 特殊處理: spine類型的魚由於位置並不是在 node中央, 因此需要額外判斷中心點.(目前影響的魚:fish_20)
-                    let center1 = prevFishNode.getChildByName(prevFishNode.name).getChildByName("center");
+                    let center1 = prevFishNode.getChildByName(prevFishNode.name).getChildByName("center"); // FIXME 魚被技能攻擊時會出錯, 如果不呼叫這個funcation就正常 Uncaught TypeError: Cannot read properties of null (reading 'getChildByName')
                     if (center1) {
                         let tmpWorldPos = center1.parent.convertToWorldSpaceAR(center1.getPosition());
                         let tmpNodePos = prevFishNode.parent.convertToNodeSpaceAR(tmpWorldPos);
@@ -1444,7 +1543,7 @@ export class Game extends cc.Component {
         }
     }
 
-    private activeSkill02(fishNode: cc.Node, durationTime: number) { // FIXME 雖然特殊魚免疫冰凍技能, 但是還是需要能發動技能, 目前設定會造成攻擊特殊魚不能發動冰凍技能
+    private activeSkill02(fishNode: cc.Node, durationTime: number) {
         let name = "skill_2_freeze";
         let prefab = ResourcesManager.prefabMap.get(name);
         if (!prefab) {
