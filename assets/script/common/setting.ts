@@ -138,9 +138,10 @@ export class SettingManager {
 
     public static collisionArr: Collision[] = [];
 
-    private static activeSkill0402: boolean = false;
+    private static readySkill0402: boolean = false; // level4大砲技能發動中
+    private static fireSkill0402: boolean = false; // level4大砲技能發射中
 
-    // 控制測試功能開啟/關閉的參數
+    // XXX 控制測試功能開啟/關閉的參數
     public static readonly showPathOfFish = true; // 開啟魚的行徑路線顯示
     public static readonly addFish = true; // 手動產生各種魚
     public static readonly changeGameStage = true; // 手動關卡切換
@@ -174,18 +175,35 @@ export class SettingManager {
         return true; // success
     }
 
-    public static lockSkill0402(ms: number): boolean {
-        if (SettingManager.activeSkill0402) {
+    /**
+     * 技能4大砲發動中
+     */
+    public static isReadySkill0402(): boolean {
+        return SettingManager.readySkill0402;
+    }
+
+
+
+    public static lockReadySkill0402(ms: number): boolean {
+        if (SettingManager.readySkill0402) {
             return false;
         }
 
-        SettingManager.activeSkill0402 = true;
+        SettingManager.readySkill0402 = true;
 
         setTimeout(() => {
-            SettingManager.activeSkill0402 = false;
+            SettingManager.readySkill0402 = false;
         }, ms);
 
         return true;
+    }
+
+    public static isFireSkill0402(): boolean {
+        return SettingManager.fireSkill0402;
+    }
+
+    public static lockFireSkill0402(lock: boolean) {
+        SettingManager.fireSkill0402 = lock;
     }
 
     public static getRoomLevel(): number[] {

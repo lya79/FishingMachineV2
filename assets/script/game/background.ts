@@ -6,7 +6,7 @@ import { Fish } from "./fish";
 import { EAction as EAudioAction, AudioManager } from "../common/audio";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 
-export class Background extends cc.Component { // XXX 背景隨機位置會出現冒泡
+export class Background extends cc.Component {
     private bg1Node: cc.Node;
     private bg2Node: cc.Node;
     private bg3Node: cc.Node;

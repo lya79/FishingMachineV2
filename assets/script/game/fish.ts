@@ -271,8 +271,8 @@ export class Fish extends cc.Component {
         if (!dead) {
             let tween = cc.tween(fishNode);
 
-            tween.then(cc.tween() // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
-                .call(() => { fishNode.color = new cc.Color(255, 0, 0); })
+            tween.then(cc.tween()
+                .call(() => { fishNode.color = new cc.Color(255, 130, 130); })
                 .delay(0.5)
                 .call(() => { fishNode.color = new cc.Color(255, 255, 255); })
             )
@@ -311,8 +311,8 @@ export class Fish extends cc.Component {
 
             let tween = cc.tween(fishNode);
 
-            tween.then(cc.tween() // XXX 效果不太好看起來顏色太深, 考慮用遮罩方式處理
-                .call(() => { fishNode.color = new cc.Color(255, 0, 0); })
+            tween.then(cc.tween()
+                .call(() => { fishNode.color = new cc.Color(255, 130, 130); })
                 .delay(0.5)
                 .call(() => { fishNode.color = new cc.Color(255, 255, 255); })
             )

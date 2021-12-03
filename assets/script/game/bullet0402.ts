@@ -1,9 +1,10 @@
+import { SettingManager, FishPath, Collision as CollisionObj, ESkill, Tower } from "../common/setting";
 
 export class Bullet0402 extends cc.Component {
-    private bet: number = 0;
+    private tower: Tower;
 
-    public init(bet: number) {
-        this.bet = bet;
+    public init(tower: Tower) {
+        this.tower = tower;
     }
 
     // public onCollisionEnter(fishCollider: cc.Collider, bullethCollider: cc.Collider) {
@@ -18,7 +19,11 @@ export class Bullet0402 extends cc.Component {
     //     cc.log("onCollisionExit fish: " + fishCollider.node.name);
     // }
 
-    public getBet(): number {
-        return this.bet;
+    // public getBet(): number {
+    //     return this.bet;
+    // }
+
+    public getTower(): Tower {
+        return this.tower;
     }
 }

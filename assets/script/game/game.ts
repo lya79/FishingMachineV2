@@ -1,7 +1,7 @@
 
 import { EWallet, EWalletResultAction, User } from "../common/user";
 import { EAction as EAudioAction, AudioManager } from "../common/audio";
-import { SettingManager, FishPath, Collision as CollisionObj, ESkill } from "../common/setting";
+import { SettingManager, FishPath, Collision as CollisionObj, ESkill, Tower as SettingTower } from "../common/setting";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { Tower } from "./tower";
 import { Collision, ChangeStageHandler } from "./collision";
@@ -273,7 +273,11 @@ export class Game extends cc.Component {
             let self = this;
             let tmpOldUUID: string;
             this.schedule(function (dt) {
-                { // 切換關卡
+                if (SettingManager.isFireSkill0402()) {
+                    return;
+                }
+
+                if (!SettingManager.isFireSkill0402()) { // 切換關卡
                     tmp += dt;
                     let delay = SettingManager.getGameDelayByGameStage(User.getGameState());
                     if (tmp >= delay) {
@@ -428,11 +432,19 @@ export class Game extends cc.Component {
     }
 
     private plusBet(event) {
+        if (SettingManager.isReadySkill0402()) {
+            return;
+        }
+
         AudioManager.play(`UI_Bet_Add`, true, false);
         this.changeBet(true);
     }
 
     private minusBet(event) {
+        if (SettingManager.isReadySkill0402()) {
+            return;
+        }
+
         AudioManager.play(`UI_Bet_Less`, true, false);
         this.changeBet(false);
     }
@@ -521,6 +533,10 @@ export class Game extends cc.Component {
     }
 
     private backLobby(event) {
+        if (SettingManager.isReadySkill0402()) {
+            return;
+        }
+
         AudioManager.play(`UI_Menu_Click`, true, false);
 
         this.unscheduleAllCallbacks();
@@ -639,10 +655,14 @@ export class Game extends cc.Component {
     }
 
     public updateMouseMove(event: cc.Event.EventTouch) {
+        if (SettingManager.isFireSkill0402()) {
+            return;
+        }
+
         this.updateTower(event.getLocation(), event.getType());
     }
 
-    public updateTower(location: cc.Vec2, eventType: string) {
+    public updateTower(location: cc.Vec2, eventType: string) { // TODO
         let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
 
         if (eventType == cc.Node.EventType.TOUCH_START && !this.isCrosshairArea(locationOfTouch)) {
@@ -716,6 +736,10 @@ export class Game extends cc.Component {
     }
 
     private fire() {
+        if (SettingManager.isReadySkill0402()) {
+            return;
+        }
+
         // 扣款並且檢查是否有足夠的餘額
         let roomLevel = User.getRoomLevel();
         let towerIndex = User.getTowerIndex();
@@ -899,8 +923,8 @@ export class Game extends cc.Component {
             {
                 let bulletNode = collision.bulletCollider;
                 let bullet0402 = bulletNode.getComponent(Bullet0402);
-                if (bullet0402) {
-                    bet = bullet0402.getBet();
+                if (bullet0402 && cc.isValid(bullet0402)) {
+                    bet = bullet0402.getTower().getBet() * bullet0402.getTower().getBase();
                 } else {
                     let bulletNode = collision.bulletCollider.parent;
                     let bullet = bulletNode.getComponent(Bullet);
@@ -985,12 +1009,20 @@ export class Game extends cc.Component {
 
                     if (skill == ESkill.Level_4_2) {
                         let sleep = skillInfo.durationTime * 1000;
-                        let success = SettingManager.lockSkill0402(sleep);
+                        let success = SettingManager.lockReadySkill0402(sleep); // XXX level4大砲技能發射時避免重複發射
                         if (!success) {
                             continue;
                         }
 
-                        this.activeSkill03And0402(bet, skillInfo.durationTime);
+                        let skillArr = [...tower.getSkillArr()];
+                        let tmpTower = new SettingTower(
+                            tower.getLevel(),
+                            tower.getBet(),
+                            tower.getBase(),
+                            skillArr,
+                        );
+
+                        this.activeSkill03And0402(tmpTower, skillInfo.durationTime);
                         continue;
                     }
 
@@ -1109,7 +1141,19 @@ export class Game extends cc.Component {
                 let fishInfo = SettingManager.getFishInfo(fishNode.getComponent(Fish).getFishName());
                 let bulletNode = collision.bulletCollider.parent;
                 let bullet = bulletNode.getComponent(Bullet);
-                let tower = bullet.getTower();
+
+                let tower: SettingTower;
+                if (bullet) {
+                    tower = bullet.getTower();
+                } else {
+                    let bulletNode = collision.bulletCollider;
+                    let bullet0402 = bulletNode.getComponent(Bullet0402);
+                    if (bullet0402) {
+                        tower = bullet0402.getTower();
+                    } else {
+                        cc.log("error: 例外錯誤不應該發生");
+                    }
+                }
 
                 let dead: boolean = false;
                 let rotataion: boolean = false;
@@ -1327,10 +1371,16 @@ export class Game extends cc.Component {
 
                 fishNode.getComponent(Fish).attacked(dead, rotataion, durationTime, pauseMoveTime, pauseSelfActionTime);
             }
+
+            let bulletNode = collision.bulletCollider.parent;
+            let bullet = bulletNode.getComponent(Bullet);
+            if (bullet) {
+                bulletNode.destroy();
+            }
         }
     }
 
-    private activeSkill03And0402(bet: number, durationTime: number) {
+    private activeSkill03And0402(tower: SettingTower, durationTime: number) {
         let name = "skill_4_2";
         let prefab = ResourcesManager.prefabMap.get(name);
         if (!prefab) {
@@ -1362,7 +1412,6 @@ export class Game extends cc.Component {
         this.collisionNode.addChild(effectNode);
 
         {
-            // FIXME 鎖押注按鈕
             let self = this;
             let fireFlag = false;
             let animation = effectNode.getComponent(cc.Animation);
@@ -1386,7 +1435,7 @@ export class Game extends cc.Component {
                 if (fire && !fireFlag) { // 發射技能
                     fireFlag = true;
 
-                    // FIXME 鎖砲塔轉向
+                    SettingManager.lockFireSkill0402(true);
 
                     let bulletName = "bullet_skill_4_2";
                     let bulletPrefab = ResourcesManager.prefabMap.get(bulletName);
@@ -1401,18 +1450,16 @@ export class Game extends cc.Component {
                     bulletEffectNode.setPosition(startX, startY);
 
                     let component = bulletEffectNode.addComponent(Bullet0402);
-                    component.init(bet);
+                    component.init(tower);
 
                     self.collisionNode.addChild(bulletEffectNode);
 
                     AudioManager.play(`UI_Skin_Max`, true, false);
 
-                    // XXX 砲擊持續時間大約 1秒, 判斷碰撞使用 0.8即可,  0.8s內砲塔轉向攻擊到的魚都算有碰撞到需要判斷是否有擊殺
+
                     cc.tween(bulletEffectNode)
-                        .delay(0.8)
+                        .delay(1) // XXX 稍微延遲 1秒進行判斷level4大砲技能碰撞
                         .call(() => {
-                            // FIXME 解鎖押注按鈕
-                            // FIXME 解鎖砲塔轉向
                             bulletEffectNode.destroy();
                         }).start();
                 }
@@ -1421,6 +1468,7 @@ export class Game extends cc.Component {
             animation.scheduleOnce(function () {
                 animation.stop();
                 effectNode.destroy();
+                SettingManager.lockFireSkill0402(false);
             }, durationTime);
         }
     }

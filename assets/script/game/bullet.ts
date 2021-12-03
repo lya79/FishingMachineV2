@@ -114,7 +114,6 @@ export class Bullet extends cc.Component {
             .to(delay, { scale: 1.1 }, { easing: 'bounceOut' })
             .call(() => {
                 self.netNode.active = false;
-                self.node.destroy();
             })
             .start();
     }
