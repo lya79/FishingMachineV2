@@ -49,7 +49,7 @@ export class Bullet extends cc.Component {
         this.lock = false;
         this.bgWidth = 472;
         this.bgHeight = 840;
-        this.speed = 10;
+        this.speed = 20;
         this.fpsOfXY = 1;
         this.fpsOfCanvas = 1;
         this.timerOfFps = 0;

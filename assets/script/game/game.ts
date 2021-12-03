@@ -73,12 +73,25 @@ export class Game extends cc.Component {
                     let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
                     self.collisionNode.getComponent(Collision).AddFish(fishPath);
                 }
-                {
-                    // let groupFish = SettingManager.getFishPathByGameStage1V2();
-                    // for (let i = 0; i < groupFish.length; i++) {
-                    //     self.collisionNode.getComponent(Collision).AddFish(groupFish[i]);
-                    // }
-                }
+
+                // {
+                //     let name = "fish_2";
+                //     let obj = SettingManager.getRandomPath();
+                //     let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
+                //     self.collisionNode.getComponent(Collision).AddFish(fishPath);
+                // }
+                // {
+                //     let name = "fish_13";
+                //     let obj = SettingManager.getRandomPath();
+                //     let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
+                //     self.collisionNode.getComponent(Collision).AddFish(fishPath);
+                // }
+                // {
+                //     let name = "fish_19";
+                //     let obj = SettingManager.getRandomPath();
+                //     let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
+                //     self.collisionNode.getComponent(Collision).AddFish(fishPath);
+                // }
             }, this);
         }
 
@@ -662,7 +675,7 @@ export class Game extends cc.Component {
         this.updateTower(event.getLocation(), event.getType());
     }
 
-    public updateTower(location: cc.Vec2, eventType: string) { // TODO
+    public updateTower(location: cc.Vec2, eventType: string) {
         let locationOfTouch = this.node.convertToNodeSpaceAR(location); // 將點擊的位置由世界座標轉換成 this.node裡面的相對座標
 
         if (eventType == cc.Node.EventType.TOUCH_START && !this.isCrosshairArea(locationOfTouch)) {
@@ -1504,6 +1517,12 @@ export class Game extends cc.Component {
 
             let self = this;
             let updateNode = function () {
+                // 由於技能會先施放執行, 但是有可能施放過程中魚被擊殺消失了, 因此要額外判斷魚的 node
+                if (!cc.isValid(prevFishNode) || !cc.isValid(nextFishNode)) {
+                    effectNode.destroy();
+                    return;
+                }
+
                 let prevFishNodePos = prevFishNode.getPosition();
                 let nextFishNodePos = nextFishNode.getPosition();
 
@@ -1511,11 +1530,6 @@ export class Game extends cc.Component {
                 effectNode.rotation = self.calculatorRotation(nextFishNodePos, prevFishNodePos).rotation;
                 effectNode.width = 40;
                 effectNode.height = self.getDistance(prevFishNodePos, nextFishNodePos);
-
-                if ((prevFishNodePos.x == 0 && prevFishNodePos.y == 0) || (nextFishNodePos.x == 0 && nextFishNodePos.y == 0)) {
-                    // FIXME 目前發現動畫多的時候會發生, 如果降低 durationTime時間也可以減少機會發生, 還不確認原因
-                    // cc.log("error 錯誤 不應該出現 " + fisrt + ", " + prevFishNodePos.toString() + " -> " + nextFishNodePos.toString());
-                }
             }
 
             updateNode();
@@ -1558,6 +1572,10 @@ export class Game extends cc.Component {
                 case 2:
                     scale = 1;
                     break;
+            }
+
+            if (skill == ESkill.Level_4_1 && fisrt) {
+                scale -= 0.2;
             }
 
             effectNode.setScale(scale);

@@ -254,19 +254,19 @@ export class SettingManager {
     /**
      * 每一關卡停留多少秒
      */
-    public static getGameDelayByGameStage(gameStage: number): number {
-        switch (gameStage) {
-            case 1:
-                return 60 * 2;
-            case 2:
-                return 60 * 4;
-            case 3:
-                return 60 * 6;
-        }
-        return 60 * 2;
+    public static getGameDelayByGameStage(gameStage: number): number {// TODO 暫時固定關卡1的時間
+        // switch (gameStage) { 
+        //     case 1:
+        //         return 60 * 1;
+        //     case 2:
+        //         return 60 * 4;
+        //     case 3:
+        //         return 60 * 6;
+        // }
+        return 60 * 20;
     }
 
-    private static getFishPathByGameStage1(): FishPath[] {
+    private static getFishPathByGameStage1(): FishPath[] {// TODO 暫時固定關卡1不自動產生魚
         let arr: FishPath[] = [];
 
         // let totalTime = SettingManager.getGameDelayByGameStage(1);
