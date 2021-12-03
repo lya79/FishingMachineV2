@@ -971,7 +971,14 @@ export class Game extends cc.Component {
 
                 for (let i = 0; i < tower.getSkillArr().length; i++) {
                     let skill = tower.getSkillArr()[i];
-                    let skillInfo = SettingManager.getSkillAttackInfo(fish.getFishName(), skill);
+                    let skillInfo = SettingManager.getSkillInfo(
+                        fish.getFishName(),
+                        skill,
+                        tower.getLevel(),
+                        tower.getBase(),
+                        tower.getBet(),
+                    );
+
                     if (!SettingManager.isActive(skillInfo.probability)) {// 是否發動技能
                         continue;
                     }
@@ -988,7 +995,7 @@ export class Game extends cc.Component {
                     }
 
 
-                    let count = 1;//getRandomInt(skillInfo.min, skillInfo.max); // 技能攻擊的數量(不包含被普通攻擊的魚)
+                    let count = getRandomInt(skillInfo.min, skillInfo.max); // 技能攻擊的數量(不包含被普通攻擊的魚)
                     let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode();// 目前還活著而且顯示在畫面上的全部魚
                     for (let i = 0; i < allFishNodeArr.length; i++) {
                         let targetFishNode = allFishNodeArr[i];
@@ -1012,6 +1019,11 @@ export class Game extends cc.Component {
                         AudioManager.play(`UI_Skin_Freezing`, true, false);
                         for (let k = 0; k < attackedArr.length; k++) {
                             let attacked = attackedArr[k];
+
+                            if (attacked.fishNode.name == "fish_22" || attacked.fishNode.name == "fish_23") {
+                                continue; // 特殊魚免疫冰凍技能
+                            }
+
                             self.activeSkill02(attacked.fishNode, skillInfo.durationTime);
 
                             let exist = false;
@@ -1095,13 +1107,22 @@ export class Game extends cc.Component {
                 let pauseMoveTime = attacked.pauseMoveTime;
                 let pauseSelfActionTime = attacked.pauseSelfActionTime;
                 let fishInfo = SettingManager.getFishInfo(fishNode.getComponent(Fish).getFishName());
+                let bulletNode = collision.bulletCollider.parent;
+                let bullet = bulletNode.getComponent(Bullet);
+                let tower = bullet.getTower();
 
                 let dead: boolean = false;
                 let rotataion: boolean = false;
 
                 for (let i = 0; i < skillArr.length; i++) {
                     let skill = skillArr[i];
-                    let skillInfo = SettingManager.getSkillAttackInfo(fishNode.getComponent(Fish).getFishName(), skill);
+                    let skillInfo = SettingManager.getSkillInfo(
+                        fishNode.getComponent(Fish).getFishName(),
+                        skill,
+                        tower.getLevel(),
+                        tower.getBase(),
+                        tower.getBet(),
+                    );
 
                     dead = SettingManager.isActive(skillInfo.probability2);// 技能擊殺是否成功
 
@@ -1112,7 +1133,12 @@ export class Game extends cc.Component {
                 }
 
                 if (!dead && normal) {
-                    let normalAttack = SettingManager.getNormalAttackInfo(fishNode.getComponent(Fish).getFishName());
+                    let normalAttack = SettingManager.getNormalAttackInfo(
+                        fishNode.getComponent(Fish).getFishName(),
+                        tower.getLevel(),
+                        tower.getBase(),
+                        tower.getBet(),
+                    );
                     dead = SettingManager.isActive(normalAttack.probability); // 普通攻擊擊殺是否成功
                 }
 

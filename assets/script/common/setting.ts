@@ -646,9 +646,13 @@ export class SettingManager {
         return { winMin: 0, winMax: 0, showHp: false, hp: 0, size: 0, bonusKind: 0, probability: 0.0, rotation: true };
     }
 
-    public static getNormalAttackInfo(fishName: string, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
-        probability: number, // 擊殺機率
-    } {
+    public static getNormalAttackInfo(
+        fishName: string,
+        towerLevel: number, // 砲塔等級 1-4
+        roomLevel: number, // 房間等級(押注倍率)
+        bet: number): { // 押注
+            probability: number, // 擊殺機率
+        } {
         return { probability: 0.4 };
 
         switch (fishName) {
@@ -700,7 +704,13 @@ export class SettingManager {
         return { probability: 0.0 };
     }
 
-    public static getSkillAttackInfo(fishName: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
+    public static getSkillInfo(
+        fishName: string,
+        skill: ESkill,
+        towerLevel: number,
+        roomLevel: number,
+        bet: number
+    ): { // TODO 調整機率
         probability: number, // 發動機率
         probability2: number, // 技能擊殺機率
         min: number, // 技能發動時至少攻擊幾隻
