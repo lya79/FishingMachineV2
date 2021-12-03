@@ -864,7 +864,7 @@ export class Game extends cc.Component {
         return angleA;
     }
 
-    private isCrosshairArea(location: cc.Vec2): boolean {
+    private isCrosshairArea(location: cc.Vec2): boolean { // XXX 需要改善作法避免手動設定
         let x = location.x;
         let y = location.y;
 

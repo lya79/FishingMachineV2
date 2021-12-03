@@ -394,7 +394,7 @@ export class SettingManager {
         return arr;
     }
 
-    public static getRandomPathForFish23(): {// TODO 實作神龍專用的路徑
+    public static getRandomPathForFish23(): {// TODO 實作神龍專用的路徑, 會從中間出現, 然後持續大概1分鐘後離場
         pathArr: cc.Vec2[], // 位移的點
         speedOfPoint: number[], // 點與點之間的位移速度
         speedOfObj: number[], // 魚擺動尾巴的速度
