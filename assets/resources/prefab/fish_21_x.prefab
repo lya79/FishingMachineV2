@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "fish_22_2",
+    "_name": "fish_21",
     "_objFlags": 0,
     "_parent": null,
     "_children": [
@@ -72,7 +72,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "fish_22_2",
+    "_name": "fish_21",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -111,8 +111,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 525.88,
-      "height": 638.04
+      "width": 382.72,
+      "height": 407.07
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -179,8 +179,8 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 250,
-      "y": 320,
+      "x": 163,
+      "y": 168,
       "z": 0
     },
     "_scale": {
@@ -209,9 +209,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "0e7288dd-63a4-4ceb-8725-01e004baa770"
+      "__uuid__": "647007bf-2e03-4ff8-840f-77e491f3cdc4"
     },
-    "fileId": "02qUb5WalFwLiNqyLBm17U",
+    "fileId": "c5fuyQPaROqralP8Iv24Kd",
     "sync": false
   },
   {
@@ -224,7 +224,7 @@
     "_enabled": true,
     "paused": false,
     "defaultSkin": "",
-    "defaultAnimation": "animation_R",
+    "defaultAnimation": "animation",
     "_preCacheMode": 0,
     "_cacheMode": 0,
     "loop": true,
@@ -235,13 +235,13 @@
     "_frameCache": null,
     "_curFrame": null,
     "_skeletonCache": null,
-    "_animationName": "animation_R",
+    "_animationName": "animation",
     "_animationQueue": [],
     "_headAniInfo": null,
     "_playTimes": 0,
     "_isAniComplete": true,
     "_N$skeletonData": {
-      "__uuid__": "4f9e2084-51d5-4f22-a8ce-e05b50c80aee"
+      "__uuid__": "56fec912-65d8-466d-909b-0b1b09875b5b"
     },
     "_N$_defaultCacheMode": 0,
     "_N$debugSlots": false,
@@ -251,7 +251,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.BoxCollider",
+    "__type__": "cc.CircleCollider",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -261,18 +261,14 @@
     "tag": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 260,
-      "y": 120
+      "x": 190,
+      "y": 140
     },
-    "_size": {
-      "__type__": "cc.Size",
-      "width": 450,
-      "height": 150
-    },
+    "_radius": 130,
     "_id": ""
   },
   {
-    "__type__": "cc.BoxCollider",
+    "__type__": "cc.CircleCollider",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -282,18 +278,14 @@
     "tag": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 260,
-      "y": 380
+      "x": 80,
+      "y": 65
     },
-    "_size": {
-      "__type__": "cc.Size",
-      "width": 420,
-      "height": 400
-    },
+    "_radius": 60,
     "_id": ""
   },
   {
-    "__type__": "cc.BoxCollider",
+    "__type__": "cc.CircleCollider",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -303,14 +295,10 @@
     "tag": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 260,
-      "y": 610
+      "x": 120,
+      "y": 250
     },
-    "_size": {
-      "__type__": "cc.Size",
-      "width": 150,
-      "height": 90
-    },
+    "_radius": 100,
     "_id": ""
   },
   {
@@ -319,9 +307,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "0e7288dd-63a4-4ceb-8725-01e004baa770"
+      "__uuid__": "647007bf-2e03-4ff8-840f-77e491f3cdc4"
     },
-    "fileId": "9bxrFxYE9HGK0Uf5RGpzJH",
+    "fileId": "2ea0I3KxhPYK3w7HXSUJYf",
     "sync": false
   },
   {
@@ -330,9 +318,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "0e7288dd-63a4-4ceb-8725-01e004baa770"
+      "__uuid__": "647007bf-2e03-4ff8-840f-77e491f3cdc4"
     },
-    "fileId": "ffBLqVMkZIcJgNiES5FWud",
+    "fileId": "e7GJMwx9FImL7zc/1h8V0R",
     "sync": false
   }
 ]

@@ -1141,16 +1141,6 @@ export class Game extends cc.Component {
                     let fishPosX = fishNode.getPosition().x;
                     let fishPosY = fishNode.getPosition().y;
 
-                    {// XXX 特殊處理: spine類型的魚由於位置並不是在 node中央, 因此需要額外判斷中心點.(目前影響的魚:fish_20)
-                        let center = fishNode.getChildByName(fishNode.name).getChildByName("center");
-                        if (center) {
-                            let tmpWorldPos = center.parent.convertToWorldSpaceAR(center.getPosition());
-                            let tmpNodePos = fishNode.parent.convertToNodeSpaceAR(tmpWorldPos);
-                            fishPosX = tmpNodePos.x;
-                            fishPosY = tmpNodePos.y;
-                        }
-                    }
-
                     if (fishInfo.bonusKind >= 1) { // 高倍數返獎才觸發
                         {
                             let name = "coin_2";
@@ -1201,16 +1191,6 @@ export class Game extends cc.Component {
                                 tmpFishEffectNode.name = name;
                                 tmpFishEffectNode.rotation = 90;
 
-                                // XXX 特殊處理: spine類型的魚位置比較特別
-                                if (tmpFishName == "fish_20"
-                                    || tmpFishName == "fish_21_1"
-                                    || tmpFishName == "fish_21_2"
-                                    || tmpFishName == "fish_22_1"
-                                    || tmpFishName == "fish_22_2"
-                                    || tmpFishName == "fish_23") {
-                                    tmpFishEffectNode.rotation = 0;
-                                }
-
                                 // 寬度固定, 高度則依據寬度動態調整
                                 let targetWidth: number;
                                 let targetScale: number;
@@ -1221,16 +1201,6 @@ export class Game extends cc.Component {
                                 targetWidth = 100;
                                 targetScale = (targetWidth / tmpFishEffectNode.getChildByName(fishNode.getComponent(Fish).getFishName()).width);
                                 tmpFishEffectNode.setPosition(0, 0);
-
-                                // XXX 特殊處理: spine類型的魚位置比較特別
-                                if (tmpFishName == "fish_20"
-                                    || tmpFishName == "fish_21_1"
-                                    || tmpFishName == "fish_21_2"
-                                    || tmpFishName == "fish_22_1"
-                                    || tmpFishName == "fish_22_2"
-                                    || tmpFishName == "fish_23") {
-                                    tmpFishEffectNode.setPosition(-(oldWidth * targetScale / 2), -(oldHeight * targetScale / 2));
-                                }
 
                                 tmpFishEffectNode.scale = targetScale;
 
@@ -1269,7 +1239,7 @@ export class Game extends cc.Component {
                             let offsetX;
                             let offsetY;
 
-                            if (tmpFishName == "fish_22_1" || tmpFishName == "fish_22_2") { // 財神的金幣要噴灑在整個畫面
+                            if (tmpFishName == "fish_22") { // 財神的金幣要噴灑在整個畫面
                                 let w = fishNode.parent.width / 2;
                                 let h = fishNode.parent.height / 2;
 
@@ -1444,22 +1414,6 @@ export class Game extends cc.Component {
                 let prevFishNodePos = prevFishNode.getPosition();
                 let nextFishNodePos = nextFishNode.getPosition();
 
-                {// XXX 特殊處理: spine類型的魚由於位置並不是在 node中央, 因此需要額外判斷中心點.(目前影響的魚:fish_20)
-                    let center1 = prevFishNode.getChildByName(prevFishNode.name).getChildByName("center"); // FIXME 魚被技能攻擊時會出錯, 如果不呼叫這個funcation就正常 Uncaught TypeError: Cannot read properties of null (reading 'getChildByName')
-                    if (center1) {
-                        let tmpWorldPos = center1.parent.convertToWorldSpaceAR(center1.getPosition());
-                        let tmpNodePos = prevFishNode.parent.convertToNodeSpaceAR(tmpWorldPos);
-                        prevFishNodePos = tmpNodePos;
-                    }
-
-                    let center2 = nextFishNode.getChildByName(nextFishNode.name).getChildByName("center");
-                    if (center2) {
-                        let tmpWorldPos = center2.parent.convertToWorldSpaceAR(center2.getPosition());
-                        let tmpNodePos = nextFishNode.parent.convertToNodeSpaceAR(tmpWorldPos);
-                        nextFishNodePos = tmpNodePos;
-                    }
-                }
-
                 effectNode.setPosition(prevFishNodePos);
                 effectNode.rotation = self.calculatorRotation(nextFishNodePos, prevFishNodePos).rotation;
                 effectNode.width = 40;
@@ -1497,15 +1451,6 @@ export class Game extends cc.Component {
             effectNode.name = name;
             effectNode.setPosition(0, 0);
 
-            {// XXX 特殊處理: spine類型的魚由於位置並不是在 node中央, 因此需要額外判斷中心點.(目前影響的魚:fish_20)
-                let center = prevFishNode.getChildByName(prevFishNode.name).getChildByName("center");
-                if (center) {
-                    let tmpWorldPos = center.parent.convertToWorldSpaceAR(center.getPosition());
-                    let tmpNodePos = prevFishNode.convertToNodeSpaceAR(tmpWorldPos);
-                    effectNode.setPosition(tmpNodePos);
-                }
-            }
-
             let scale = 1;
             switch (prevFishNodeSize) {
                 case 0:
@@ -1520,16 +1465,6 @@ export class Game extends cc.Component {
                 case 2:
                     scale = 1;
                     break;
-            }
-
-            // XXX 特殊處理: spine類型的魚位置比較特別
-            if (prevFishNode.name == "fish_20"
-                || prevFishNode.name == "fish_21_1"
-                || prevFishNode.name == "fish_21_2"
-                || prevFishNode.name == "fish_22_1"
-                || prevFishNode.name == "fish_22_2"
-                || prevFishNode.name == "fish_23") {
-                scale += prevFishNode.scale;
             }
 
             effectNode.setScale(scale);
@@ -1563,15 +1498,6 @@ export class Game extends cc.Component {
         effectNode.rotation = getRandomInt(0, 360);
         effectNode.setPosition(0, 0);
 
-        {// XXX 特殊處理: spine類型的魚由於位置並不是在 node中央, 因此需要額外判斷中心點.(目前影響的魚:fish_20)
-            let center = fishNode.getChildByName(fishNode.name).getChildByName("center");
-            if (center) {
-                let tmpWorldPos = center.parent.convertToWorldSpaceAR(center.getPosition());
-                let tmpNodePos = fishNode.convertToNodeSpaceAR(tmpWorldPos);
-                effectNode.setPosition(tmpNodePos);
-            }
-        }
-
         effectNode.getChildByName("ice_s").active = false;
         effectNode.getChildByName("ice_m").active = false;
         effectNode.getChildByName("ice_l").active = false;
@@ -1587,19 +1513,6 @@ export class Game extends cc.Component {
                 effectNode.getChildByName("ice_l").active = true;
                 break;
         }
-
-        let scale = 1;
-        // XXX 特殊處理: spine類型的魚位置比較特別
-        if (fishNode.name == "fish_20"
-            || fishNode.name == "fish_21_1"
-            || fishNode.name == "fish_21_2"
-            || fishNode.name == "fish_22_1"
-            || fishNode.name == "fish_22_2"
-            || fishNode.name == "fish_23") {
-            scale += fishNode.scale;
-        }
-
-        effectNode.setScale(scale);
 
         fishNode.addChild(effectNode);
 

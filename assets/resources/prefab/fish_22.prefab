@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "fish_23",
+    "_name": "fish_22",
     "_objFlags": 0,
     "_parent": null,
     "_children": [
@@ -24,7 +24,7 @@
     "_level": 1,
     "_components": [],
     "_prefab": {
-      "__id__": 8
+      "__id__": 6
     },
     "_opacity": 255,
     "_color": {
@@ -72,7 +72,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "fish_23",
+    "_name": "fish_22",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -86,16 +86,10 @@
       },
       {
         "__id__": 4
-      },
-      {
-        "__id__": 5
-      },
-      {
-        "__id__": 6
       }
     ],
     "_prefab": {
-      "__id__": 7
+      "__id__": 5
     },
     "_opacity": 255,
     "_color": {
@@ -107,8 +101,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 256,
-      "height": 393.6
+      "width": 304,
+      "height": 374.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -150,7 +144,7 @@
     },
     "_enabled": true,
     "_spriteFrame": {
-      "__uuid__": "9b72976f-1483-4383-acf4-aecf6a231b48"
+      "__uuid__": "d2f476d0-7d0e-4e2b-916c-9052e53f6238"
     },
     "_type": 0,
     "_sizeMode": 0,
@@ -172,7 +166,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.CircleCollider",
+    "__type__": "cc.BoxCollider",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -182,44 +176,14 @@
     "tag": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 11.2,
-      "y": -100
+      "x": -10,
+      "y": 0
     },
-    "_radius": 100,
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CircleCollider",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 2
+    "_size": {
+      "__type__": "cc.Size",
+      "width": 240,
+      "height": 320
     },
-    "_enabled": true,
-    "tag": 0,
-    "_offset": {
-      "__type__": "cc.Vec2",
-      "x": 4,
-      "y": -28
-    },
-    "_radius": 115.9,
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CircleCollider",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 2
-    },
-    "_enabled": true,
-    "tag": 0,
-    "_offset": {
-      "__type__": "cc.Vec2",
-      "x": 4,
-      "y": 68
-    },
-    "_radius": 116,
     "_id": ""
   },
   {
@@ -228,9 +192,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "d5644f9d-c3dd-46b1-9ff5-0b88df221423"
+      "__uuid__": "c4db75cb-d056-4369-8b9e-5974bba7b5c1"
     },
-    "fileId": "efFhXcJiVMDqsZ+1rQEaYk",
+    "fileId": "3aLh0zEuJJc6kgQAwA3s0z",
     "sync": false
   },
   {
@@ -239,9 +203,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "d5644f9d-c3dd-46b1-9ff5-0b88df221423"
+      "__uuid__": "c4db75cb-d056-4369-8b9e-5974bba7b5c1"
     },
-    "fileId": "0bUsB15I5DIby115HIlPve",
+    "fileId": "e7GJMwx9FImL7zc/1h8V0R",
     "sync": false
   }
 ]

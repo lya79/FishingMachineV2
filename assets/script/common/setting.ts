@@ -270,20 +270,6 @@ export class SettingManager {
         //     }
         // }
 
-        // {
-        //     let name = "fish_20";
-        //     let scale = 1;
-        //     let obj = SettingManager.getRandomPath();
-        //     let fishPath = new FishPath(
-        //         name,
-        //         totalTime * 0.6,
-        //         scale,
-        //         obj.pathArr, // 魚的路徑
-        //         obj.speedOfPoint, // 點與點之間的移動速度
-        //         obj.speedOfObj); // 魚擺動尾巴的速度
-        //     arr.push(fishPath);
-        // }
-
         return arr;
     }
 
@@ -310,35 +296,7 @@ export class SettingManager {
         }
 
         {
-            let name = "fish_20";
-            let scale = 1;
-            let obj = SettingManager.getRandomPath();
-            let fishPath = new FishPath(
-                name,
-                totalTime * 0.4,
-                scale,
-                obj.pathArr, // 魚的路徑
-                obj.speedOfPoint, // 點與點之間的移動速度
-                obj.speedOfObj); // 魚擺動尾巴的速度
-            arr.push(fishPath);
-        }
-
-        {
-            let name = (getRandomInt(0, 1) == 0 ? "fish_21_1" : "fish_21_2");
-            let scale = 1;
-            let obj = SettingManager.getRandomPath();
-            let fishPath = new FishPath(
-                name,
-                totalTime * 0.5,
-                scale,
-                obj.pathArr, // 魚的路徑
-                obj.speedOfPoint, // 點與點之間的移動速度
-                obj.speedOfObj); // 魚擺動尾巴的速度
-            arr.push(fishPath);
-        }
-
-        {
-            let name = (getRandomInt(0, 1) == 0 ? "fish_22_1" : "fish_22_2");
+            let name = "fish_22";
             let scale = 1;
             let obj = SettingManager.getRandomPath();
             let fishPath = new FishPath(
@@ -377,35 +335,7 @@ export class SettingManager {
         }
 
         {
-            let name = "fish_20";
-            let scale = 1;
-            let obj = SettingManager.getRandomPath();
-            let fishPath = new FishPath(
-                name,
-                totalTime * 0.4,
-                scale,
-                obj.pathArr, // 魚的路徑
-                obj.speedOfPoint, // 點與點之間的移動速度
-                obj.speedOfObj); // 魚擺動尾巴的速度
-            arr.push(fishPath);
-        }
-
-        {
-            let name = (getRandomInt(0, 1) == 0 ? "fish_21_1" : "fish_21_2");
-            let scale = 1;
-            let obj = SettingManager.getRandomPath();
-            let fishPath = new FishPath(
-                name,
-                totalTime * 0.5,
-                scale,
-                obj.pathArr, // 魚的路徑
-                obj.speedOfPoint, // 點與點之間的移動速度
-                obj.speedOfObj); // 魚擺動尾巴的速度
-            arr.push(fishPath);
-        }
-
-        {
-            let name = (getRandomInt(0, 1) == 0 ? "fish_22_1" : "fish_22_2");
+            let name = "fish_22";
             let scale = 1;
             let obj = SettingManager.getRandomPath();
             let fishPath = new FishPath(
@@ -705,13 +635,7 @@ export class SettingManager {
                 return { winMin: 50, winMax: 50, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 0.3, rotation: true };
             case "fish_19":
                 return { winMin: 80, winMax: 80, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 0.4, rotation: true };
-            case "fish_20":
-                return { winMin: 100, winMax: 100, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 0.4, rotation: true };
-            case "fish_21_1":
-            case "fish_21_2":
-                return { winMin: 25, winMax: 75, showHp: false, hp: 1, size: 2, bonusKind: 1, probability: 1, rotation: false };
-            case "fish_22_1":
-            case "fish_22_2":
+            case "fish_22":
                 return { winMin: 100, winMax: 300, showHp: false, hp: -1, size: 2, bonusKind: 1, probability: 1, rotation: false };
             case "fish_23":
                 return { winMin: 50, winMax: 500, showHp: true, hp: 20, size: 2, bonusKind: 1, probability: 1, rotation: false };
@@ -722,12 +646,12 @@ export class SettingManager {
         return { winMin: 0, winMax: 0, showHp: false, hp: 0, size: 0, bonusKind: 0, probability: 0.0, rotation: true };
     }
 
-    public static getNormalAttackInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
+    public static getNormalAttackInfo(fishName: string, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
         probability: number, // 擊殺機率
     } {
-        return { probability: -0.3 };
+        return { probability: 0.4 };
 
-        switch (name) {
+        switch (fishName) {
             case "fish_1":
                 return { probability: 0.5 };
             case "fish_2":
@@ -766,23 +690,17 @@ export class SettingManager {
                 return { probability: 0.5 };
             case "fish_19":
                 return { probability: 0.5 };
-            case "fish_20":
-                return { probability: 0.5 };
-            case "fish_21_1":
-            case "fish_21_2":
-                return { probability: 0.5 };
-            case "fish_22_1":
-            case "fish_22_2":
+            case "fish_22":
                 return { probability: 0.5 };
             case "fish_23":
                 return { probability: 0.5 };
         }
 
-        cc.log("error undefined, name:" + name);
+        cc.log("error undefined, name:" + fishName);
         return { probability: 0.0 };
     }
 
-    public static getSkillAttackInfo(name: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
+    public static getSkillAttackInfo(fishName: string, skill: ESkill, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
         probability: number, // 發動機率
         probability2: number, // 技能擊殺機率
         min: number, // 技能發動時至少攻擊幾隻
@@ -793,13 +711,13 @@ export class SettingManager {
     } {
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.1, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
+                return { probability: 0.4, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
             case ESkill.Level_3:// 閃電連鎖
-                return { probability: 0.1, probability2: 0.1, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.4, probability2: 0.4, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 0.1, probability2: 0.1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.4, probability2: 0.4, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: 0.1, probability2: 0.4, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
+                return { probability: 0.4, probability2: 0.4, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
         }
 
         cc.log("error undefined, ESkill:" + skill);

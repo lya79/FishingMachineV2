@@ -147,9 +147,6 @@ export class Fish extends cc.Component {
 
             this.node.addChild(this.hpNode);
 
-            // let y = (fishNode.height / 2) + 10;
-            // this.hpNode.setPosition(0, y);
-
             let scale = 0;
             switch (SettingManager.getFishInfo(this.fishName).size) {
                 case 0:
@@ -161,16 +158,6 @@ export class Fish extends cc.Component {
                 case 2:
                     scale = 1;
                     break;
-            }
-
-            // XXX 特殊處理: spine類型的魚位置比較特別
-            if (this.fishName == "fish_20"
-                || this.fishName == "fish_21_1"
-                || this.fishName == "fish_21_2"
-                || this.fishName == "fish_22_1"
-                || this.fishName == "fish_22_2"
-                || this.fishName == "fish_23") {
-                scale += this.node.scale;
             }
 
             this.hpNode.scale = scale;
@@ -447,34 +434,17 @@ export class Fish extends cc.Component {
         }
 
         { // 用來控制血條顯示的位置
-            let center = this.node.getChildByName(this.fishName).getChildByName("center");
-            if (center) {// XXX 特殊處理: spine類型的魚由於位置並不是在 node中央, 因此需要額外判斷中心點.(目前影響的魚:fish_20)
-                let fishHeight = this.node.getChildByName(this.fishName).height / 2;
-                let tmpWorldPos = center.parent.convertToWorldSpaceAR(center.getPosition());
-                let tmpNodePos = this.node.parent.convertToNodeSpaceAR(tmpWorldPos);
+            let fishHeight = this.node.getChildByName(this.fishName).height / 2;
 
-                let top = true;
-                if (tmpNodePos.y + fishHeight + 10 >= (this.node.parent.height / 2)) {
-                    top = false;
-                }
-
-                let y = fishHeight + 10;
-                y = (top ? y : -y);
-
-                this.hpNode.setPosition(center.x, center.y + y);
-            } else {
-                let fishHeight = this.node.getChildByName(this.fishName).height / 2;
-
-                let top = true;
-                if (this.node.y + fishHeight + 10 >= (this.node.parent.height / 2)) {
-                    top = false;
-                }
-
-                let y = fishHeight + 10;
-                y = (top ? y : -y);
-
-                this.hpNode.setPosition(0, y);
+            let top = true;
+            if (this.node.y + fishHeight + 10 >= (this.node.parent.height / 2)) {
+                top = false;
             }
+
+            let y = fishHeight + 10;
+            y = (top ? y : -y);
+
+            this.hpNode.setPosition(0, y);
         }
 
 
