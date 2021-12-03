@@ -14,7 +14,8 @@ import { Bullet0402 } from "./bullet0402";
 const { ccclass, property } = cc._decorator;
 
 // FIXME 有瞄準魚的情況下, 如果點擊畫面空白處需要取消瞄準
-
+// TODO 要提供資訊頁面告知倍率相關資訊
+// TODO 要提供引導畫面
 @ccclass
 export class Game extends cc.Component {
     private lobbyHandler: Function;

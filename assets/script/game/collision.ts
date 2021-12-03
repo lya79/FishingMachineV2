@@ -53,6 +53,10 @@ export class Collision extends cc.Component {
 
             let handler = function (fishPath: FishPath) {
                 self.scheduleOnce(function () {
+                    if (fishPath.getNotice()) { // TODO 播放魚的進場通知 notice_in_fish_22 notice_in_fish_23
+
+                    }
+
                     self.AddFish(fishPath);
                 }, fishPath.getDelay());
             }

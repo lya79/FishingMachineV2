@@ -16,6 +16,7 @@ export class FishPath {
     private path: cc.Vec2[];
     private speedOfPoint: number[];
     private speedOfObj: number[];
+    private notice: string;
 
     /**
      * 
@@ -25,6 +26,7 @@ export class FishPath {
      * @param path 魚位移的路徑
      * @param speedOfPoint 每一個點的速度
      * @param speedOfObj 元件自身的速度
+     * @param notice 進場通知動畫的 prefab名稱
      */
     constructor(
         name: string,
@@ -33,6 +35,7 @@ export class FishPath {
         path: cc.Vec2[],
         speedOfPoint: number[],
         speedOfObj: number[],
+        notice?: string,
     ) {
         this.name = name;
         this.delay = delay;
@@ -40,6 +43,7 @@ export class FishPath {
         this.path = path;
         this.speedOfPoint = speedOfPoint;
         this.speedOfObj = speedOfObj;
+        this.notice = notice;
     }
 
     public getName(): string {
@@ -64,6 +68,10 @@ export class FishPath {
 
     public getSpeedOfObj(): number[] {
         return Array.from(this.speedOfObj);
+    }
+
+    public getNotice(): string {
+        return this.notice;
     }
 }
 
@@ -254,39 +262,39 @@ export class SettingManager {
     /**
      * 每一關卡停留多少秒
      */
-    public static getGameDelayByGameStage(gameStage: number): number {// TODO 暫時固定關卡1的時間
-        // switch (gameStage) { 
-        //     case 1:
-        //         return 60 * 1;
-        //     case 2:
-        //         return 60 * 4;
-        //     case 3:
-        //         return 60 * 6;
-        // }
-        return 60 * 20;
+    public static getGameDelayByGameStage(gameStage: number): number {
+        switch (gameStage) {
+            case 1:
+                return 60 * 1;
+            case 2:
+                return 60 * 4;
+            case 3:
+                return 60 * 6;
+        }
+        return 60;
     }
 
-    private static getFishPathByGameStage1(): FishPath[] {// TODO 暫時固定關卡1不自動產生魚
+    private static getFishPathByGameStage1(): FishPath[] {
         let arr: FishPath[] = [];
 
-        // let totalTime = SettingManager.getGameDelayByGameStage(1);
+        let totalTime = SettingManager.getGameDelayByGameStage(1);
 
-        // for (let i = 1; i < 20; i++) {
-        //     let name = `fish_${i}`;
-        //     let max = getRandomInt(1, 3);
-        //     for (let i = 0; i < max; i++) {
-        //         let scale = getRandomFloat(1, 1.2); // 魚的大小
-        //         let obj = SettingManager.getRandomPath();
-        //         let fishPath = new FishPath(
-        //             name,
-        //             getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
-        //             scale,
-        //             obj.pathArr, // 魚的路徑
-        //             obj.speedOfPoint, // 點與點之間的移動速度
-        //             obj.speedOfObj); // 魚擺動尾巴的速度
-        //         arr.push(fishPath);
-        //     }
-        // }
+        for (let i = 1; i <= 19; i++) {
+            let name = `fish_${i}`;
+            let max = getRandomInt(1, 3);
+            for (let i = 0; i < max; i++) {
+                let scale = getRandomFloat(1, 1.2); // 魚的大小
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(
+                    name,
+                    getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
+                    scale,
+                    obj.pathArr, // 魚的路徑
+                    obj.speedOfPoint, // 點與點之間的移動速度
+                    obj.speedOfObj); // 魚擺動尾巴的速度
+                arr.push(fishPath);
+            }
+        }
 
         return arr;
     }
@@ -296,7 +304,7 @@ export class SettingManager {
 
         let totalTime = SettingManager.getGameDelayByGameStage(2);
 
-        for (let i = 1; i < 20; i++) {
+        for (let i = 1; i <= 19; i++) {
             let name = `fish_${i}`;
             let max = getRandomInt(1, 3);
             for (let i = 0; i < max; i++) {
@@ -316,14 +324,15 @@ export class SettingManager {
         {
             let name = "fish_22";
             let scale = 1;
-            let obj = SettingManager.getRandomPath();
+            let obj = SettingManager.getRandomPathForFish22();
             let fishPath = new FishPath(
                 name,
-                totalTime * 0.6,
+                totalTime * 0.5,
                 scale,
                 obj.pathArr, // 魚的路徑
                 obj.speedOfPoint, // 點與點之間的移動速度
-                obj.speedOfObj); // 魚擺動尾巴的速度
+                obj.speedOfObj, // 魚擺動尾巴的速度
+                "notice_in_fish_22");// 進場通知動畫的 prefab名稱
             arr.push(fishPath);
         }
 
@@ -335,16 +344,16 @@ export class SettingManager {
 
         let totalTime = SettingManager.getGameDelayByGameStage(3);
 
-        for (let i = 1; i < 20; i++) {
+        for (let i = 1; i <= 19; i++) {
             let name = `fish_${i}`;
             let max = getRandomInt(1, 3);
             for (let i = 0; i < max; i++) {
                 let scale = getRandomFloat(1, 1.2); // 魚的大小
                 let obj = SettingManager.getRandomPath();
                 let fishPath = new FishPath(
-                    name,
+                    name, // 魚的 prefab名稱
                     getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
-                    scale,
+                    scale, // 魚的大小
                     obj.pathArr, // 魚的路徑
                     obj.speedOfPoint, // 點與點之間的移動速度
                     obj.speedOfObj); // 魚擺動尾巴的速度
@@ -355,32 +364,50 @@ export class SettingManager {
         {
             let name = "fish_22";
             let scale = 1;
-            let obj = SettingManager.getRandomPath();
+            let obj = SettingManager.getRandomPathForFish22();
             let fishPath = new FishPath(
                 name,
-                totalTime * 0.6,
+                totalTime * 0.5,
                 scale,
-                obj.pathArr, // 魚的路徑
-                obj.speedOfPoint, // 點與點之間的移動速度
-                obj.speedOfObj); // 魚擺動尾巴的速度
+                obj.pathArr,
+                obj.speedOfPoint,
+                obj.speedOfObj,
+                "notice_in_fish_22");
             arr.push(fishPath);
         }
 
         {
             let name = "fish_23";
             let scale = 1;
-            let obj = SettingManager.getRandomPath();
+            let obj = SettingManager.getRandomPathForFish23();
             let fishPath = new FishPath(
                 name,
-                totalTime * 0.7,
+                totalTime * 0.6,
                 scale,
-                obj.pathArr, // 魚的路徑
-                obj.speedOfPoint, // 點與點之間的移動速度
-                obj.speedOfObj); // 魚擺動尾巴的速度
+                obj.pathArr,
+                obj.speedOfPoint,
+                obj.speedOfObj,
+                "notice_in_fish_23");
             arr.push(fishPath);
         }
 
         return arr;
+    }
+
+    public static getRandomPathForFish22(): { // TODO 實作財神專用的路徑
+        pathArr: cc.Vec2[], // 位移的點
+        speedOfPoint: number[], // 點與點之間的位移速度
+        speedOfObj: number[], // 魚擺動尾巴的速度
+    } {
+        return;
+    }
+
+    public static getRandomPathForFish23(): {// TODO 實作神龍專用的路徑
+        pathArr: cc.Vec2[], // 位移的點
+        speedOfPoint: number[], // 點與點之間的位移速度
+        speedOfObj: number[], // 魚擺動尾巴的速度
+    } {
+        return;
     }
 
     public static getRandomPath(): {
