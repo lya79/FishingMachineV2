@@ -27,6 +27,9 @@ export class Bullet extends cc.Component {
     // 開始更新子彈位置
     private lock: boolean;
 
+    // 被瞄準的魚
+    private focusUUID: string;
+
     private fpsOfXY: number; // 每幾偵偏移一次子彈座標
     private fpsOfCanvas: number;// 每幾偵偏更新一次子彈的node座標
     private timerOfFps: number; // 計時器
@@ -82,6 +85,14 @@ export class Bullet extends cc.Component {
 
         this.node.setPosition(startX, startY);
         this.node.rotation = this.rotate;
+    }
+
+    public setFocusUUID(focusUUID: string) {
+        this.focusUUID = focusUUID;
+    }
+
+    public getFocusUUID() {
+        return this.focusUUID;
     }
 
     public isLock(): boolean {

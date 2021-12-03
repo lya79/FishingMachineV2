@@ -124,6 +124,11 @@ export class Collision extends cc.Component {
         let bullet = node.addComponent(Bullet);
         bullet.init(roomLevel, tower, location, rotataion);
 
+        let uuid = User.getFocusUUID();
+        if (uuid) {
+            bullet.setFocusUUID(uuid);
+        }
+
         this.node.addChild(node);
     }
 }

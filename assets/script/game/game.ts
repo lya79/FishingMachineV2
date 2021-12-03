@@ -13,8 +13,7 @@ import { Bullet0402 } from "./bullet0402";
 
 const { ccclass, property } = cc._decorator;
 
-// FIXME 瞄準功能需要重寫
-// FIXME 自動發射功能需要重寫
+// FIXME 有瞄準魚的情況下, 如果點擊畫面空白處需要取消瞄準
 
 @ccclass
 export class Game extends cc.Component {
@@ -283,8 +282,6 @@ export class Game extends cc.Component {
                     }
                 }
 
-                // FIXME focus打魚過程中如果點旁邊沒有魚的地方, 就要讓 focus取消
-                // FIXME focus打魚過程中子彈要略過其他魚不碰撞
                 { // 判斷 focus
                     let isFocus = function (uuid: string): boolean {
                         if (User.getTowerMode() != 2) {
@@ -912,6 +909,25 @@ export class Game extends cc.Component {
                         continue;// 子彈已經碰撞過避免多次碰撞
                     }
 
+                    { // 檢查子彈瞄準的目標
+                        let focusUUID = bullet.getFocusUUID();
+                        if (focusUUID) {
+                            let exist = false;
+                            let allFishNodeArr = self.collisionNode.getComponent(Collision).getAllFishNode();// 目前還活著而且顯示在畫面上的全部魚
+                            for (let i = 0; i < allFishNodeArr.length; i++) {
+                                if (allFishNodeArr[i].uuid == focusUUID) {
+                                    exist = true;
+                                    break;
+                                }
+                            }
+                            if (exist) {
+                                if (collision.fishCollider.parent.uuid != focusUUID) {
+                                    continue; // 瞄準的魚還活著因此略過其他魚
+                                }
+                            }
+                        }
+                    }
+
                     bet = bullet.getTower().getBet() * bullet.getTower().getBase();
 
                     bullet.attack(0.8); // 播放子彈碰撞的動畫
@@ -1190,6 +1206,9 @@ export class Game extends cc.Component {
                                 let tmpFishEffectNode = cc.instantiate(tmpFishPrefab);
                                 tmpFishEffectNode.name = name;
                                 tmpFishEffectNode.rotation = 90;
+                                if (tmpFishName == "fish_22" || tmpFishName == "fish_23") {
+                                    tmpFishEffectNode.rotation = 0;
+                                }
 
                                 // 寬度固定, 高度則依據寬度動態調整
                                 let targetWidth: number;
