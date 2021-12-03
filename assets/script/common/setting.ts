@@ -324,7 +324,7 @@ export class SettingManager {
         {
             let name = "fish_22";
             let scale = 1;
-            let obj = SettingManager.getRandomPathForFish22();
+            let obj = SettingManager.getRandomPath();
             let fishPath = new FishPath(
                 name,
                 totalTime * 0.5,
@@ -364,7 +364,7 @@ export class SettingManager {
         {
             let name = "fish_22";
             let scale = 1;
-            let obj = SettingManager.getRandomPathForFish22();
+            let obj = SettingManager.getRandomPath();
             let fishPath = new FishPath(
                 name,
                 totalTime * 0.5,
@@ -392,14 +392,6 @@ export class SettingManager {
         }
 
         return arr;
-    }
-
-    public static getRandomPathForFish22(): { // TODO 實作財神專用的路徑
-        pathArr: cc.Vec2[], // 位移的點
-        speedOfPoint: number[], // 點與點之間的位移速度
-        speedOfObj: number[], // 魚擺動尾巴的速度
-    } {
-        return;
     }
 
     public static getRandomPathForFish23(): {// TODO 實作神龍專用的路徑

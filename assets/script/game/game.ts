@@ -71,7 +71,13 @@ export class Game extends cc.Component {
                 {
                     let name = inputNode.getComponent(cc.EditBox).string;
                     let obj = SettingManager.getRandomPath();
-                    let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj);
+                    let notice;
+                    if (name == "fish_22") {
+                        notice = "notice_in_fish_22";
+                    } else if (name == "fish_23") {
+                        notice = "notice_in_fish_23";
+                    }
+                    let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj, notice);
                     self.collisionNode.getComponent(Collision).AddFish(fishPath);
                 }
 

@@ -53,10 +53,6 @@ export class Collision extends cc.Component {
 
             let handler = function (fishPath: FishPath) {
                 self.scheduleOnce(function () {
-                    if (fishPath.getNotice()) { // TODO 播放魚的進場通知 notice_in_fish_22 notice_in_fish_23
-
-                    }
-
                     self.AddFish(fishPath);
                 }, fishPath.getDelay());
             }
@@ -88,6 +84,23 @@ export class Collision extends cc.Component {
      * example: fish_1
      */
     public AddFish(fishPath: FishPath) {
+        if (fishPath.getNotice()) {// 特殊魚進場前會通知
+            let name = fishPath.getNotice();
+            let prefab = ResourcesManager.prefabMap.get(name);
+            if (!prefab) {
+                cc.log("error: prefab not found name:" + name);
+                return;
+            }
+
+            let effectNode = cc.instantiate(prefab);
+            effectNode.name = name;
+            effectNode.setPosition(0, 0);
+
+            this.node.addChild(effectNode);
+
+            cc.tween(effectNode).delay(3).call(() => { effectNode.destroy(); }).start();
+        }
+
         let name: string = fishPath.getName();
         let scale: number = fishPath.getScale();
 

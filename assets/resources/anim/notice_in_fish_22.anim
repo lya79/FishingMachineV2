@@ -1,0 +1,59 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "notice_in_fish_22",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 2.6666666666666665,
+  "sample": 30,
+  "speed": 1,
+  "wrapMode": 1,
+  "curveData": {
+    "paths": {
+      "img_fortuneGod_debut": {
+        "props": {
+          "x": [
+            {
+              "frame": 0,
+              "value": 475
+            },
+            {
+              "frame": 0.5,
+              "value": 0
+            },
+            {
+              "frame": 2.3333333333333335,
+              "value": 0
+            },
+            {
+              "frame": 2.6666666666666665,
+              "value": -475
+            }
+          ]
+        }
+      },
+      "txt_100x_300x": {
+        "props": {
+          "x": [
+            {
+              "frame": 0,
+              "value": -344
+            },
+            {
+              "frame": 0.5,
+              "value": 0
+            },
+            {
+              "frame": 2.3333333333333335,
+              "value": 0
+            },
+            {
+              "frame": 2.6666666666666665,
+              "value": 344
+            }
+          ]
+        }
+      }
+    }
+  },
+  "events": []
+}
