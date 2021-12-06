@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.35025571045075077,
-      "y": 0.35025571045075077,
+      "x": 0.6239769345238094,
+      "y": 0.6239769345238094,
       "z": 1
     },
     "_quat": {
@@ -4022,7 +4022,7 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_string": "fish_2",
+    "_string": "fish_23",
     "_tabIndex": 0,
     "editingDidBegan": [],
     "textChanged": [],

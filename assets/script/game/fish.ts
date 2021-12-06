@@ -3,6 +3,7 @@ import { SettingManager, FishPath, Collision } from "../common/setting";
 import { Bullet } from "./bullet";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { ResourcesManager } from "../common/resource";
+import { EAction as EAudioAction, AudioManager } from "../common/audio";
 
 export class Fish extends cc.Component {
     private fishPath: FishPath;
@@ -119,9 +120,12 @@ export class Fish extends cc.Component {
         lastPos.y = obj.newY;
 
         let fistPos = this.fishPath.getPath()[0];
-        obj = getPos(fistPos.x, fistPos.y);
-        fistPos.x = obj.newX;
-        fistPos.y = obj.newY;
+
+        if (this.fishName != "fish_23") { // 神龍的位置邀出現在中央
+            obj = getPos(fistPos.x, fistPos.y);
+            fistPos.x = obj.newX;
+            fistPos.y = obj.newY;
+        }
 
         this.x = fistPos.x;
         this.y = fistPos.y;
@@ -200,11 +204,33 @@ export class Fish extends cc.Component {
         }, interval);
     }
 
+    private bgMusic(stage: number): string {
+        switch (stage) {
+            case 1:
+                return `BG_Leave_01`;
+            case 2:
+                return `BG_Leave_02`;
+            case 3:
+                return `BG_Leave_03`;
+            default:
+                cc.log("error: 無效的遊戲關卡:" + stage);
+                return `BG_Leave_01`;
+        }
+    }
+
     public onDestroy() {
         if (this.pointNodeArr) {
             for (let i = 0; i < this.pointNodeArr.length; i++) {
                 this.pointNodeArr[i].destroy();
             }
+        }
+
+        if (this.fishName == "fish_22") {
+            AudioManager.operator(EAudioAction.Resume, false, this.bgMusic(User.getGameState()));
+            AudioManager.operator(EAudioAction.Stop, true, "BG_FortuneGod");
+        } else if (this.fishName == "fish_23") {
+            AudioManager.operator(EAudioAction.Resume, false, this.bgMusic(User.getGameState()));
+            AudioManager.operator(EAudioAction.Stop, true, "BG_Boss");
         }
     }
 

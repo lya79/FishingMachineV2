@@ -5,13 +5,10 @@ import { Bullet } from "./bullet"
 // import { Fish } from "./fish";
 import { Fish } from "./fish";
 import { EWallet, EWalletResultAction, User } from "../common/user";
-
-export type ChangeStageHandler = (oldStage: number, newStage: number) => void;
+import { EAction as EAudioAction, AudioManager } from "../common/audio";
 
 export class Collision extends cc.Component {
-
-    public init() {
-    }
+    public init() { }
 
     /**
      * 找出目前還活著的魚
@@ -79,11 +76,33 @@ export class Collision extends cc.Component {
         }
     }
 
+    private bgMusic(stage: number): string {
+        switch (stage) {
+            case 1:
+                return `BG_Leave_01`;
+            case 2:
+                return `BG_Leave_02`;
+            case 3:
+                return `BG_Leave_03`;
+            default:
+                cc.log("error: 無效的遊戲關卡:" + stage);
+                return `BG_Leave_01`;
+        }
+    }
+
     /**
      * 外部如果要使用只能用在測試
      * example: fish_1
      */
     public AddFish(fishPath: FishPath) {
+        if (fishPath.getName() == "fish_22") {
+            AudioManager.operator(EAudioAction.Pause, false, this.bgMusic(User.getGameState()));
+            AudioManager.play("BG_FortuneGod", true, true);
+        } else if (fishPath.getName() == "fish_23") {
+            AudioManager.operator(EAudioAction.Pause, false, this.bgMusic(User.getGameState()));
+            AudioManager.play("BG_Boss", true, true);
+        }
+
         if (fishPath.getNotice()) {// 特殊魚進場前會通知
             let name = fishPath.getNotice();
             let prefab = ResourcesManager.prefabMap.get(name);
@@ -98,24 +117,62 @@ export class Collision extends cc.Component {
 
             this.node.addChild(effectNode);
 
-            cc.tween(effectNode).delay(3).call(() => { effectNode.destroy(); }).start();
+            cc.tween(effectNode)
+                .delay(3)
+                .call(() => {
+                    effectNode.destroy();
+                })
+                .start();
         }
 
-        let name: string = fishPath.getName();
-        let scale: number = fishPath.getScale();
+        let fishNode: cc.Node;
+        {
+            let name: string = fishPath.getName();
+            let scale: number = fishPath.getScale();
 
+            let prefab = ResourcesManager.prefabMap.get(name);
+            if (!prefab) {
+                cc.log("error: prefab not found, name:" + name);
+                return;
+            }
+
+            fishNode = cc.instantiate(prefab);
+            fishNode.name = name;
+            let fish = fishNode.addComponent(Fish);
+            fish.init(fishPath, name, scale);
+
+            if (fishPath.getName() != "fish_23") {
+                this.node.addChild(fishNode);
+                return;
+            }
+        }
+
+        let name = "boss_in"; // 神龍進場動畫
         let prefab = ResourcesManager.prefabMap.get(name);
         if (!prefab) {
-            cc.log("error: prefab not found, name:" + name);
+            cc.log("error: prefab not found name:" + name);
             return;
         }
 
-        let node = cc.instantiate(prefab);
-        node.name = name;
-        let fish = node.addComponent(Fish);
-        fish.init(fishPath, name, scale);
+        let effectNode = cc.instantiate(prefab);
+        effectNode.name = name;
+        effectNode.setPosition(0, 0);
 
-        this.node.addChild(node);
+        let self = this;
+        cc.tween(effectNode)
+            .delay(3)
+            .call(() => {
+                this.node.addChild(effectNode);
+            })
+            .delay(2)
+            .call(() => {
+                fishNode.opacity = 0;
+                self.node.addChild(fishNode);
+                cc.tween(fishNode).to(0.5, { opacity: 255 }).start();
+
+                effectNode.destroy();
+            })
+            .start();
     }
 
     /**

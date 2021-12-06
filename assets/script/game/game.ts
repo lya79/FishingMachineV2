@@ -4,7 +4,7 @@ import { EAction as EAudioAction, AudioManager } from "../common/audio";
 import { SettingManager, FishPath, Collision as CollisionObj, ESkill, Tower as SettingTower } from "../common/setting";
 import { Mul, getRandomFloat, getRandomInt } from "../common/common";
 import { Tower } from "./tower";
-import { Collision, ChangeStageHandler } from "./collision";
+import { Collision } from "./collision";
 import { Background } from "./background";
 import { ResourcesManager } from "../common/resource";
 import { Bullet } from "./bullet";
@@ -75,6 +75,7 @@ export class Game extends cc.Component {
                     if (name == "fish_22") {
                         notice = "notice_in_fish_22";
                     } else if (name == "fish_23") {
+                        obj = SettingManager.getRandomPathForFish23();
                         notice = "notice_in_fish_23";
                     }
                     let fishPath = new FishPath(name, 1, 1, obj.pathArr, obj.speedOfPoint, obj.speedOfObj, notice);
@@ -1214,7 +1215,10 @@ export class Game extends cc.Component {
                         if (SettingManager.isActive(playAudioProbability)) {
                             let audioName: string;
 
-                            if (fishInfo.winMin < 10) {
+                            if (fishNode.getComponent(Fish).getFishName() == "fish_23") {
+                                let v = getRandomInt(1, 2);
+                                audioName = `Kill_Boss_0${v}`;
+                            } else if (fishInfo.winMin < 10) {
                                 let v = getRandomInt(1, 5);
                                 audioName = `Kill_LowFish_0${v}`;
                             } else if (fishInfo.winMin >= 10 && fishInfo.winMin < 50) {
