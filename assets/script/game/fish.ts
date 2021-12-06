@@ -98,7 +98,7 @@ export class Fish extends cc.Component {
             let height = fishNode.height;
 
             // 考慮到 node可能旋轉, 因此要找出最大的邊
-            let max = (height > width ? height : width);
+            let max = (height > width ? height / 2 : width / 2);
 
             if (x < 0) {
                 x -= max;
