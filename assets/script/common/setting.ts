@@ -269,7 +269,7 @@ export class SettingManager {
             case 2:
                 return 60 * 2;
             case 3:
-                return 60 * 2;
+                return 60 * 3;
         }
         return 60;
     }
