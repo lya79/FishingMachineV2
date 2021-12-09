@@ -9,18 +9,20 @@ import { Background } from "./background";
 import { ResourcesManager } from "../common/resource";
 import { Bullet } from "./bullet";
 import { Fish } from "./fish";
+import { Info1 } from "./info1";
+import { Info2 } from "./info2";
 import { Bullet0402 } from "./bullet0402";
 
 const { ccclass, property } = cc._decorator;
 
 // FIXME 有瞄準魚的情況下, 如果點擊畫面空白處需要取消瞄準
-// TODO 要提供資訊頁面告知倍率相關資訊
-// TODO 要提供引導畫面
 @ccclass
 export class Game extends cc.Component {
     private lobbyHandler: Function;
 
     private lobbyNode: cc.Node;
+
+    private infoBtnNode: cc.Node;
 
     private muteOnNode: cc.Node;
     private muteOffNode: cc.Node;
@@ -47,6 +49,9 @@ export class Game extends cc.Component {
     private collisionNode: cc.Node;
 
     private bgNode: cc.Node;
+
+    private info1Node: cc.Node;
+    private info2Node: cc.Node;
 
     public init(lobbyHandler: Function): boolean {
         this.lobbyHandler = lobbyHandler;
@@ -115,6 +120,23 @@ export class Game extends cc.Component {
             }, this);
         }
 
+        this.info1Node = this.node.getChildByName("info1");
+        if (!this.info1Node) {
+            cc.log('error: info1Node is null');
+            return;
+        }
+
+        this.info1Node.addComponent(Info1);
+        this.info1Node.active = true; // 只出現一次, 因此寫在 onload
+
+        this.info2Node = this.node.getChildByName("info2");
+        if (!this.info2Node) {
+            cc.log('error: info2Node is null');
+            return;
+        }
+
+        this.info2Node.addComponent(Info2);
+
         this.bgNode = this.node.getChildByName("bg");
         if (!this.bgNode) {
             cc.log('error: bgNode is null');
@@ -130,6 +152,12 @@ export class Game extends cc.Component {
         this.lobbyNode = btnNode.getChildByName("lobby");
         if (!this.lobbyNode) {
             cc.log('error: lobbyNode is null');
+            return;
+        }
+
+        this.infoBtnNode = btnNode.getChildByName("info");
+        if (!this.infoBtnNode) {
+            cc.log('error: infoBtnNode is null');
             return;
         }
 
@@ -395,6 +423,8 @@ export class Game extends cc.Component {
 
         this.lobbyNode.on(cc.Node.EventType.TOUCH_START, this.backLobby, this);
 
+        this.infoBtnNode.on(cc.Node.EventType.TOUCH_START, this.showInfo, this);
+
         this.muteOnNode.on(cc.Node.EventType.TOUCH_START, this.changeMute, this);
         this.muteOffNode.on(cc.Node.EventType.TOUCH_START, this.changeMute, this);
 
@@ -432,6 +462,13 @@ export class Game extends cc.Component {
         this.muteOffNode.off(cc.Node.EventType.TOUCH_START, this.changeMute, this);
 
         this.lobbyNode.off(cc.Node.EventType.TOUCH_START, this.backLobby, this);
+
+        this.infoBtnNode.off(cc.Node.EventType.TOUCH_START, this.showInfo, this);
+
+    }
+
+    private showInfo() {
+        this.info2Node.active = true;
     }
 
     private nextGameState() {
@@ -865,7 +902,7 @@ export class Game extends cc.Component {
         return angleA;
     }
 
-    private isCrosshairArea(location: cc.Vec2): boolean { // XXX 需要改善作法避免手動設定
+    private isCrosshairArea(location: cc.Vec2): boolean { // XXX 需要改善作法避免手動設定觸碰範圍
         let x = location.x;
         let y = location.y;
 
@@ -873,7 +910,7 @@ export class Game extends cc.Component {
             return false;
         }
 
-        if (x > 170 && y > 297) { // 右上角按鈕區塊
+        if (x > 170 && y > 235) { // 右上角按鈕區塊
             return false;
         }
 
