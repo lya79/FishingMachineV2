@@ -150,9 +150,9 @@ export class SettingManager {
     private static fireSkill0402: boolean = false; // level4大砲技能發射中
 
     // XXX 控制測試功能開啟/關閉的參數
-    public static readonly showPathOfFish = true; // 開啟魚的行徑路線顯示
-    public static readonly addFish = true; // 手動產生各種魚
-    public static readonly changeGameStage = true; // 手動關卡切換
+    public static readonly showPathOfFish = false; // 開啟魚的行徑路線顯示
+    public static readonly addFish = false; // 手動產生各種魚
+    public static readonly changeGameStage = false; // 手動關卡切換
 
     /** 載入設定檔案 */
     public static load(): boolean {
@@ -265,36 +265,36 @@ export class SettingManager {
     public static getGameDelayByGameStage(gameStage: number): number {
         switch (gameStage) {
             case 1:
-                return 60 * 100; // TODO 暫時修改關卡時間進行測試
+                return 30;
             case 2:
-                return 60 * 4;
+                return 60 * 2;
             case 3:
-                return 60 * 6;
+                return 60 * 5;
         }
         return 60;
     }
 
-    private static getFishPathByGameStage1(): FishPath[] { // TODO 暫時修改關卡的魚進行測試
+    private static getFishPathByGameStage1(): FishPath[] {
         let arr: FishPath[] = [];
 
-        // let totalTime = SettingManager.getGameDelayByGameStage(1) - 5;
+        let totalTime = SettingManager.getGameDelayByGameStage(1) - 5; // -5秒避免要畫關卡了還產生新的魚
 
-        // for (let i = 1; i <= 19; i++) {
-        //     let name = `fish_${i}`;
-        //     let max = getRandomInt(1, 3);
-        //     for (let i = 0; i < max; i++) {
-        //         let scale = getRandomFloat(1, 1.2); // 魚的大小
-        //         let obj = SettingManager.getRandomPath();
-        //         let fishPath = new FishPath(
-        //             name,
-        //             getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
-        //             scale,
-        //             obj.pathArr, // 魚的路徑
-        //             obj.speedOfPoint, // 點與點之間的移動速度
-        //             obj.speedOfObj); // 魚擺動尾巴的速度
-        //         arr.push(fishPath);
-        //     }
-        // }
+        for (let i = 1; i <= 19; i++) {
+            let name = `fish_${i}`;
+            let max = getRandomInt(1, 3);
+            for (let i = 0; i < max; i++) {
+                let scale = getRandomFloat(1, 1.2); // 魚的大小
+                let obj = SettingManager.getRandomPath();
+                let fishPath = new FishPath(
+                    name,
+                    getRandomFloat(1, totalTime), // 關卡開始後幾秒開始
+                    scale,
+                    obj.pathArr, // 魚的路徑
+                    obj.speedOfPoint, // 點與點之間的移動速度
+                    obj.speedOfObj); // 魚擺動尾巴的速度
+                arr.push(fishPath);
+            }
+        }
 
         return arr;
     }
@@ -327,7 +327,7 @@ export class SettingManager {
             let obj = SettingManager.getRandomPath();
             let fishPath = new FishPath(
                 name,
-                totalTime * 0.5,
+                6, // 6秒後出現財神
                 scale,
                 obj.pathArr, // 魚的路徑
                 obj.speedOfPoint, // 點與點之間的移動速度
@@ -367,7 +367,7 @@ export class SettingManager {
             let obj = SettingManager.getRandomPath();
             let fishPath = new FishPath(
                 name,
-                totalTime * 0.5,
+                6, // 6秒後出現財神
                 scale,
                 obj.pathArr,
                 obj.speedOfPoint,
@@ -382,7 +382,7 @@ export class SettingManager {
             let obj = SettingManager.getRandomPathForFish23();
             let fishPath = new FishPath(
                 name,
-                totalTime * 0.6,
+                60, // 60秒後出現神龍
                 scale,
                 obj.pathArr,
                 obj.speedOfPoint,
@@ -693,7 +693,7 @@ export class SettingManager {
         return Math.sqrt(x * x + y * y);
     }
 
-    public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): { // TODO 調整機率
+    public static getFishInfo(name: string, roomLevel?: number, towerLevel?: number, bet?: number): {
         winMin: number, // 反獎倍率最小值
         winMax: number, // 反獎倍率最大值(要大於最小值)
         showHp: boolean,// 顯示血條
@@ -760,51 +760,49 @@ export class SettingManager {
         bet: number): { // 押注
             probability: number, // 擊殺機率
         } {
-        return { probability: 0.4 };
-
         switch (fishName) {
             case "fish_1":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_2":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_3":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_4":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_5":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_6":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_7":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_8":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_9":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_10":
-                return { probability: 0.5 };
+                return { probability: 0.4 };
             case "fish_11":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_12":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_13":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_14":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_15":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_16":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_17":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_18":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_19":
-                return { probability: 0.5 };
+                return { probability: 0.3 };
             case "fish_22":
-                return { probability: 0.5 };
+                return { probability: 0.02 };
             case "fish_23":
-                return { probability: 0.5 };
+                return { probability: 0.01 };
         }
 
         cc.log("error undefined, name:" + fishName);
@@ -817,7 +815,7 @@ export class SettingManager {
         towerLevel: number,
         roomLevel: number,
         bet: number
-    ): { // TODO 調整機率
+    ): {
         probability: number, // 發動機率
         probability2: number, // 技能擊殺機率
         min: number, // 技能發動時至少攻擊幾隻
@@ -828,13 +826,13 @@ export class SettingManager {
     } {
         switch (skill) {
             case ESkill.Level_2:// 冰凍技能
-                return { probability: 0.4, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
+                return { probability: 0.1, probability2: -1, min: 2, max: 4, pauseMoveTime: 6, pauseSelfActionTime: 6, durationTime: 6 };
             case ESkill.Level_3:// 閃電連鎖
-                return { probability: 0.4, probability2: 0.4, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 0.1, probability2: 0.3, min: 2, max: 4, pauseMoveTime: 2, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_1:// 普通子彈的雷電連鎖
-                return { probability: 0.4, probability2: 0.4, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
+                return { probability: 1, probability2: 0.1, min: 2, max: 4, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 2 };
             case ESkill.Level_4_2:// 電光炮
-                return { probability: 0.4, probability2: 0.4, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
+                return { probability: 0.1, probability2: 0.5, min: 0, max: 0, pauseMoveTime: 0, pauseSelfActionTime: 0, durationTime: 6 }; // 動畫時間 4.53s, 保留一點時間所以設定 6s
         }
 
         cc.log("error undefined, ESkill:" + skill);
