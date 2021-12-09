@@ -269,7 +269,7 @@ export class SettingManager {
             case 2:
                 return 60 * 2;
             case 3:
-                return 60 * 5;
+                return 60 * 2;
         }
         return 60;
     }
@@ -362,27 +362,12 @@ export class SettingManager {
         }
 
         {
-            let name = "fish_22";
-            let scale = 1;
-            let obj = SettingManager.getRandomPath();
-            let fishPath = new FishPath(
-                name,
-                6, // 6秒後出現財神
-                scale,
-                obj.pathArr,
-                obj.speedOfPoint,
-                obj.speedOfObj,
-                "notice_in_fish_22");
-            arr.push(fishPath);
-        }
-
-        {
             let name = "fish_23";
             let scale = 1;
             let obj = SettingManager.getRandomPathForFish23();
             let fishPath = new FishPath(
                 name,
-                60, // 60秒後出現神龍
+                6, // 6秒後出現神龍
                 scale,
                 obj.pathArr,
                 obj.speedOfPoint,
